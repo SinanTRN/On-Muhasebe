@@ -1,0 +1,605 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+
+import {
+  useTheme,
+  Typography,
+  TextField,
+  Switch,
+  FormControlLabel,
+  Autocomplete,
+  Checkbox,
+  Snackbar,
+  Tooltip,
+  Box,
+  Stack
+} from '@mui/material'
+
+import Grid from '@mui/material/Grid'
+
+//import { set } from 'react-hook-form'
+
+import { Icon } from '@iconify/react'
+
+import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
+import CustomInput from '@/views/apps/e-invoice/shared/PickersCustomInput'
+import CustomerSelector from '@/views/apps/e-invoice/shared/CustomerSelector'
+import AddCustomerDrawer from './AddCustomerDrawer'
+import { sampleCustomers } from '../../../../data/sampleCustomers'
+import type { Tbl } from '../../../../types/cariTypes'
+import { fetchTCMBRate } from '@/utils/fetchTCMBRate'
+import { isTCMBRateCurrent } from '@/utils/isTCMBRateCurrent'
+
+const InvoiceLeftPanel = ({
+  includesVAT,
+  setIncludesVAT,
+  currency,
+  setCurrency,
+  exchangeRate,
+  setExchangeRate
+}: {
+  includesVAT: boolean
+  setIncludesVAT: (v: boolean) => void
+  currency: string
+  setCurrency: (v: string) => void
+  exchangeRate: string
+  setExchangeRate: (v: string) => void
+}) => {
+  // State'ler
+  const [selectedCustomer, setSelectedCustomer] = useState('')
+  const [showDifferentCustomer, setShowDifferentCustomer] = useState(false)
+  const [differentCustomer, setDifferentCustomer] = useState('')
+
+  const [customers, setCustomers] = useState<Tbl[]>(sampleCustomers)
+
+  const [invoiceInfo, setInvoiceInfo] = useState({
+    documentNo: '',
+    description: '',
+    issueDate: new Date(),
+    shipmentDate: new Date(),
+    dueDate: new Date(),
+    branch: '',
+    scenario: 'TEMELFATURA',
+    invoiceType: 'NORMAL',
+    status: 'CLOSED',
+    isEInvoice: false
+  })
+
+  const [customerDrawerOpen, setCustomerDrawerOpen] = useState(false)
+  const [editingCustomer, setEditingCustomer] = useState<Tbl | null>(null)
+
+  const [orderInfo, setOrderInfo] = useState({
+    site: '',
+    orderNo: '',
+    orderDate: null as Date | null
+  })
+
+  const [shipmentInfo, setShipmentInfo] = useState({
+    vknTckno: '',
+    title: '',
+    shipmentDate: null as Date | null
+  })
+
+  const [paymentInfo, setPaymentInfo] = useState({
+    method: 'KREDI/BANKA KARTI',
+    paymentDate: null as Date | null,
+    agent: ''
+  })
+
+  const siteOptions = ['n11', 'hepsiburada', 'trendyol']
+  const paymentOptions = ['KREDI/BANKA KARTI', 'EFT/HAVALE', 'KAPIDA ODEME', 'DİĞER']
+
+  const currencyOptions = ['TRY', 'USD', 'EUR', 'GBP']
+  const [isRateCurrent, setIsRateCurrent] = useState(true)
+  const [rateDate, setRateDate] = useState('')
+
+  const theme = useTheme()
+
+  const [showSnackbar, setShowSnackbar] = useState(false)
+  const [tooltipOpen, setTooltipOpen] = useState(false)
+
+  // Renk ve stil değişkenleri
+  const inputBg = { background: theme.palette.customColors.greyLightBg }
+  const warningColor = theme.palette.warning.main
+  const warningContrast = theme.palette.warning.contrastText || '#fff'
+
+  useEffect(() => {
+    if (currency !== 'TRY') {
+      fetchTCMBRate(currency)
+        .then(({ rate, date }) => {
+          setExchangeRate(rate)
+          setRateDate(date)
+          setIsRateCurrent(isTCMBRateCurrent(date))
+          if (!isTCMBRateCurrent(date)) setShowSnackbar(true)
+        })
+        .catch(() => {
+          setExchangeRate('')
+          setIsRateCurrent(true)
+          setRateDate('')
+        })
+    } else {
+      setExchangeRate('')
+      setIsRateCurrent(true)
+      setRateDate('')
+    }
+  }, [currency])
+
+  // Drawer kapatma ve editingCustomer sıfırlama fonksiyonu
+  const handleCustomerDrawerClose = () => {
+    setCustomerDrawerOpen(false)
+    setEditingCustomer(null)
+  }
+
+  // Cari Bilgileri için ekleme/güncelleme
+  const handleCustomerSubmitCari = (formData: Tbl) => {
+    if (editingCustomer) {
+      setCustomers(prev => prev.map(c => (c.VN === formData.VN ? formData : c)))
+    } else {
+      setCustomers([...customers, formData])
+      setSelectedCustomer(formData.VN)
+    }
+
+    handleCustomerDrawerClose()
+  }
+
+  // Ödeme Yapacak Müşteri için ekleme/güncelleme
+  const handleCustomerSubmitOdeyen = (formData: Tbl) => {
+    if (editingCustomer) {
+      setCustomers(prev => prev.map(c => (c.VN === formData.VN ? formData : c)))
+    } else {
+      setCustomers([...customers, formData])
+      setDifferentCustomer(formData.VN)
+    }
+
+    handleCustomerDrawerClose()
+  }
+
+  const scenarioOptions = ['TEMELFATURA', 'TICARIFATURA', 'KAMU', 'EARSIVFATURA', 'IHRACAT']
+
+  const invoiceTypeOptions = ['NORMAL', 'IADE', 'TEVKIFAT', 'ISTISNA', 'IHRACKAYITLI', 'SGK', 'OZELMATRAH']
+
+  // Farklı müşteri alanı kapatıldığında seçimi temizle
+  const handleShowDifferentCustomer = (checked: boolean) => {
+    setShowDifferentCustomer(checked)
+    if (!checked) setDifferentCustomer('')
+  }
+
+  return (
+    <Box className=' w-full '>
+      <Stack spacing={2}>
+        <Box
+          sx={{ background: theme.palette.background.paper }}
+          className='flex flex-col justify-around sm:flex-row gap-2 p-4 w-full rounded-md shadow-md'
+        >
+          {/* Cari Bilgileri ve (varsa) Ödeme Yapacak Müşteri */}
+          <Box className='w-full'>
+            <Box sx={{ background: theme.palette.background.paper }} className='  w-full max-w-[70%]'>
+              <Typography variant='h6' sx={{ mb: 4 }}>
+                Cari Bilgileri
+              </Typography>
+              <CustomerSelector
+                customers={customers}
+                selectedCustomer={selectedCustomer}
+                onSelect={setSelectedCustomer}
+                onEdit={(customer: Tbl) => {
+                  setEditingCustomer(customer)
+                  setCustomerDrawerOpen(true)
+                }}
+                onAddCustomer={() => {
+                  setEditingCustomer(null)
+                  setCustomerDrawerOpen(true)
+                }}
+              />
+              <FormControlLabel
+                className='mt-2'
+                control={
+                  <Switch
+                    checked={showDifferentCustomer}
+                    onChange={e => handleShowDifferentCustomer(e.target.checked)}
+                    color='primary'
+                  />
+                }
+                label='Ödeme Yapacak Müşteri'
+              />
+            </Box>
+            {showDifferentCustomer && (
+              <Box className='  w-full max-w-[70%] '>
+                <Typography variant='h6' sx={{ mb: 4 }}>
+                  Ödeme Yapacak Müşteri
+                </Typography>
+                <CustomerSelector
+                  customers={customers}
+                  selectedCustomer={differentCustomer}
+                  onSelect={setDifferentCustomer}
+                  onEdit={(customer: Tbl) => {
+                    setEditingCustomer(customer)
+                    setCustomerDrawerOpen(true)
+                  }}
+                  onAddCustomer={() => {
+                    setEditingCustomer(null)
+                    setCustomerDrawerOpen(true)
+                  }}
+                />
+              </Box>
+            )}
+          </Box>
+          {/* Fatura Bilgileri */}
+          <Box className='w-full'>
+            <Typography variant='h6' sx={{ mb: 4 }}>
+              Fatura Bilgileri
+            </Typography>
+            <Grid container spacing={2}>
+              <Grid item xs={12} className='flex flex-col gap-4 max-w-[70%]'>
+                <div className='flex-1  max-w-full'>
+                  <Autocomplete
+                    freeSolo
+                    options={scenarioOptions}
+                    value={invoiceInfo.scenario}
+                    onInputChange={(_, newValue) => setInvoiceInfo({ ...invoiceInfo, scenario: newValue })}
+                    renderInput={params => (
+                      <TextField
+                        {...params}
+                        label='Senaryo'
+                        fullWidth
+                        InputProps={{ ...params.InputProps, style: inputBg }}
+                      />
+                    )}
+                  />
+                </div>
+                <div className='flex-1  max-w-full '>
+                  <Autocomplete
+                    freeSolo
+                    options={invoiceTypeOptions}
+                    value={invoiceInfo.invoiceType}
+                    onInputChange={(_, newValue) => setInvoiceInfo({ ...invoiceInfo, invoiceType: newValue })}
+                    renderInput={params => (
+                      <TextField
+                        {...params}
+                        label='Fatura Tipi'
+                        fullWidth
+                        InputProps={{ ...params.InputProps, style: inputBg }}
+                      />
+                    )}
+                  />
+                </div>
+                <div className='flex-1  max-w-full '>
+                  <Autocomplete
+                    options={currencyOptions}
+                    value={currency}
+                    onChange={(_, newValue) => setCurrency(newValue || 'TRY')}
+                    renderInput={params => (
+                      <TextField
+                        {...params}
+                        label='Para Birimi'
+                        fullWidth
+                        InputProps={{ ...params.InputProps, style: inputBg }}
+                      />
+                    )}
+                  />
+                </div>
+                {currency !== 'TRY' && (
+                  <div className='flex-1  max-w-full  relative'>
+                    <TextField
+                      fullWidth
+                      label='Döviz Kuru (TL Karşılığı)'
+                      value={exchangeRate}
+                      type='number'
+                      inputProps={{ min: 0, step: 'any' }}
+                      onChange={e => setExchangeRate(e.target.value)}
+                      InputProps={{ style: inputBg }}
+                    />
+                    {!isRateCurrent && rateDate && (
+                      <Tooltip
+                        title={`TCMB döviz kuru güncel değil! (${rateDate} tarihi için gösteriliyor)`}
+                        open={tooltipOpen}
+                        onOpen={() => setTooltipOpen(true)}
+                        onClose={() => setTooltipOpen(false)}
+                      >
+                        <span
+                          className='absolute top-2 right-2 z-10 cursor-pointer'
+                          onMouseEnter={() => setTooltipOpen(true)}
+                          onMouseLeave={() => setTooltipOpen(false)}
+                          tabIndex={-1}
+                        >
+                          <Icon icon='ri:information-line' color='#ed6c02' width={18} height={18} />
+                        </span>
+                      </Tooltip>
+                    )}
+                    <Snackbar
+                      open={showSnackbar}
+                      autoHideDuration={3000}
+                      onClose={() => setShowSnackbar(false)}
+                      message={`TCMB döviz kuru güncel değil! (${rateDate} tarihi için gösteriliyor)`}
+                      anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                      ContentProps={{
+                        sx: { backgroundColor: warningColor, color: warningContrast }
+                      }}
+                    />
+                  </div>
+                )}
+              </Grid>
+            </Grid>
+          </Box>
+          {/*Tarih Bilgileri */}
+          <Box className='w-full'>
+            <Typography variant='h6' className='my-4 sm:mt-0 '>
+              Tarih Bilgileri
+            </Typography>
+            <Box className='flex flex-col gap-4 max-w-[70%]'>
+              <Box className='flex-1'>
+                <AppReactDatepicker
+                  selected={invoiceInfo.issueDate}
+                  onChange={(date: Date | null) => setInvoiceInfo({ ...invoiceInfo, issueDate: date || new Date() })}
+                  showTimeSelect
+                  timeFormat='HH:mm'
+                  timeIntervals={15}
+                  dateFormat='dd.MM.yyyy HH:mm'
+                  customInput={
+                    <CustomInput
+                      label='DÜZENLEME TARİHİ'
+                      fullWidth
+                      size='small'
+                      InputProps={{
+                        style: {
+                          ...inputBg,
+                          height: 56,
+                          fontSize: 16,
+                          paddingLeft: 16,
+                          paddingRight: 16
+                        }
+                      }}
+                    />
+                  }
+
+                  //boxProps={{ width: '100%' }}
+                />
+              </Box>
+              <Box className='flex-1'>
+                <AppReactDatepicker
+                  selected={invoiceInfo.shipmentDate}
+                  onChange={(date: Date | null) => setInvoiceInfo({ ...invoiceInfo, shipmentDate: date || new Date() })}
+                  showTimeSelect
+                  timeFormat='HH:mm'
+                  timeIntervals={15}
+                  dateFormat='dd.MM.yyyy HH:mm'
+                  customInput={
+                    <CustomInput
+                      label='SEVK TARİHİ'
+                      fullWidth
+                      size='small'
+                      InputProps={{
+                        style: {
+                          ...inputBg,
+                          height: 56,
+                          fontSize: 16,
+                          paddingLeft: 16,
+                          paddingRight: 16
+                        }
+                      }}
+                    />
+                  }
+                  boxProps={{ width: '100%' }}
+                />
+              </Box>
+              <Box className='flex-1'>
+                <AppReactDatepicker
+                  selected={invoiceInfo.dueDate}
+                  onChange={(date: Date | null) => setInvoiceInfo({ ...invoiceInfo, dueDate: date || new Date() })}
+                  showTimeSelect
+                  timeFormat='HH:mm'
+                  timeIntervals={15}
+                  dateFormat='dd.MM.yyyy HH:mm'
+                  customInput={
+                    <CustomInput
+                      label='VADE TARİHİ'
+                      fullWidth
+                      size='small'
+                      InputProps={{
+                        style: {
+                          ...inputBg,
+                          height: 56,
+                          fontSize: 16,
+                          paddingLeft: 16,
+                          paddingRight: 16
+                        }
+                      }}
+                    />
+                  }
+                  boxProps={{ width: '100%' }}
+                />
+              </Box>
+            </Box>
+          </Box>
+        </Box>
+        {/* En altta e-ticaret kartları (varsa) */}
+        {invoiceInfo.isEInvoice && (
+          <Box
+            className='flex flex-col sm:flex-row gap-2 p-4  rounded-md shadow-md '
+            sx={{ background: theme.palette.background.paper }}
+          >
+            {/* Sipariş */}
+            <Box className='flex-1 w-full'>
+              <Typography variant='h6' sx={{ mb: 4 }}>
+                Sipariş
+              </Typography>
+              <Grid container direction='column' spacing={0} className='gap-4 max-w-[70%]'>
+                <Grid item>
+                  <Autocomplete
+                    freeSolo
+                    options={siteOptions}
+                    value={orderInfo.site}
+                    onInputChange={(_, newValue) => setOrderInfo(prev => ({ ...prev, site: newValue }))}
+                    renderInput={params => (
+                      <TextField
+                        {...params}
+                        label='Site'
+                        fullWidth
+                        InputProps={{ ...params.InputProps, style: inputBg }}
+                      />
+                    )}
+                  />
+                </Grid>
+                <Grid item>
+                  <TextField
+                    fullWidth
+                    label='Sipariş No'
+                    value={orderInfo.orderNo}
+                    onChange={e => setOrderInfo(prev => ({ ...prev, orderNo: e.target.value }))}
+                    InputProps={{ style: inputBg }}
+                  />
+                </Grid>
+                <Grid item>
+                  <AppReactDatepicker
+                    selected={orderInfo.orderDate}
+                    onChange={date => setOrderInfo(prev => ({ ...prev, orderDate: date }))}
+                    showTimeSelect
+                    timeFormat='HH:mm'
+                    timeIntervals={15}
+                    dateFormat='dd.MM.yyyy HH:mm'
+                    customInput={<CustomInput label='Sipariş Tarihi' fullWidth InputProps={{ style: inputBg }} />}
+                    boxProps={{ width: '100%' }}
+                  />
+                </Grid>
+              </Grid>
+            </Box>
+
+            {/* Gönderim Şekli */}
+            <Box className='flex-1 w-full'>
+              <Typography variant='h6' sx={{ mb: 4 }}>
+                Gönderim Şekli
+              </Typography>
+              <Grid container direction='column' spacing={0} className='gap-4 max-w-[70%]'>
+                <Grid item>
+                  <TextField
+                    fullWidth
+                    label='VKN/TCKNO'
+                    value={shipmentInfo.vknTckno}
+                    onChange={e => setShipmentInfo(prev => ({ ...prev, vknTckno: e.target.value }))}
+                    InputProps={{ style: inputBg }}
+                  />
+                </Grid>
+                <Grid item>
+                  <TextField
+                    fullWidth
+                    label='Ünvan'
+                    value={shipmentInfo.title}
+                    onChange={e => setShipmentInfo(prev => ({ ...prev, title: e.target.value }))}
+                    InputProps={{ style: inputBg }}
+                  />
+                </Grid>
+                <Grid item>
+                  <AppReactDatepicker
+                    selected={shipmentInfo.shipmentDate}
+                    onChange={date => setShipmentInfo(prev => ({ ...prev, shipmentDate: date }))}
+                    showTimeSelect
+                    timeFormat='HH:mm'
+                    timeIntervals={15}
+                    dateFormat='dd.MM.yyyy HH:mm'
+                    customInput={<CustomInput label='Gönderi Tarihi' fullWidth InputProps={{ style: inputBg }} />}
+                    boxProps={{ width: '100%' }}
+                  />
+                </Grid>
+              </Grid>
+            </Box>
+
+            {/* Ödeme Bilgisi */}
+            <Box className='flex-1 w-full'>
+              <Typography variant='h6' sx={{ mb: 4 }}>
+                Ödeme Bilgisi
+              </Typography>
+              <Grid container direction='column' spacing={0} className='gap-4 max-w-[70%]'>
+                <Grid item>
+                  <Autocomplete
+                    freeSolo
+                    options={paymentOptions}
+                    value={paymentInfo.method}
+                    onInputChange={(_, newValue) => setPaymentInfo(prev => ({ ...prev, method: newValue }))}
+                    renderInput={params => (
+                      <TextField
+                        {...params}
+                        label='Ödeme Yöntemi'
+                        fullWidth
+                        InputProps={{ ...params.InputProps, style: inputBg }}
+                      />
+                    )}
+                  />
+                </Grid>
+                <Grid item>
+                  <TextField
+                    fullWidth
+                    label='Aracı'
+                    value={paymentInfo.agent}
+                    onChange={e => setPaymentInfo(prev => ({ ...prev, agent: e.target.value }))}
+                    InputProps={{ style: inputBg }}
+                  />
+                </Grid>
+                <Grid item>
+                  <AppReactDatepicker
+                    selected={paymentInfo.paymentDate}
+                    onChange={date => setPaymentInfo(prev => ({ ...prev, paymentDate: date }))}
+                    showTimeSelect
+                    timeFormat='HH:mm'
+                    timeIntervals={15}
+                    dateFormat='dd.MM.yyyy HH:mm'
+                    customInput={<CustomInput label='Ödeme Tarihi' fullWidth InputProps={{ style: inputBg }} />}
+                    boxProps={{ width: '100%' }}
+                  />
+                </Grid>
+              </Grid>
+            </Box>
+          </Box>
+        )}
+        <Box
+          className='flex flex-col sm:flex-row gap-4 p-4  rounded-md shadow-md'
+          sx={{ background: theme.palette.background.paper }}
+        >
+          <FormControlLabel
+            control={
+              <Checkbox checked={includesVAT} onChange={e => setIncludesVAT(e.target.checked)} color='primary' />
+            }
+            label='KDV Dahil'
+            className='sm:mr-4'
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={invoiceInfo.status === 'OPEN'}
+                onChange={e => setInvoiceInfo({ ...invoiceInfo, status: e.target.checked ? 'OPEN' : 'CLOSED' })}
+                color='primary'
+              />
+            }
+            label='Açık/Kapalı'
+            className='sm:mr-4'
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={invoiceInfo.isEInvoice}
+                onChange={e => setInvoiceInfo({ ...invoiceInfo, isEInvoice: e.target.checked })}
+                color='primary'
+              />
+            }
+            label='E-Ticaret'
+          />
+        </Box>
+      </Stack>
+      <AddCustomerDrawer
+        open={customerDrawerOpen}
+        setOpen={open => {
+          setCustomerDrawerOpen(open)
+          if (!open) setEditingCustomer(null)
+        }}
+        onFormSubmit={
+          showDifferentCustomer && editingCustomer === null && differentCustomer === ''
+            ? handleCustomerSubmitOdeyen
+            : handleCustomerSubmitCari
+        }
+        defaultData={editingCustomer}
+        mode={editingCustomer ? 'edit' : 'add'}
+      />
+    </Box>
+  )
+}
+
+export default InvoiceLeftPanel
