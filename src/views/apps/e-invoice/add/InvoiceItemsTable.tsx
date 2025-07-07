@@ -57,13 +57,13 @@ const defaultRow: InvoiceRow = {
 }
 
 // Numeric inputlarda spin button ve clear ikonunu gizlemek için stil
-const numberInputStyle = {
-  '& input[type=number]::-webkit-outer-spin-button': { WebkitAppearance: 'none', margin: 0 },
-  '& input[type=number]::-webkit-inner-spin-button': { WebkitAppearance: 'none', margin: 0 },
-  '& input[type=number]': { MozAppearance: 'textfield' },
-  '& .MuiInputBase-root input[type=number]::-ms-clear': { display: 'none' },
-  '& .MuiInputBase-root input[type=number]::-ms-reveal': { display: 'none' }
-}
+// const numberInputStyle = {
+//   '& input[type=number]::-webkit-outer-spin-button': { WebkitAppearance: 'none', margin: 0 },
+//   '& input[type=number]::-webkit-inner-spin-button': { WebkitAppearance: 'none', margin: 0 },
+//   '& input[type=number]': { MozAppearance: 'textfield' },
+//   '& .MuiInputBase-root input[type=number]::-ms-clear': { display: 'none' },
+//   '& .MuiInputBase-root input[type=number]::-ms-reveal': { display: 'none' }
+// }
 
 const InvoiceItemsTable = ({
   includesVAT,
@@ -357,7 +357,7 @@ const InvoiceItemsTable = ({
                       value={
                         focusedIndex && focusedIndex.idx === idx && focusedIndex.field === 'unitPrice'
                           ? row.unitPrice
-                          : formatTurkishNumber(row.unitPrice)
+                          : row.unitPrice
                       }
                       onFocus={() => setFocusedIndex({ idx, field: 'unitPrice' })}
                       onBlur={e => {
@@ -368,13 +368,12 @@ const InvoiceItemsTable = ({
                         const inputVal = e.target.value
                         const sanitized = inputVal.replace(/[^0-9.,]/g, '')
 
-                        // Sadece değeri güncelle, hesaplama yapma
                         setRows(prev => prev.map((row, i) => (i === idx ? { ...row, unitPrice: sanitized } : row)))
                       }}
                       size='small'
                       variant='outlined'
-                      inputProps={{ style: { textAlign: 'center' } }}
-                      className='w-full text-center'
+                      className='w-full'
+                      inputProps={{ style: { textAlign: 'right' } }}
                       placeholder='Birim Fiyat'
                       InputProps={{
                         endAdornment: <InputAdornment position='end'>₺</InputAdornment>,
@@ -385,34 +384,23 @@ const InvoiceItemsTable = ({
 
                   {/* KDV % */}
                   <TableCell className='p-2 text-center align-middle justify-center min-w-[120px]'>
-                    <Autocomplete
-                      freeSolo
-                      openOnFocus
-                      popupIcon={<Icon icon='mdi:chevron-down' />}
-                      clearIcon={<span style={{ display: 'none' }} />}
-                      options={vatOptions}
+                    <Select
                       value={row.vatRate}
-                      onInputChange={(_, newValue) => handleChange(idx, 'vatRate', newValue)}
-                      renderInput={params => (
-                        <TextField
-                          {...params}
-                          type='number'
-                          size='small'
-                          variant='outlined'
-                          inputProps={{ ...params.inputProps, min: 0, max: 100 }}
-                          sx={{
-                            ...numberInputStyle,
-                            width: 90,
-                            '& .MuiAutocomplete-clearIndicator': { display: 'none' }
-                          }}
-                        />
-                      )}
-                      sx={{ width: 90, '& .MuiAutocomplete-clearIndicator': { display: 'none' } }}
-                    />
+                      onChange={e => handleChange(idx, 'vatRate', e.target.value as string)}
+                      size='small'
+                      className='w-full text-center'
+                      inputProps={{ style: { textAlign: 'center' } }}
+                    >
+                      {vatOptions.map(opt => (
+                        <MenuItem key={opt} value={opt} className='text-center'>
+                          {opt}
+                        </MenuItem>
+                      ))}
+                    </Select>
                   </TableCell>
 
                   {/* KDV Tutarı */}
-                  <TableCell className='p-2 text-right align-right justify-right min-w-[150px]'>
+                  <TableCell className='p-2 text-center align-middle justify-center min-w-[150px]'>
                     <TextField
                       type='text'
                       value={
@@ -433,11 +421,11 @@ const InvoiceItemsTable = ({
                       }}
                       size='small'
                       variant='outlined'
+                      className='w-full'
+                      inputProps={{ style: { textAlign: 'right' } }}
                       InputProps={{
                         endAdornment: <InputAdornment position='end'>₺</InputAdornment>
                       }}
-                      className='w-full text-center'
-                      inputProps={{ style: { textAlign: 'center' } }}
                       placeholder='KDV Tutarı'
                     />
                   </TableCell>
@@ -501,11 +489,11 @@ const InvoiceItemsTable = ({
                       }}
                       size='small'
                       variant='outlined'
+                      className='w-full'
+                      inputProps={{ style: { textAlign: 'right' } }}
                       InputProps={{
                         endAdornment: <InputAdornment position='end'>₺</InputAdornment>
                       }}
-                      className='w-full text-center'
-                      inputProps={{ style: { textAlign: 'center' } }}
                       placeholder='Toplam Fiyat'
                     />
                   </TableCell>
