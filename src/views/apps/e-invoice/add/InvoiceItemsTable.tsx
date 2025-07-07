@@ -16,7 +16,6 @@ import {
   MenuItem,
   InputAdornment,
   Tooltip,
-  Autocomplete,
   useTheme,
   Checkbox,
   Menu
@@ -357,7 +356,7 @@ const InvoiceItemsTable = ({
                       value={
                         focusedIndex && focusedIndex.idx === idx && focusedIndex.field === 'unitPrice'
                           ? row.unitPrice
-                          : row.unitPrice
+                          : formatTurkishNumber(row.unitPrice)
                       }
                       onFocus={() => setFocusedIndex({ idx, field: 'unitPrice' })}
                       onBlur={e => {
