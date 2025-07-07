@@ -386,103 +386,107 @@ const EInvoiceCard = ({
             </Box>
           </Box>
         </Box>
-        {/* En altta e-ticaret kartları (varsa) */}
-        {invoiceInfo.isEInvoice && (
+        {(invoiceInfo.isEInvoice || dueDateAndPaymentMethod) && (
           <Box
-            className='flex flex-col sm:flex-row gap-2 p-4  rounded-md shadow-md '
+            className='flex flex-col gap-4 sm:flex-row sm:gap-6 p-4 rounded-md shadow-md'
             sx={{ background: theme.palette.background.paper }}
           >
-            {/* Sipariş */}
-            <Box className='flex-1 w-full'>
-              <Typography variant='h6' sx={{ mb: 4 }}>
-                Sipariş
-              </Typography>
-              <Grid container direction='column' spacing={0} className='gap-4 max-w-[70%]'>
-                <Grid item>
-                  <Autocomplete
-                    freeSolo
-                    options={siteOptions}
-                    value={orderInfo.site}
-                    onInputChange={(_, newValue) => setOrderInfo(prev => ({ ...prev, site: newValue }))}
-                    renderInput={params => (
-                      <TextField
-                        {...params}
-                        label='Site'
-                        fullWidth
-                        InputProps={{ ...params.InputProps, style: inputBg }}
+            {/* Sipariş ve Gönderim sadece e-Fatura ise gösterilir */}
+            {invoiceInfo.isEInvoice && (
+              <>
+                {/* Sipariş Bilgileri */}
+                <Box className='flex-1 w-full min-w-[260px]'>
+                  <Typography variant='h6' sx={{ mb: 4 }}>
+                    Sipariş
+                  </Typography>
+                  <Grid container direction='column' spacing={0} className=' flex flex-col gap-4 max-w-[70%]'>
+                    <Grid item>
+                      <Autocomplete
+                        freeSolo
+                        options={siteOptions}
+                        value={orderInfo.site}
+                        onInputChange={(_, newValue) => setOrderInfo(prev => ({ ...prev, site: newValue }))}
+                        renderInput={params => (
+                          <TextField
+                            {...params}
+                            label='Site'
+                            fullWidth
+                            InputProps={{ ...params.InputProps, style: inputBg }}
+                          />
+                        )}
                       />
-                    )}
-                  />
-                </Grid>
-                <Grid item>
-                  <TextField
-                    fullWidth
-                    label='Sipariş No'
-                    value={orderInfo.orderNo}
-                    onChange={e => setOrderInfo(prev => ({ ...prev, orderNo: e.target.value }))}
-                    InputProps={{ style: inputBg }}
-                  />
-                </Grid>
-                <Grid item>
-                  <AppReactDatepicker
-                    selected={orderInfo.orderDate}
-                    onChange={date => setOrderInfo(prev => ({ ...prev, orderDate: date }))}
-                    showTimeSelect
-                    timeFormat='HH:mm'
-                    timeIntervals={15}
-                    dateFormat='dd.MM.yyyy HH:mm'
-                    customInput={<CustomInput label='Sipariş Tarihi' fullWidth InputProps={{ style: inputBg }} />}
-                    boxProps={{ width: '100%' }}
-                  />
-                </Grid>
-              </Grid>
-            </Box>
+                    </Grid>
+                    <Grid item>
+                      <TextField
+                        fullWidth
+                        label='Sipariş No'
+                        value={orderInfo.orderNo}
+                        onChange={e => setOrderInfo(prev => ({ ...prev, orderNo: e.target.value }))}
+                        InputProps={{ style: inputBg }}
+                      />
+                    </Grid>
+                    <Grid item>
+                      <AppReactDatepicker
+                        selected={orderInfo.orderDate}
+                        onChange={date => setOrderInfo(prev => ({ ...prev, orderDate: date }))}
+                        showTimeSelect
+                        timeFormat='HH:mm'
+                        timeIntervals={15}
+                        dateFormat='dd.MM.yyyy HH:mm'
+                        customInput={<CustomInput label='Sipariş Tarihi' fullWidth InputProps={{ style: inputBg }} />}
+                        boxProps={{ width: '100%' }}
+                      />
+                    </Grid>
+                  </Grid>
+                </Box>
 
-            {/* Gönderim Şekli */}
-            <Box className='flex-1 w-full'>
-              <Typography variant='h6' sx={{ mb: 4 }}>
-                Gönderim Şekli
-              </Typography>
-              <Grid container direction='column' spacing={0} className='gap-4 max-w-[70%]'>
-                <Grid item>
-                  <TextField
-                    fullWidth
-                    label='VKN/TCKNO'
-                    value={shipmentInfo.vknTckno}
-                    onChange={e => setShipmentInfo(prev => ({ ...prev, vknTckno: e.target.value }))}
-                    InputProps={{ style: inputBg }}
-                  />
-                </Grid>
-                <Grid item>
-                  <TextField
-                    fullWidth
-                    label='Ünvan'
-                    value={shipmentInfo.title}
-                    onChange={e => setShipmentInfo(prev => ({ ...prev, title: e.target.value }))}
-                    InputProps={{ style: inputBg }}
-                  />
-                </Grid>
-                <Grid item>
-                  <AppReactDatepicker
-                    selected={shipmentInfo.shipmentDate}
-                    onChange={date => setShipmentInfo(prev => ({ ...prev, shipmentDate: date }))}
-                    showTimeSelect
-                    timeFormat='HH:mm'
-                    timeIntervals={15}
-                    dateFormat='dd.MM.yyyy HH:mm'
-                    customInput={<CustomInput label='Gönderi Tarihi' fullWidth InputProps={{ style: inputBg }} />}
-                    boxProps={{ width: '100%' }}
-                  />
-                </Grid>
-              </Grid>
-            </Box>
+                {/* Gönderim Bilgisi */}
+                <Box className='flex-1 w-full min-w-[260px]'>
+                  <Typography variant='h6' sx={{ mb: 4 }}>
+                    Gönderim Şekli
+                  </Typography>
+                  <Grid container direction='column' spacing={0} className='flex flex-col gap-4 max-w-[70%]'>
+                    <Grid item>
+                      <TextField
+                        fullWidth
+                        label='VKN/TCKNO'
+                        value={shipmentInfo.vknTckno}
+                        onChange={e => setShipmentInfo(prev => ({ ...prev, vknTckno: e.target.value }))}
+                        InputProps={{ style: inputBg }}
+                      />
+                    </Grid>
+                    <Grid item>
+                      <TextField
+                        fullWidth
+                        label='Ünvan'
+                        value={shipmentInfo.title}
+                        onChange={e => setShipmentInfo(prev => ({ ...prev, title: e.target.value }))}
+                        InputProps={{ style: inputBg }}
+                      />
+                    </Grid>
+                    <Grid item>
+                      <AppReactDatepicker
+                        selected={shipmentInfo.shipmentDate}
+                        onChange={date => setShipmentInfo(prev => ({ ...prev, shipmentDate: date }))}
+                        showTimeSelect
+                        timeFormat='HH:mm'
+                        timeIntervals={15}
+                        dateFormat='dd.MM.yyyy HH:mm'
+                        customInput={<CustomInput label='Gönderi Tarihi' fullWidth InputProps={{ style: inputBg }} />}
+                        boxProps={{ width: '100%' }}
+                      />
+                    </Grid>
+                  </Grid>
+                </Box>
+              </>
+            )}
 
             {/* Ödeme Bilgisi */}
-            <Box className='flex-1 w-full'>
+            <Box className={`${invoiceInfo.isEInvoice ? 'flex-1' : 'w-full sm:w-1/2 lg:w-1/3'} min-w-[260px]`}>
               <Typography variant='h6' sx={{ mb: 4 }}>
                 Ödeme Bilgisi
               </Typography>
-              <Grid container direction='column' spacing={0} className='gap-4 max-w-[70%]'>
+              <Grid container direction='column' spacing={0} className='flex flex-col gap-4 max-w-[70%]'>
                 <Grid item>
                   <Autocomplete
                     freeSolo
@@ -521,62 +525,6 @@ const EInvoiceCard = ({
                   />
                 </Grid>
               </Grid>
-            </Box>
-          </Box>
-        )}
-        {/*Vade Tarihi ve Ödeme Şekli Ekle*/}
-        {dueDateAndPaymentMethod && (
-          <Box
-            className='flex flex-col sm:flex-col gap-2 p-4  rounded-md shadow-md'
-            sx={{ background: theme.palette.background.paper }}
-          >
-            <Typography variant='h6' className='my-4 sm:mt-0 '>
-              Ödeme Bilgileri
-            </Typography>
-            <Box className='flex flex-col gap-4 max-w-[70%]'>
-              <Box className='flex-1 w-full'>
-                <AppReactDatepicker
-                  selected={invoiceInfo.dueDate}
-                  onChange={(date: Date | null) => setInvoiceInfo({ ...invoiceInfo, dueDate: date || new Date() })}
-                  showTimeSelect
-                  timeFormat='HH:mm'
-                  timeIntervals={15}
-                  dateFormat='dd.MM.yyyy HH:mm'
-                  customInput={
-                    <CustomInput
-                      label='VADE TARİHİ'
-                      fullWidth
-                      size='small'
-                      InputProps={{
-                        style: {
-                          ...inputBg,
-                          height: 56,
-                          fontSize: 16,
-                          paddingLeft: 16,
-                          paddingRight: 16
-                        }
-                      }}
-                    />
-                  }
-                  boxProps={{ width: '100%' }}
-                />
-              </Box>
-              <Box className='flex-1 w-full'>
-                <Autocomplete
-                  freeSolo
-                  options={paymentOptions}
-                  value={paymentInfo.method}
-                  onInputChange={(_, newValue) => setPaymentInfo({ ...paymentInfo, method: newValue })}
-                  renderInput={params => (
-                    <TextField
-                      {...params}
-                      label='Ödeme Şekli'
-                      fullWidth
-                      InputProps={{ ...params.InputProps, style: inputBg }}
-                    />
-                  )}
-                />
-              </Box>
             </Box>
           </Box>
         )}
