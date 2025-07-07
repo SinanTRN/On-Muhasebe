@@ -4,10 +4,10 @@ import React, { useState } from 'react'
 
 import Stack from '@mui/material/Stack'
 
-import InvoiceLeftPanel from '@/views/apps/e-invoice/add/InvoiceLeftPanel'
+import InvoiceLeftPanel from '@/views/apps/e-invoice/add/EInvoiceCard'
 import AddActions from '@/views/apps/e-invoice/add/AddActions'
 
-import InvoiceItemsTable from '@/views/apps/e-invoice/add/InvoiceItemsTable'
+import InvoiceItemsTable from '@/views/apps/e-invoice/add/EInvoiceItemsTable'
 
 const AddInvoicePage = () => {
   const [includesVAT, setIncludesVAT] = useState(true)
@@ -24,7 +24,7 @@ const AddInvoicePage = () => {
         exchangeRate={exchangeRate}
         setExchangeRate={setExchangeRate}
       />
-      <InvoiceItemsTable includesVAT={includesVAT} currency={currency} exchangeRate={exchangeRate} />
+      <InvoiceItemsTable includesVAT={includesVAT} currency={currency} />
       <AddActions />
     </Stack>
   )

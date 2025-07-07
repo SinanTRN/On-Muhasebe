@@ -55,15 +55,6 @@ const defaultRow: InvoiceRow = {
   note: ''
 }
 
-// Numeric inputlarda spin button ve clear ikonunu gizlemek için stil
-// const numberInputStyle = {
-//   '& input[type=number]::-webkit-outer-spin-button': { WebkitAppearance: 'none', margin: 0 },
-//   '& input[type=number]::-webkit-inner-spin-button': { WebkitAppearance: 'none', margin: 0 },
-//   '& input[type=number]': { MozAppearance: 'textfield' },
-//   '& .MuiInputBase-root input[type=number]::-ms-clear': { display: 'none' },
-//   '& .MuiInputBase-root input[type=number]::-ms-reveal': { display: 'none' }
-// }
-
 // Para birimi sembolünü döndüren fonksiyon
 const getCurrencySymbol = (currency: string) => {
   switch (currency) {

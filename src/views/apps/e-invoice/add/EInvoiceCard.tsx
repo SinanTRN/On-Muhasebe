@@ -31,7 +31,7 @@ import type { Tbl } from '../../../../types/cariTypes'
 import { fetchTCMBRate } from '@/utils/fetchTCMBRate'
 import { isTCMBRateCurrent } from '@/utils/isTCMBRateCurrent'
 
-const InvoiceLeftPanel = ({
+const EInvoiceCard = ({
   includesVAT,
   setIncludesVAT,
   currency,
@@ -50,6 +50,7 @@ const InvoiceLeftPanel = ({
   const [selectedCustomer, setSelectedCustomer] = useState('')
   const [showDifferentCustomer, setShowDifferentCustomer] = useState(false)
   const [differentCustomer, setDifferentCustomer] = useState('')
+  const [dueDateAndPaymentMethod, setDueDateAndPaymentMethod] = useState(false)
 
   const [customers, setCustomers] = useState<Tbl[]>(sampleCustomers)
 
@@ -170,7 +171,7 @@ const InvoiceLeftPanel = ({
       <Stack spacing={2}>
         <Box
           sx={{ background: theme.palette.background.paper }}
-          className='flex flex-col justify-around sm:flex-row gap-2 p-4 w-full rounded-md shadow-md'
+          className='flex flex-col sm:flex-row gap-2 p-4 w-full rounded-md shadow-md'
         >
           {/* Cari Bilgileri ve (varsa) Ödeme Yapacak Müşteri */}
           <Box className='w-full'>
@@ -382,33 +383,6 @@ const InvoiceLeftPanel = ({
                   boxProps={{ width: '100%' }}
                 />
               </Box>
-              <Box className='flex-1'>
-                <AppReactDatepicker
-                  selected={invoiceInfo.dueDate}
-                  onChange={(date: Date | null) => setInvoiceInfo({ ...invoiceInfo, dueDate: date || new Date() })}
-                  showTimeSelect
-                  timeFormat='HH:mm'
-                  timeIntervals={15}
-                  dateFormat='dd.MM.yyyy HH:mm'
-                  customInput={
-                    <CustomInput
-                      label='VADE TARİHİ'
-                      fullWidth
-                      size='small'
-                      InputProps={{
-                        style: {
-                          ...inputBg,
-                          height: 56,
-                          fontSize: 16,
-                          paddingLeft: 16,
-                          paddingRight: 16
-                        }
-                      }}
-                    />
-                  }
-                  boxProps={{ width: '100%' }}
-                />
-              </Box>
             </Box>
           </Box>
         </Box>
@@ -550,6 +524,62 @@ const InvoiceLeftPanel = ({
             </Box>
           </Box>
         )}
+        {/*Vade Tarihi ve Ödeme Şekli Ekle*/}
+        {dueDateAndPaymentMethod && (
+          <Box
+            className='flex flex-col sm:flex-col gap-2 p-4  rounded-md shadow-md'
+            sx={{ background: theme.palette.background.paper }}
+          >
+            <Typography variant='h6' className='my-4 sm:mt-0 '>
+              Ödeme Bilgileri
+            </Typography>
+            <Box className='flex flex-col gap-4 max-w-[70%]'>
+              <Box className='flex-1 w-full'>
+                <AppReactDatepicker
+                  selected={invoiceInfo.dueDate}
+                  onChange={(date: Date | null) => setInvoiceInfo({ ...invoiceInfo, dueDate: date || new Date() })}
+                  showTimeSelect
+                  timeFormat='HH:mm'
+                  timeIntervals={15}
+                  dateFormat='dd.MM.yyyy HH:mm'
+                  customInput={
+                    <CustomInput
+                      label='VADE TARİHİ'
+                      fullWidth
+                      size='small'
+                      InputProps={{
+                        style: {
+                          ...inputBg,
+                          height: 56,
+                          fontSize: 16,
+                          paddingLeft: 16,
+                          paddingRight: 16
+                        }
+                      }}
+                    />
+                  }
+                  boxProps={{ width: '100%' }}
+                />
+              </Box>
+              <Box className='flex-1 w-full'>
+                <Autocomplete
+                  freeSolo
+                  options={paymentOptions}
+                  value={paymentInfo.method}
+                  onInputChange={(_, newValue) => setPaymentInfo({ ...paymentInfo, method: newValue })}
+                  renderInput={params => (
+                    <TextField
+                      {...params}
+                      label='Ödeme Şekli'
+                      fullWidth
+                      InputProps={{ ...params.InputProps, style: inputBg }}
+                    />
+                  )}
+                />
+              </Box>
+            </Box>
+          </Box>
+        )}
         <Box
           className='flex flex-col sm:flex-row gap-4 p-4  rounded-md shadow-md'
           sx={{ background: theme.palette.background.paper }}
@@ -564,12 +594,12 @@ const InvoiceLeftPanel = ({
           <FormControlLabel
             control={
               <Checkbox
-                checked={invoiceInfo.status === 'OPEN'}
-                onChange={e => setInvoiceInfo({ ...invoiceInfo, status: e.target.checked ? 'OPEN' : 'CLOSED' })}
+                checked={dueDateAndPaymentMethod}
+                onChange={e => setDueDateAndPaymentMethod(e.target.checked)}
                 color='primary'
               />
             }
-            label='Açık/Kapalı'
+            label='Vade Tarihi ve Ödeme Şekli Ekle'
             className='sm:mr-4'
           />
           <FormControlLabel
@@ -602,4 +632,4 @@ const InvoiceLeftPanel = ({
   )
 }
 
-export default InvoiceLeftPanel
+export default EInvoiceCard
