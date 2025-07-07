@@ -64,15 +64,23 @@ const defaultRow: InvoiceRow = {
 //   '& .MuiInputBase-root input[type=number]::-ms-reveal': { display: 'none' }
 // }
 
-const InvoiceItemsTable = ({
-  includesVAT,
-  currency,
-  exchangeRate
-}: {
-  includesVAT: boolean
-  currency: string
-  exchangeRate: string
-}) => {
+// Para birimi sembolünü döndüren fonksiyon
+const getCurrencySymbol = (currency: string) => {
+  switch (currency) {
+    case 'USD':
+      return '$'
+    case 'EUR':
+      return '€'
+    case 'GBP':
+      return '£'
+    case 'TRY':
+      return '₺'
+    default:
+      return currency
+  }
+}
+
+const InvoiceItemsTable = ({ includesVAT, currency }: { includesVAT: boolean; currency: string }) => {
   const [rows, setRows] = useState<InvoiceRow[]>([{ ...defaultRow }])
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
   const [extraColumns, setExtraColumns] = useState<string[]>([])
@@ -132,14 +140,7 @@ const InvoiceItemsTable = ({
 
       const quantity = parseTurkishNumber(updatedRow.quantity)
       const vatRate = parseTurkishNumber(updatedRow.vatRate)
-      let unitPrice = parseTurkishNumber(updatedRow.unitPrice)
-      const dovizAmount = parseTurkishNumber(updatedRow.dovizAmount)
-      const exchange = parseTurkishNumber(exchangeRate)
-
-      if (currency !== 'TRY' && dovizAmount && exchange) {
-        unitPrice = dovizAmount * exchange
-        updatedRow.unitPrice = unitPrice.toFixed(2).toString()
-      }
+      const unitPrice = parseTurkishNumber(updatedRow.unitPrice)
 
       let vatAmount = 0
       let total = 0
@@ -153,7 +154,6 @@ const InvoiceItemsTable = ({
           vatAmount = ((unitPrice * vatRate) / 100) * quantity
         }
 
-        //updatedRow.vatAmount = vatAmount.toFixed(2)
         updatedRow.vatAmount = formatTurkishNumber(vatAmount)
       } else {
         vatAmount = parseTurkishNumber(updatedRow.vatAmount)
@@ -166,7 +166,6 @@ const InvoiceItemsTable = ({
           total = unitPrice * quantity + vatAmount
         }
 
-        //updatedRow.total = total.toFixed(2)
         updatedRow.total = formatTurkishNumber(total)
       }
 
@@ -230,11 +229,6 @@ const InvoiceItemsTable = ({
                 <TableCell className='p-4 text-center align-center justify-center min-w-[300px] '>Stok Adı</TableCell>
                 <TableCell className='p-4 text-right align-center justify-end min-w-[120px]  '>Miktar</TableCell>
                 <TableCell className='p-4 text-center align-center justify-center min-w-[150px] '>Birim</TableCell>
-                {currency !== 'TRY' && (
-                  <TableCell className='p-4 text-center align-center justify-center min-w-[150px] '>
-                    Döviz Tutarı
-                  </TableCell>
-                )}
                 <TableCell className='p-4 text-center align-center justify-center min-w-[150px] '>
                   Birim Fiyat
                 </TableCell>
@@ -333,22 +327,6 @@ const InvoiceItemsTable = ({
                     </Select>
                   </TableCell>
 
-                  {/* Döviz Tutarı */}
-                  {currency !== 'TRY' && (
-                    <TableCell className='p-2 text-center align-middle justify-center min-w-[150px] '>
-                      <TextField
-                        type='number'
-                        value={row.dovizAmount}
-                        onChange={e => handleChange(idx, 'dovizAmount', e.target.value)}
-                        size='small'
-                        variant='outlined'
-                        inputProps={{ min: 0, step: 'any' }}
-                        className='w-full'
-                        placeholder='Döviz Tutarı'
-                      />
-                    </TableCell>
-                  )}
-
                   {/* Birim Fiyat */}
                   <TableCell className='p-2 text-center align-middle justify-center min-w-[150px]'>
                     <TextField
@@ -375,8 +353,8 @@ const InvoiceItemsTable = ({
                       inputProps={{ style: { textAlign: 'right' } }}
                       placeholder='Birim Fiyat'
                       InputProps={{
-                        endAdornment: <InputAdornment position='end'>₺</InputAdornment>,
-                        readOnly: currency !== 'TRY'
+                        endAdornment: <InputAdornment position='end'>{getCurrencySymbol(currency)}</InputAdornment>,
+                        readOnly: false
                       }}
                     />
                   </TableCell>
@@ -423,7 +401,7 @@ const InvoiceItemsTable = ({
                       className='w-full'
                       inputProps={{ style: { textAlign: 'right' } }}
                       InputProps={{
-                        endAdornment: <InputAdornment position='end'>₺</InputAdornment>
+                        endAdornment: <InputAdornment position='end'>{getCurrencySymbol(currency)}</InputAdornment>
                       }}
                       placeholder='KDV Tutarı'
                     />
@@ -491,7 +469,7 @@ const InvoiceItemsTable = ({
                       className='w-full'
                       inputProps={{ style: { textAlign: 'right' } }}
                       InputProps={{
-                        endAdornment: <InputAdornment position='end'>₺</InputAdornment>
+                        endAdornment: <InputAdornment position='end'>{getCurrencySymbol(currency)}</InputAdornment>
                       }}
                       placeholder='Toplam Fiyat'
                     />
