@@ -103,7 +103,29 @@ const InvoiceItemsTable = ({ includesVAT, currency }: { includesVAT: boolean; cu
   const parseTurkishNumber = (val: string): number => {
     if (!val) return 0
 
-    return parseFloat(val.replace(/\./g, '').replace(',', '.')) || 0
+    // Eğer hem nokta hem virgül varsa, sonuncusu ondalık ayırıcıdır
+    if (val.includes(',') && val.includes('.')) {
+      if (val.lastIndexOf(',') > val.lastIndexOf('.')) {
+        // 1.234,56 gibi: binlik ayırıcı nokta, ondalık ayırıcı virgül
+        return parseFloat(val.replace(/\./g, '').replace(',', '.')) || 0
+      } else {
+        // 1,234.56 gibi: binlik ayırıcı virgül, ondalık ayırıcı nokta
+        return parseFloat(val.replace(/,/g, '')) || 0
+      }
+    }
+
+    // Sadece virgül varsa, ondalık ayırıcıdır
+    if (val.includes(',')) {
+      return parseFloat(val.replace(/\./g, '').replace(',', '.')) || 0
+    }
+
+    // Sadece nokta varsa, binlik ayırıcıdır
+    if (val.includes('.')) {
+      return parseFloat(val.replace(/\./g, '')) || 0
+    }
+
+    // Sadece rakam
+    return parseFloat(val) || 0
   }
 
   const formatTurkishNumber = (val: string | number): string => {
@@ -131,6 +153,10 @@ const InvoiceItemsTable = ({ includesVAT, currency }: { includesVAT: boolean; cu
       if (i !== idx) return row
 
       const updatedRow = { ...row, [field]: value }
+
+      if (field === 'quantity') {
+        updatedRow.quantity = value.replace(/[^0-9.,]/g, '')
+      }
 
       const quantity = parseTurkishNumber(updatedRow.quantity)
       const vatRate = parseTurkishNumber(updatedRow.vatRate)
@@ -296,8 +322,17 @@ const InvoiceItemsTable = ({ includesVAT, currency }: { includesVAT: boolean; cu
                   {/* Miktar */}
                   <TableCell className='p-2 text-right align-middle justify-end min-w-[120px] '>
                     <TextField
-                      type='number'
-                      value={row.quantity}
+                      type='text'
+                      value={
+                        focusedIndex && focusedIndex.idx === idx && focusedIndex.field === 'quantity'
+                          ? row.quantity
+                          : formatTurkishNumber(row.quantity)
+                      }
+                      onFocus={() => setFocusedIndex({ idx, field: 'quantity' })}
+                      onBlur={e => {
+                        setFocusedIndex(null)
+                        handleChange(idx, 'quantity', e.target.value)
+                      }}
                       onChange={e => handleChange(idx, 'quantity', e.target.value)}
                       size='small'
                       variant='outlined'
