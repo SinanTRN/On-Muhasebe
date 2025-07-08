@@ -23,7 +23,7 @@ import {
 import { Icon } from '@iconify/react'
 
 const unitOptions = ['Adet', 'Kilogram', 'Litre', 'Metre']
-const vatOptions = ['1', '8', '10', '18', '20']
+const vatOptions = ['0', '1', '8', '10', '18', '20']
 
 type InvoiceRow = {
   stockCode: string
@@ -39,6 +39,7 @@ type InvoiceRow = {
   discount: string
   note: string
 }
+type ManualFieldKey = 'unitPrice' | 'vatAmount' | 'total'
 
 const defaultRow: InvoiceRow = {
   stockCode: '',
@@ -117,10 +118,12 @@ const InvoiceItemsTable = ({ includesVAT, currency }: { includesVAT: boolean; cu
   }
 
   const handleChange = (idx: number, field: string, value: any) => {
-    if (['unitPrice', 'vatAmount', 'total'].includes(field)) {
+    if (['unitPrice', 'total'].includes(field)) {
+      const fieldKey = field as ManualFieldKey
+
       setManualFields(prev => ({
         ...prev,
-        [idx]: { ...prev[idx], [field]: true }
+        [idx]: { ...prev[idx], [fieldKey]: true }
       }))
     }
 
@@ -131,12 +134,14 @@ const InvoiceItemsTable = ({ includesVAT, currency }: { includesVAT: boolean; cu
 
       const quantity = parseTurkishNumber(updatedRow.quantity)
       const vatRate = parseTurkishNumber(updatedRow.vatRate)
-      const unitPrice = parseTurkishNumber(updatedRow.unitPrice)
+      let unitPrice = parseTurkishNumber(updatedRow.unitPrice)
 
       let vatAmount = 0
       let total = 0
 
-      if (!manualFields[idx]?.vatAmount) {
+      const manual = manualFields[idx] || {}
+
+      if (!manual.vatAmount) {
         if (includesVAT) {
           const priceExclVAT = unitPrice / (1 + vatRate / 100)
 
@@ -148,16 +153,17 @@ const InvoiceItemsTable = ({ includesVAT, currency }: { includesVAT: boolean; cu
         updatedRow.vatAmount = formatTurkishNumber(vatAmount)
       } else {
         vatAmount = parseTurkishNumber(updatedRow.vatAmount)
+        manual.vatAmount = !manual.vatAmount
       }
 
-      if (!manualFields[idx]?.total) {
-        if (includesVAT) {
-          total = unitPrice * quantity
-        } else {
-          total = unitPrice * quantity + vatAmount
-        }
-
+      if (!manual.total) {
+        total = unitPrice * quantity
         updatedRow.total = formatTurkishNumber(total)
+      } else {
+        total = parseTurkishNumber(updatedRow.total)
+        unitPrice = quantity !== 0 ? total / quantity : 0
+        updatedRow.unitPrice = formatTurkishNumber(unitPrice)
+        manual.total = !manual.total
       }
 
       return updatedRow
@@ -374,7 +380,7 @@ const InvoiceItemsTable = ({ includesVAT, currency }: { includesVAT: boolean; cu
                       value={
                         focusedIndex && focusedIndex.idx === idx && focusedIndex.field === 'vatAmount'
                           ? row.vatAmount
-                          : row.vatAmount
+                          : formatTurkishNumber(row.vatAmount)
                       }
                       onFocus={() => setFocusedIndex({ idx, field: 'vatAmount' })}
                       onBlur={e => {
@@ -390,7 +396,7 @@ const InvoiceItemsTable = ({ includesVAT, currency }: { includesVAT: boolean; cu
                       size='small'
                       variant='outlined'
                       className='w-full'
-                      inputProps={{ style: { textAlign: 'right' } }}
+                      inputProps={{ style: { textAlign: 'right' }, 'aria-readonly': true }}
                       InputProps={{
                         endAdornment: <InputAdornment position='end'>{getCurrencySymbol(currency)}</InputAdornment>
                       }}
@@ -442,7 +448,7 @@ const InvoiceItemsTable = ({ includesVAT, currency }: { includesVAT: boolean; cu
                       value={
                         focusedIndex && focusedIndex.idx === idx && focusedIndex.field === 'total'
                           ? row.total
-                          : row.total
+                          : formatTurkishNumber(row.total)
                       }
                       onFocus={() => setFocusedIndex({ idx, field: 'total' })}
                       onBlur={e => {
