@@ -247,15 +247,13 @@ const InvoiceItemsTable = ({ includesVAT, currency }: { includesVAT: boolean; cu
                     ))}
                   </Menu>
                 </TableCell>
-                <TableCell className='p-4 text-center align-center justify-center min-w-[120px] '>Stok Kodu</TableCell>
-                <TableCell className='p-4 text-center align-center justify-center min-w-[300px] '>Stok Adı</TableCell>
+                <TableCell className='p-4 text-left align-center justify-center min-w-[120px] '>Stok Kodu</TableCell>
+                <TableCell className='p-4 text-left align-center justify-center min-w-[300px] '>Stok Adı</TableCell>
                 <TableCell className='p-4 text-right align-center justify-end min-w-[120px]  '>Miktar</TableCell>
                 <TableCell className='p-4 text-center align-center justify-center min-w-[150px] '>Birim</TableCell>
-                <TableCell className='p-4 text-center align-center justify-center min-w-[150px] '>
-                  Birim Fiyat
-                </TableCell>
+                <TableCell className='p-4 text-right align-center justify-center min-w-[150px] '>Birim Fiyat</TableCell>
                 <TableCell className='p-4 text-center align-center justify-center min-w-[120px] '>KDV %</TableCell>
-                <TableCell className='p-4 text-center align-center justify-center min-w-[150px]'>KDV Tutarı</TableCell>
+                <TableCell className='p-4 text-right align-center justify-center min-w-[150px]'>KDV Tutarı</TableCell>
                 {extraColumns.includes('description') && (
                   <TableCell className='p-4 text-center min-w-[200px]'>Açıklama</TableCell>
                 )}
@@ -264,9 +262,7 @@ const InvoiceItemsTable = ({ includesVAT, currency }: { includesVAT: boolean; cu
                 )}
                 {extraColumns.includes('note') && <TableCell className='p-4 text-center min-w-[200px]'>Not</TableCell>}
 
-                <TableCell className='p-4 text-center align-center justify-center min-w-[150px]'>
-                  Toplam Fiyat
-                </TableCell>
+                <TableCell className='p-4 text-right align-center justify-center min-w-[150px]'>Toplam Fiyat</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
