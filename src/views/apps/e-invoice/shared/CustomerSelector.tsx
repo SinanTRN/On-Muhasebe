@@ -5,7 +5,7 @@ import { useState } from 'react'
 import { Button, MenuItem, Popover, TextField, Typography, useTheme } from '@mui/material'
 import { Icon } from '@iconify/react'
 
-import type { Tbl } from '@/types/cariTypes'
+import type { Tbl } from '@/types/apps/cariTypes'
 
 //import theme from '@/@core/theme'
 

@@ -1,4 +1,4 @@
-import type { Tbl } from '../types/cariTypes'
+import type { Tbl } from '../types/apps/cariTypes'
 
 export const sampleCustomers: Tbl[] = [
   {

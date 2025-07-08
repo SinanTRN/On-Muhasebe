@@ -27,7 +27,7 @@ import CustomInput from '@/views/apps/e-invoice/shared/PickersCustomInput'
 import CustomerSelector from '@/views/apps/e-invoice/shared/CustomerSelector'
 import AddCustomerDrawer from './AddCustomerDrawer'
 import { sampleCustomers } from '../../../../data/sampleCustomers'
-import type { Tbl } from '../../../../types/cariTypes'
+import type { Tbl } from '../../../../types/apps/cariTypes'
 import { fetchTCMBRate } from '@/utils/fetchTCMBRate'
 import { isTCMBRateCurrent } from '@/utils/isTCMBRateCurrent'
 
@@ -51,7 +51,7 @@ const EInvoiceCard = ({
   const [showDifferentCustomer, setShowDifferentCustomer] = useState(false)
   const [differentCustomer, setDifferentCustomer] = useState('')
   const [dueDateAndPaymentMethod, setDueDateAndPaymentMethod] = useState(false)
-
+  const [isWithholdingTax, setIsWithholdingTax] = useState(false)
   const [customers, setCustomers] = useState<Tbl[]>(sampleCustomers)
 
   const [invoiceInfo, setInvoiceInfo] = useState({
@@ -79,6 +79,11 @@ const EInvoiceCard = ({
   const [returnInfo, setReturnInfo] = useState({
     returnNo: '',
     returnDate: null as Date | null
+  })
+
+  const [withholdingTaxInfo, setWithholdingTaxInfo] = useState({
+    type: '',
+    amount: ''
   })
 
   const [shipmentInfo, setShipmentInfo] = useState({
@@ -431,6 +436,38 @@ const EInvoiceCard = ({
             </Box>
           </Box>
         )}
+        {isWithholdingTax && (
+          <Box
+            className='flex flex-col gap-4 sm:flex-row sm:gap-6 p-4 rounded-md shadow-md'
+            sx={{ background: theme.palette.background.paper }}
+          >
+            <Box className='w-full sm:w-1/2 lg:w-1/3 min-w-[260px]'>
+              <Typography variant='h6' className='mb-4'>
+                Toplu Tevkifat Bilgileri
+              </Typography>
+              <Grid container direction='column' spacing={0} className=' flex flex-col gap-4 max-w-[70%]'>
+                <Grid item>
+                  <TextField
+                    fullWidth
+                    label='Türü'
+                    value={withholdingTaxInfo.type}
+                    onChange={e => setWithholdingTaxInfo(prev => ({ ...prev, type: e.target.value }))}
+                    InputProps={{ style: inputBg }}
+                  />
+                </Grid>
+                <Grid item>
+                  <TextField
+                    fullWidth
+                    label='Miktarı'
+                    value={withholdingTaxInfo.amount}
+                    onChange={e => setWithholdingTaxInfo(prev => ({ ...prev, amount: e.target.value }))}
+                    InputProps={{ style: inputBg }}
+                  />
+                </Grid>
+              </Grid>
+            </Box>
+          </Box>
+        )}
         {(invoiceInfo.isEInvoice || dueDateAndPaymentMethod) && (
           <Box
             className='flex flex-col gap-4 sm:flex-row sm:gap-6 p-4 rounded-md shadow-md'
@@ -605,6 +642,19 @@ const EInvoiceCard = ({
             }
             label='E-Ticaret'
           />
+          {currentInvoiceType === 'TEVKIFAT' && (
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={isWithholdingTax}
+                  onChange={e => setIsWithholdingTax(e.target.checked)}
+                  color='primary'
+                />
+              }
+              label='Toplu Tevkifat'
+              className='sm:mr-4'
+            />
+          )}
         </Box>
       </Stack>
       <AddCustomerDrawer
