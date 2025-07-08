@@ -210,7 +210,7 @@ const InvoiceItemsTable = ({ includesVAT, currency }: { includesVAT: boolean; cu
 
         <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
           {allOptionalColumns.map(col => (
-            <MenuItem key={col.key} onClick={() => toggleColumn(col.key)}>
+            <MenuItem disableRipple key={col.key} onClick={() => toggleColumn(col.key)}>
               <Checkbox checked={extraColumns.includes(col.key)} />
               {col.label}
             </MenuItem>
