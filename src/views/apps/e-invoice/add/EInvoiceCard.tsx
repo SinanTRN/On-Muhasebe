@@ -76,6 +76,11 @@ const EInvoiceCard = ({
     orderDate: null as Date | null
   })
 
+  const [returnInfo, setReturnInfo] = useState({
+    returnNo: '',
+    returnDate: null as Date | null
+  })
+
   const [shipmentInfo, setShipmentInfo] = useState({
     vknTckno: '',
     title: '',
@@ -159,6 +164,8 @@ const EInvoiceCard = ({
   const scenarioOptions = ['TEMELFATURA', 'TICARIFATURA', 'KAMU', 'EARSIVFATURA', 'IHRACAT']
 
   const invoiceTypeOptions = ['NORMAL', 'IADE', 'TEVKIFAT', 'ISTISNA', 'IHRACKAYITLI', 'SGK', 'OZELMATRAH']
+
+  const [currentInvoiceType, setCurrentInvoiceType] = useState('NORMAL')
 
   // Farklı müşteri alanı kapatıldığında seçimi temizle
   const handleShowDifferentCustomer = (checked: boolean) => {
@@ -253,7 +260,10 @@ const EInvoiceCard = ({
                     freeSolo
                     options={invoiceTypeOptions}
                     value={invoiceInfo.invoiceType}
-                    onInputChange={(_, newValue) => setInvoiceInfo({ ...invoiceInfo, invoiceType: newValue })}
+                    onInputChange={(_, newValue) => {
+                      setInvoiceInfo({ ...invoiceInfo, invoiceType: newValue })
+                      setCurrentInvoiceType(newValue)
+                    }}
                     renderInput={params => (
                       <TextField
                         {...params}
@@ -386,6 +396,41 @@ const EInvoiceCard = ({
             </Box>
           </Box>
         </Box>
+        {currentInvoiceType === 'IADE' && (
+          <Box
+            className='flex flex-col gap-4 sm:flex-row sm:gap-6 p-4 rounded-md shadow-md'
+            sx={{ background: theme.palette.background.paper }}
+          >
+            <Box className='w-full sm:w-1/2 lg:w-1/3 min-w-[260px]'>
+              <Typography variant='h6' className='mb-4'>
+                İade Fatura Bilgileri
+              </Typography>
+              <Grid container direction='column' spacing={0} className=' flex flex-col gap-4 max-w-[70%]'>
+                <Grid item>
+                  <TextField
+                    fullWidth
+                    label='Numarası'
+                    value={returnInfo.returnNo}
+                    onChange={e => setReturnInfo(prev => ({ ...prev, returnNo: e.target.value }))}
+                    InputProps={{ style: inputBg }}
+                  />
+                </Grid>
+                <Grid item>
+                  <AppReactDatepicker
+                    selected={returnInfo.returnDate}
+                    onChange={date => setReturnInfo(prev => ({ ...prev, returnDate: date }))}
+                    showTimeSelect
+                    timeFormat='HH:mm'
+                    timeIntervals={15}
+                    dateFormat='dd.MM.yyyy HH:mm'
+                    customInput={<CustomInput label='Tarihi' fullWidth InputProps={{ style: inputBg }} />}
+                    boxProps={{ width: '100%' }}
+                  />
+                </Grid>
+              </Grid>
+            </Box>
+          </Box>
+        )}
         {(invoiceInfo.isEInvoice || dueDateAndPaymentMethod) && (
           <Box
             className='flex flex-col gap-4 sm:flex-row sm:gap-6 p-4 rounded-md shadow-md'
