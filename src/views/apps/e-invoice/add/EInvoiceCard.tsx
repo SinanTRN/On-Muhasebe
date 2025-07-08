@@ -44,7 +44,11 @@ const EInvoiceCard = ({
   currency,
   setCurrency,
   exchangeRate,
-  setExchangeRate
+  setExchangeRate,
+  currentInvoiceType,
+  setCurrentInvoiceType,
+  isWithholdingTax,
+  setIsWithholdingTax
 }: {
   includesVAT: boolean
   setIncludesVAT: (v: boolean) => void
@@ -52,13 +56,16 @@ const EInvoiceCard = ({
   setCurrency: (v: string) => void
   exchangeRate: string
   setExchangeRate: (v: string) => void
+  currentInvoiceType: string
+  setCurrentInvoiceType: (v: string) => void
+  isWithholdingTax: boolean
+  setIsWithholdingTax: (v: boolean) => void
 }) => {
   // State'ler
   const [selectedCustomer, setSelectedCustomer] = useState('')
   const [showDifferentCustomer, setShowDifferentCustomer] = useState(false)
   const [differentCustomer, setDifferentCustomer] = useState('')
   const [dueDateAndPaymentMethod, setDueDateAndPaymentMethod] = useState(false)
-  const [isWithholdingTax, setIsWithholdingTax] = useState(false)
   const [customers, setCustomers] = useState<Tbl[]>(sampleCustomers)
 
   const [invoiceInfo, setInvoiceInfo] = useState({
@@ -183,8 +190,6 @@ const EInvoiceCard = ({
   const scenarioOptions = ['TEMELFATURA', 'TICARIFATURA', 'KAMU', 'EARSIVFATURA', 'IHRACAT']
 
   const invoiceTypeOptions = ['NORMAL', 'IADE', 'TEVKIFAT', 'ISTISNA', 'IHRACKAYITLI', 'SGK', 'OZELMATRAH']
-
-  const [currentInvoiceType, setCurrentInvoiceType] = useState('NORMAL')
 
   // Farklı müşteri alanı kapatıldığında seçimi temizle
   const handleShowDifferentCustomer = (checked: boolean) => {

@@ -22,6 +22,8 @@ import {
 } from '@mui/material'
 import { Icon } from '@iconify/react'
 
+import { kdvTevkifatOrnekleri } from '../shared/kdvWithholdingExamples'
+
 const unitOptions = ['Adet', 'Kilogram', 'Litre', 'Metre']
 const vatOptions = ['0', '1', '8', '10', '18', '20']
 
@@ -38,6 +40,7 @@ type InvoiceRow = {
   description: string
   discount: string
   note: string
+  tevkifatType?: string
 }
 type ManualFieldKey = 'unitPrice' | 'vatAmount' | 'total'
 
@@ -53,7 +56,8 @@ const defaultRow: InvoiceRow = {
   dovizAmount: '',
   description: '',
   discount: '',
-  note: ''
+  note: '',
+  tevkifatType: ''
 }
 
 // Para birimi sembolünü döndüren fonksiyon
@@ -72,7 +76,17 @@ const getCurrencySymbol = (currency: string) => {
   }
 }
 
-const InvoiceItemsTable = ({ includesVAT, currency }: { includesVAT: boolean; currency: string }) => {
+const InvoiceItemsTable = ({
+  includesVAT,
+  currency,
+  currentInvoiceType,
+  isWithholdingTax
+}: {
+  includesVAT: boolean
+  currency: string
+  currentInvoiceType: string
+  isWithholdingTax: boolean
+}) => {
   const [rows, setRows] = useState<InvoiceRow[]>([{ ...defaultRow }])
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
   const [extraColumns, setExtraColumns] = useState<string[]>([])
@@ -247,13 +261,18 @@ const InvoiceItemsTable = ({ includesVAT, currency }: { includesVAT: boolean; cu
                     ))}
                   </Menu>
                 </TableCell>
-                <TableCell className='p-4 text-left align-center justify-center min-w-[120px] '>Stok Kodu</TableCell>
-                <TableCell className='p-4 text-left align-center justify-center min-w-[300px] '>Stok Adı</TableCell>
+                <TableCell className='p-4 text-center align-center justify-center min-w-[120px] '>Stok Kodu</TableCell>
+                <TableCell className='p-4 text-center align-center justify-center min-w-[300px] '>Stok Adı</TableCell>
                 <TableCell className='p-4 text-right align-center justify-end min-w-[120px]  '>Miktar</TableCell>
                 <TableCell className='p-4 text-center align-center justify-center min-w-[150px] '>Birim</TableCell>
-                <TableCell className='p-4 text-right align-center justify-center min-w-[150px] '>Birim Fiyat</TableCell>
+                <TableCell className='p-4 text-center align-center justify-center min-w-[150px] '>
+                  Birim Fiyat
+                </TableCell>
                 <TableCell className='p-4 text-center align-center justify-center min-w-[120px] '>KDV %</TableCell>
-                <TableCell className='p-4 text-right align-center justify-center min-w-[150px]'>KDV Tutarı</TableCell>
+                <TableCell className='p-4 text-center align-center justify-center min-w-[150px]'>KDV Tutarı</TableCell>
+                {currentInvoiceType === 'TEVKIFAT' && !isWithholdingTax && (
+                  <TableCell className='p-4 text-center align-center justify-center min-w-[180px]'>Tevkifat</TableCell>
+                )}
                 {extraColumns.includes('description') && (
                   <TableCell className='p-4 text-center min-w-[200px]'>Açıklama</TableCell>
                 )}
@@ -262,7 +281,9 @@ const InvoiceItemsTable = ({ includesVAT, currency }: { includesVAT: boolean; cu
                 )}
                 {extraColumns.includes('note') && <TableCell className='p-4 text-center min-w-[200px]'>Not</TableCell>}
 
-                <TableCell className='p-4 text-right align-center justify-center min-w-[150px]'>Toplam Fiyat</TableCell>
+                <TableCell className='p-4 text-center align-center justify-center min-w-[150px]'>
+                  Toplam Fiyat
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -433,6 +454,46 @@ const InvoiceItemsTable = ({ includesVAT, currency }: { includesVAT: boolean; cu
                       placeholder='KDV Tutarı'
                     />
                   </TableCell>
+
+                  {/* Tevkifat Türü */}
+                  {currentInvoiceType === 'TEVKIFAT' && !isWithholdingTax && (
+                    <TableCell className='p-2 text-center align-middle justify-center min-w-[180px]'>
+                      <Select
+                        value={row.tevkifatType || ''}
+                        onChange={e => handleChange(idx, 'tevkifatType', e.target.value)}
+                        size='small'
+                        displayEmpty
+                        className='w-full'
+                        renderValue={selected =>
+                          selected
+                            ? kdvTevkifatOrnekleri.find(o => o.kod.toString() === selected)?.kod || selected
+                            : 'Tevkifat Yok'
+                        }
+                      >
+                        <MenuItem value=''>Tevkifat Yok</MenuItem>
+                        {kdvTevkifatOrnekleri.map(opt => (
+                          <MenuItem key={opt.kod} value={opt.kod.toString()}>
+                            <span className='flex flex-row items-right gap-2'>
+                              <span
+                                className='inline-block text-left'
+                                style={{ minWidth: 25, fontVariantNumeric: 'tabular-nums' }}
+                              >
+                                {opt.kod}
+                              </span>
+                              -{' '}
+                              <span
+                                className='inline-block text-left'
+                                style={{ minWidth: 25, fontVariantNumeric: 'tabular-nums' }}
+                              >
+                                {opt.oran / 10}/10
+                              </span>
+                              <span className='flex-1'>{opt.hizmet}</span>
+                            </span>
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </TableCell>
+                  )}
                   {extraColumns.includes('description') && (
                     <TableCell className='p-2'>
                       <TextField
