@@ -4,6 +4,7 @@ import { useState } from 'react'
 
 import { Button, MenuItem, Popover, TextField, Typography, useTheme } from '@mui/material'
 import { Icon } from '@iconify/react'
+import Tooltip from '@mui/material/Tooltip'
 
 import type { Tbl } from '@/types/apps/cariTypes'
 
@@ -30,7 +31,7 @@ const CustomerSelector = ({ customers, selectedCustomer, onSelect, onEdit, onAdd
   const selected = customers.find(c => c.VN === selectedCustomer)
   const theme = useTheme()
 
-  return (
+  return (  
     <>
       <Button
         fullWidth
@@ -129,23 +130,25 @@ const CustomerSelector = ({ customers, selectedCustomer, onSelect, onEdit, onAdd
                     setSearchTerm('')
                   }}
                 >
-                  <div className='flex flex-row items-center w-full'>
-                    <Typography variant='body1' className='font-medium mr-2 flex-shrink-0 text-right min-w-[60px]'>
-                      {customer.VN}
-                    </Typography>
-                    <Typography variant='body1' className='font-medium mr-2 flex-shrink-0 text-center'>
-                      -
-                    </Typography>
-                    <Typography
-                      variant='body1'
-                      className='flex-1 font-medium text-left whitespace-normal'
-                      style={{
-                        wordBreak: 'break-word'
-                      }}
+                  <span className='flex flex-row items-right gap-2'>
+                    <span
+                      className='flex-inline-block text-left'
+                      style={{ minWidth: 25, fontVariantNumeric: 'tabular-nums' }}
                     >
-                      {customer.UNVAN}
-                    </Typography>
-                  </div>
+                      {customer.VN}
+                    </span>
+                    -{' '}
+                    <span
+                      className='flex-inline-block text-left'
+                      style={{ minWidth: 100, fontVariantNumeric: 'tabular-nums', maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'inline-block', verticalAlign: 'middle' }}
+                    >
+                      <Tooltip title={customer.UNVAN} placement='top' arrow disableInteractive>
+                        <Typography variant='body1' noWrap style={{ maxWidth: 160, display: 'inline-block', verticalAlign: 'middle' }}>
+                          {customer.UNVAN}
+                        </Typography>
+                      </Tooltip>
+                    </span>
+                  </span>
                 </MenuItem>
               ))
             ) : (

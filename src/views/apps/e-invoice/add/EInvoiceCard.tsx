@@ -669,8 +669,8 @@ const EInvoiceCard = ({
                     {withholdingTaxInfo.type ? (
                       <span className='flex flex-row items-center gap-2'>
                         <span
-                          className='inline-block text-right'
-                          style={{ minWidth: 50, fontVariantNumeric: 'tabular-nums' }}
+                          className='inline-block text-left'
+                          style={{ minWidth: 25, fontVariantNumeric: 'tabular-nums' }}
                         >
                           {withholdingTaxInfo.type}
                         </span>

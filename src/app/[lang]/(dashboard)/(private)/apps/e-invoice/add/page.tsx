@@ -10,7 +10,7 @@ import AddActions from '@/views/apps/e-invoice/add/AddActions'
 import InvoiceItemsTable from '@/views/apps/e-invoice/add/EInvoiceItemsTable'
 
 const AddInvoicePage = () => {
-  const [includesVAT, setIncludesVAT] = useState(true)
+  const [includesVAT, setIncludesVAT] = useState(false)
   const [currency, setCurrency] = useState('TRY')
   const [exchangeRate, setExchangeRate] = useState('')
 
