@@ -22,6 +22,12 @@ import Grid from '@mui/material/Grid'
 
 import { Icon } from '@iconify/react'
 
+import MenuItem from '@mui/material/MenuItem'
+
+import Popover from '@mui/material/Popover'
+
+import Button from '@mui/material/Button'
+
 import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
 import CustomInput from '@/views/apps/e-invoice/shared/PickersCustomInput'
 import CustomerSelector from '@/views/apps/e-invoice/shared/CustomerSelector'
@@ -30,6 +36,7 @@ import { sampleCustomers } from '../../../../data/sampleCustomers'
 import type { Tbl } from '../../../../types/apps/cariTypes'
 import { fetchTCMBRate } from '@/utils/fetchTCMBRate'
 import { isTCMBRateCurrent } from '@/utils/isTCMBRateCurrent'
+import { kdvTevkifatOrnekleri } from '../shared/kdvWithholdingExamples'
 
 const EInvoiceCard = ({
   includesVAT,
@@ -109,6 +116,13 @@ const EInvoiceCard = ({
 
   const [showSnackbar, setShowSnackbar] = useState(false)
   const [tooltipOpen, setTooltipOpen] = useState(false)
+
+  const [kdvPopoverAnchor, setKdvPopoverAnchor] = useState<null | HTMLElement>(null)
+  const [kdvSearch, setKdvSearch] = useState('')
+
+  const filteredKdvList = kdvTevkifatOrnekleri.filter(
+    opt => opt.hizmet.toLowerCase().includes(kdvSearch.toLowerCase()) || opt.kod.toString().includes(kdvSearch)
+  )
 
   // Renk ve stil değişkenleri
   const inputBg = { background: theme.palette.customColors.greyLightBg }
@@ -436,38 +450,6 @@ const EInvoiceCard = ({
             </Box>
           </Box>
         )}
-        {isWithholdingTax && (
-          <Box
-            className='flex flex-col gap-4 sm:flex-row sm:gap-6 p-4 rounded-md shadow-md'
-            sx={{ background: theme.palette.background.paper }}
-          >
-            <Box className='w-full sm:w-1/2 lg:w-1/3 min-w-[260px]'>
-              <Typography variant='h6' className='mb-4'>
-                Toplu Tevkifat Bilgileri
-              </Typography>
-              <Grid container direction='column' spacing={0} className=' flex flex-col gap-4 max-w-[70%]'>
-                <Grid item>
-                  <TextField
-                    fullWidth
-                    label='Türü'
-                    value={withholdingTaxInfo.type}
-                    onChange={e => setWithholdingTaxInfo(prev => ({ ...prev, type: e.target.value }))}
-                    InputProps={{ style: inputBg }}
-                  />
-                </Grid>
-                <Grid item>
-                  <TextField
-                    fullWidth
-                    label='Miktarı'
-                    value={withholdingTaxInfo.amount}
-                    onChange={e => setWithholdingTaxInfo(prev => ({ ...prev, amount: e.target.value }))}
-                    InputProps={{ style: inputBg }}
-                  />
-                </Grid>
-              </Grid>
-            </Box>
-          </Box>
-        )}
         {(invoiceInfo.isEInvoice || dueDateAndPaymentMethod) && (
           <Box
             className='flex flex-col gap-4 sm:flex-row sm:gap-6 p-4 rounded-md shadow-md'
@@ -656,6 +638,114 @@ const EInvoiceCard = ({
             />
           )}
         </Box>
+        {isWithholdingTax && (
+          <Box
+            className='flex flex-col gap-4 sm:flex-row sm:gap-6 p-4 rounded-md shadow-md'
+            sx={{ background: theme.palette.background.paper }}
+          >
+            <Box className='w-full max-w-[70%]'>
+              <Typography variant='h6' className='mb-4'>
+                Toplu Tevkifat Bilgileri
+              </Typography>
+              <Grid
+                container
+                direction={{ xs: 'column', sm: 'row' }}
+                spacing={0}
+                className=' flex flex-row gap-4 w-full'
+              >
+                <Grid item className='w-full sm:w-1/2 lg:w-1/3'>
+                  <Button
+                    fullWidth
+                    variant='outlined'
+                    disableRipple
+                    onClick={e => setKdvPopoverAnchor(e.currentTarget)}
+                    className='flex flex-col items-start justify-start gap-[2px] text-left p-[10px] min-h-[80px] !transition-none'
+                    sx={{
+                      background: theme.palette.background.paper,
+                      color: withholdingTaxInfo.type ? 'text.primary' : 'text.secondary',
+                      borderColor: theme.palette.divider
+                    }}
+                  >
+                    {withholdingTaxInfo.type ? (
+                      <span className='flex flex-row items-center gap-2'>
+                        <span
+                          className='inline-block text-right'
+                          style={{ minWidth: 50, fontVariantNumeric: 'tabular-nums' }}
+                        >
+                          {withholdingTaxInfo.type}
+                        </span>
+                        -
+                        <span className='flex-1'>
+                          {kdvTevkifatOrnekleri.find(o => o.kod.toString() === withholdingTaxInfo.type)?.hizmet || ''}
+                        </span>
+                      </span>
+                    ) : (
+                      'Türü'
+                    )}
+                  </Button>
+                  <Popover
+                    open={Boolean(kdvPopoverAnchor)}
+                    anchorEl={kdvPopoverAnchor}
+                    onClose={() => {
+                      setKdvPopoverAnchor(null)
+                      setKdvSearch('')
+                    }}
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+                    transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+                    PaperProps={{
+                      sx: { width: kdvPopoverAnchor?.clientWidth || 300, maxWidth: '100%' }
+                    }}
+                  >
+                    <div className='flex flex-col max-h-[400px] w-full'>
+                      <div className='p-2 border-b'>
+                        <TextField
+                          fullWidth
+                          size='small'
+                          placeholder='Tür ara...'
+                          value={kdvSearch}
+                          onChange={e => setKdvSearch(e.target.value)}
+                        />
+                      </div>
+                      <div className='overflow-y-auto flex-1'>
+                        {filteredKdvList.length > 0 ? (
+                          filteredKdvList.map(opt => (
+                            <MenuItem
+                              key={opt.kod}
+                              onClick={() => {
+                                setWithholdingTaxInfo(prev => ({ ...prev, type: opt.kod.toString() }))
+                                setKdvPopoverAnchor(null)
+                                setKdvSearch('')
+                              }}
+                            >
+                              <span className='flex flex-row items-right gap-2'>
+                                <span
+                                  className='inline-block text-left'
+                                  style={{ minWidth: 25, fontVariantNumeric: 'tabular-nums' }}
+                                >
+                                  {opt.kod}
+                                </span>
+                                -{' '}
+                                <span
+                                  className='inline-block text-left'
+                                  style={{ minWidth: 25, fontVariantNumeric: 'tabular-nums' }}
+                                >
+                                  {opt.oran / 10}/10
+                                </span>
+                                <span className='flex-1'>{opt.hizmet}</span>
+                              </span>
+                            </MenuItem>
+                          ))
+                        ) : (
+                          <div className='p-4 text-center text-gray-500'>Eşleşen tür bulunamadı.</div>
+                        )}
+                      </div>
+                    </div>
+                  </Popover>
+                </Grid>
+              </Grid>
+            </Box>
+          </Box>
+        )}
       </Stack>
       <AddCustomerDrawer
         open={customerDrawerOpen}

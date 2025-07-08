@@ -204,24 +204,23 @@ const InvoiceItemsTable = ({ includesVAT, currency }: { includesVAT: boolean; cu
           pb: 2
         }}
       >
-        <IconButton onClick={handleMenuOpen} className='absolute top-2 left-2 z-10' size='small'>
-          <Icon icon='mdi:dots-vertical' width={20} />
-        </IconButton>
-
-        <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
-          {allOptionalColumns.map(col => (
-            <MenuItem disableRipple key={col.key} onClick={() => toggleColumn(col.key)}>
-              <Checkbox checked={extraColumns.includes(col.key)} />
-              {col.label}
-            </MenuItem>
-          ))}
-        </Menu>
-
         <TableContainer sx={{ overflowX: 'auto' }}>
           <Table className='flex-1 '>
             <TableHead>
               <TableRow>
-                <TableCell className='p-4 text-center align-center justify-center min-w-[80px]'></TableCell>
+                <TableCell className='p-4 text-center align-center justify-center min-w-[80px]'>
+                  <IconButton onClick={handleMenuOpen} size='small'>
+                    <Icon icon='mdi:dots-vertical' width={20} />
+                  </IconButton>
+                  <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
+                    {allOptionalColumns.map(col => (
+                      <MenuItem disableRipple key={col.key} onClick={() => toggleColumn(col.key)}>
+                        <Checkbox checked={extraColumns.includes(col.key)} />
+                        {col.label}
+                      </MenuItem>
+                    ))}
+                  </Menu>
+                </TableCell>
                 <TableCell className='p-4 text-center align-center justify-center min-w-[120px] '>Stok Kodu</TableCell>
                 <TableCell className='p-4 text-center align-center justify-center min-w-[300px] '>Stok Adı</TableCell>
                 <TableCell className='p-4 text-right align-center justify-end min-w-[120px]  '>Miktar</TableCell>
