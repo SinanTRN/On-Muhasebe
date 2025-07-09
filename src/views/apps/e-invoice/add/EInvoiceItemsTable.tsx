@@ -128,7 +128,14 @@ const InvoiceItemsTable = ({
     if (e.key === 'Enter') {
       e.preventDefault()
 
-      // alan sırası - sabit ya da dinamik olabilir
+      // Select bileşeni içinde miyiz kontrolü
+      const isInSelect = (e.target as HTMLElement).closest('.MuiSelect-select')
+
+      if (isInSelect) {
+        return // Select bileşenindeki Enter işlemini CustomSelectCell halletsin
+      }
+
+      // Diğer alanlar için geçiş mantığı
       const fieldOrder: string[] = [
         'stockCode',
         'stockName',
