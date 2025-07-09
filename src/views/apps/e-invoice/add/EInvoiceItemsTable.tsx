@@ -319,6 +319,7 @@ const InvoiceItemsTable = ({
           <Table className='flex-1 '>
             <TableHead>
               <TableRow>
+                <TableCell className='p-4 text-center align-center justify-center min-w-[10px]'>#</TableCell>
                 {/* Menü */}
                 <TableCell className='p-4 text-center align-center justify-center min-w-[80px]'>
                   <IconButton onClick={handleMenuOpen} size='small'>
@@ -357,6 +358,8 @@ const InvoiceItemsTable = ({
             <TableBody>
               {rows.map((row, idx) => (
                 <TableRow key={idx}>
+                  {/* Satır Numarası */}
+                  <TableCell className='p-4 text-center align-middle min-w-[10px] font-medium'>{idx + 1}</TableCell>
                   {/* Butonlar */}
                   <TableCell className='p-4 text-center align-middle min-w-[80px]'>
                     <div className='flex items-center justify-center gap-2'>
@@ -373,7 +376,6 @@ const InvoiceItemsTable = ({
                       )}
                     </div>
                   </TableCell>
-
                   {/* Stok Kodu */}
                   <TableCell className='p-2 text-center align-middle justify-center min-w-[120px]'>
                     <div className='w-full flex items-center gap-1'>
@@ -389,7 +391,6 @@ const InvoiceItemsTable = ({
                       />
                     </div>
                   </TableCell>
-
                   {/* Stok Adı */}
                   <TableCell className='p-2 text-center align-middle justify-center min-w-[300px] '>
                     <Tooltip title={row.stockName} placement='top' arrow disableInteractive>
@@ -406,7 +407,6 @@ const InvoiceItemsTable = ({
                       />
                     </Tooltip>
                   </TableCell>
-
                   {/* Açıklama */}
                   {extraColumns.includes('description') && (
                     <TableCell className='p-2'>
@@ -421,7 +421,6 @@ const InvoiceItemsTable = ({
                       />
                     </TableCell>
                   )}
-
                   {/* Miktar */}
                   <TableCell className='p-2 text-right align-middle justify-end min-w-[120px] '>
                     <TextField
@@ -446,7 +445,6 @@ const InvoiceItemsTable = ({
                       placeholder='Miktar'
                     />
                   </TableCell>
-
                   {/* Birim */}
                   <TableCell className='p-2 text-center align-middle justify-center min-w-[150px] '>
                     <CustomSelectCell
@@ -457,7 +455,6 @@ const InvoiceItemsTable = ({
                       inputRef={(el: HTMLInputElement | null) => registerRef(idx, 'unit', el)}
                     />
                   </TableCell>
-
                   {/* Birim Fiyat */}
                   <TableCell className='p-2 text-center align-middle justify-center min-w-[150px]'>
                     <TextField
@@ -491,7 +488,6 @@ const InvoiceItemsTable = ({
                       }}
                     />
                   </TableCell>
-
                   {/* KDV % */}
                   <TableCell className='p-2 text-center align-middle justify-center min-w-[120px]'>
                     <CustomSelectCell
@@ -503,7 +499,6 @@ const InvoiceItemsTable = ({
                       align='center'
                     />
                   </TableCell>
-
                   {/* KDV Tutarı */}
                   <TableCell className='p-2 text-center align-middle justify-center min-w-[150px]'>
                     <TextField
@@ -536,7 +531,6 @@ const InvoiceItemsTable = ({
                       placeholder='KDV Tutarı'
                     />
                   </TableCell>
-
                   {/* Tevkifat Türü */}
                   {currentInvoiceType === 'TEVKIFAT' && !isWithholdingTax && (
                     <TableCell className='p-2 text-center align-middle justify-center min-w-[180px]'>
@@ -607,7 +601,6 @@ const InvoiceItemsTable = ({
                       />
                     </TableCell>
                   )}
-
                   {/* Toplam Fiyat */}
                   <TableCell className='p-2 text-center align-middle justify-center min-w-[150px]'>
                     <TextField
