@@ -12,20 +12,38 @@ import {
   Paper,
   TextField,
   IconButton,
-  Select,
   MenuItem,
   InputAdornment,
   Tooltip,
   useTheme,
   Checkbox,
-  Menu
+  Menu,
+  useMediaQuery
 } from '@mui/material'
 import { Icon } from '@iconify/react'
 
 import { kdvTevkifatOrnekleri } from '../shared/kdvWithholdingExamples'
+import CustomSelectCell from '../shared/CustomSelectCell'
 
 const unitOptions = ['Adet', 'Kilogram', 'Litre', 'Metre']
 const vatOptions = ['0', '1', '8', '10', '18', '20']
+
+const unitOptionsForSelect = unitOptions.map(opt => ({ value: opt, label: opt }))
+const vatOptionsForSelect = vatOptions.map(opt => ({ value: opt, label: opt }))
+
+const tevkifatOptions = [
+  { value: 'Tevkifat Yok', label: 'Tevkifat Yok' },
+  ...kdvTevkifatOrnekleri.map(opt => ({
+    value: opt.kod.toString(),
+    label: (
+      <span className='flex flex-row items-right gap-2'>
+        <span className='inline-block min-w-[25px] font-variant-numeric tabular-nums'>{opt.kod}</span> -{' '}
+        <span className='inline-block min-w-[25px] font-variant-numeric tabular-nums'>{opt.oran / 10}/10</span>
+        <span className='flex-1'>{opt.hizmet}</span>
+      </span>
+    )
+  }))
+]
 
 type InvoiceRow = {
   stockCode: string
@@ -87,15 +105,62 @@ const InvoiceItemsTable = ({
   currentInvoiceType: string
   isWithholdingTax: boolean
 }) => {
+  //State'ler
   const [rows, setRows] = useState<InvoiceRow[]>([{ ...defaultRow }])
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
   const [extraColumns, setExtraColumns] = useState<string[]>([])
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+  const [focusedIndex, setFocusedIndex] = useState<{ idx: number; field: string } | null>(null)
 
+  const cellRefs = useRef<{ [rowIndex: number]: { [field: string]: HTMLElement | null } }>({})
+
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme => theme.breakpoints.down('sm'))
+
+  // Cell referanslarını kaydeden fonksiyon
+  const registerRef = (rowIndex: number, field: string, element: HTMLElement | null) => {
+    if (!cellRefs.current[rowIndex]) cellRefs.current[rowIndex] = {}
+    cellRefs.current[rowIndex][field] = element
+  }
+
+  // Klavye ile alanlar arasında geçiş yaparken Enter tuşuna basıldığında sonraki alana odaklanma
+  const handleKeyDown = (e: React.KeyboardEvent, rowIndex: number, field: string) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+
+      // alan sırası - sabit ya da dinamik olabilir
+      const fieldOrder: string[] = [
+        'stockCode',
+        'stockName',
+        ...(extraColumns.includes('description') ? ['description'] : []),
+        'quantity',
+        'unit',
+        'unitPrice',
+        'vatRate',
+        'vatAmount',
+        ...(currentInvoiceType === 'TEVKIFAT' && !isWithholdingTax ? ['tevkifatType'] : []),
+        ...(extraColumns.includes('discount') ? ['discount'] : []),
+        ...(extraColumns.includes('note') ? ['note'] : []),
+        'total'
+      ]
+
+      const currentIndex = fieldOrder.indexOf(field)
+      const nextField = fieldOrder[currentIndex + 1]
+
+      if (nextField) {
+        const nextInput = cellRefs.current?.[rowIndex]?.[nextField]
+
+        nextInput?.focus()
+      }
+    }
+  }
+
+  // Manuel alanların durumunu tutan state
   const [manualFields, setManualFields] = useState<{
     [key: number]: { unitPrice?: boolean; vatAmount?: boolean; total?: boolean }
   }>({})
 
+  // Ekstra sütunların anahtarlarını ve etiketlerini tanımlıyoruz
   const allOptionalColumns = [
     { key: 'description', label: 'Açıklama' },
     { key: 'discount', label: 'İskonto' },
@@ -110,38 +175,35 @@ const InvoiceItemsTable = ({
     setAnchorEl(null)
   }
 
+  // Ekstra sütunları açıp kapatan fonksiyon
   const toggleColumn = (key: string) => {
     setExtraColumns(prev => (prev.includes(key) ? prev.filter(col => col !== key) : [...prev, key]))
   }
 
+  // Türkçe formatta sayıları ayrıştırma ve formatlama
   const parseTurkishNumber = (val: string): number => {
     if (!val) return 0
 
-    // Eğer hem nokta hem virgül varsa, sonuncusu ondalık ayırıcıdır
     if (val.includes(',') && val.includes('.')) {
       if (val.lastIndexOf(',') > val.lastIndexOf('.')) {
-        // 1.234,56 gibi: binlik ayırıcı nokta, ondalık ayırıcı virgül
         return parseFloat(val.replace(/\./g, '').replace(',', '.')) || 0
       } else {
-        // 1,234.56 gibi: binlik ayırıcı virgül, ondalık ayırıcı nokta
         return parseFloat(val.replace(/,/g, '')) || 0
       }
     }
 
-    // Sadece virgül varsa, ondalık ayırıcıdır
     if (val.includes(',')) {
       return parseFloat(val.replace(/\./g, '').replace(',', '.')) || 0
     }
 
-    // Sadece nokta varsa, binlik ayırıcıdır
     if (val.includes('.')) {
       return parseFloat(val.replace(/\./g, '')) || 0
     }
 
-    // Sadece rakam
     return parseFloat(val) || 0
   }
 
+  // Türkçe formatta sayıları biçimlendirme
   const formatTurkishNumber = (val: string | number): string => {
     const num = typeof val === 'string' ? parseTurkishNumber(val) : val
 
@@ -153,6 +215,7 @@ const InvoiceItemsTable = ({
     })
   }
 
+  // Satırdaki değişiklikleri işleyen fonksiyon
   const handleChange = (idx: number, field: string, value: any) => {
     if (['unitPrice', 'total'].includes(field)) {
       const fieldKey = field as ManualFieldKey
@@ -226,9 +289,6 @@ const InvoiceItemsTable = ({
     setRows(rows.filter((_, i) => i !== idx))
   }
 
-  const theme = useTheme()
-  const [focusedIndex, setFocusedIndex] = useState<{ idx: number; field: string } | null>(null)
-
   return (
     <div className='p-4  rounded-md shadow-md' style={{ background: theme.palette.background.paper }}>
       <Paper
@@ -248,6 +308,7 @@ const InvoiceItemsTable = ({
           <Table className='flex-1 '>
             <TableHead>
               <TableRow>
+                {/* Menü */}
                 <TableCell className='p-4 text-center align-center justify-center min-w-[80px]'>
                   <IconButton onClick={handleMenuOpen} size='small'>
                     <Icon icon='mdi:dots-vertical' width={20} />
@@ -261,29 +322,25 @@ const InvoiceItemsTable = ({
                     ))}
                   </Menu>
                 </TableCell>
-                <TableCell className='p-4 text-center align-center justify-center min-w-[120px] '>Stok Kodu</TableCell>
-                <TableCell className='p-4 text-center align-center justify-center min-w-[300px] '>Stok Adı</TableCell>
+                <TableCell className='p-4 text-left align-center justify-center min-w-[120px] '>Stok Kodu</TableCell>
+                <TableCell className='p-4 text-left align-center justify-center min-w-[300px] '>Stok Adı</TableCell>
+                {extraColumns.includes('description') && (
+                  <TableCell className='p-4 text-left align-center justify-center min-w-[200px]'>Açıklama</TableCell>
+                )}
                 <TableCell className='p-4 text-right align-center justify-end min-w-[120px]  '>Miktar</TableCell>
                 <TableCell className='p-4 text-center align-center justify-center min-w-[150px] '>Birim</TableCell>
-                <TableCell className='p-4 text-center align-center justify-center min-w-[150px] '>
-                  Birim Fiyat
-                </TableCell>
+                <TableCell className='p-4 text-right align-center justify-center min-w-[150px] '>Birim Fiyat</TableCell>
                 <TableCell className='p-4 text-center align-center justify-center min-w-[120px] '>KDV %</TableCell>
-                <TableCell className='p-4 text-center align-center justify-center min-w-[150px]'>KDV Tutarı</TableCell>
+                <TableCell className='p-4 text-right align-center justify-center min-w-[150px]'>KDV Tutarı</TableCell>
                 {currentInvoiceType === 'TEVKIFAT' && !isWithholdingTax && (
                   <TableCell className='p-4 text-center align-center justify-center min-w-[180px]'>Tevkifat</TableCell>
-                )}
-                {extraColumns.includes('description') && (
-                  <TableCell className='p-4 text-center min-w-[200px]'>Açıklama</TableCell>
                 )}
                 {extraColumns.includes('discount') && (
                   <TableCell className='p-4 text-center min-w-[120px]'>İskonto (%)</TableCell>
                 )}
                 {extraColumns.includes('note') && <TableCell className='p-4 text-center min-w-[200px]'>Not</TableCell>}
 
-                <TableCell className='p-4 text-center align-center justify-center min-w-[150px]'>
-                  Toplam Fiyat
-                </TableCell>
+                <TableCell className='p-4 text-right align-center justify-center min-w-[150px]'>Toplam Fiyat</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -310,7 +367,8 @@ const InvoiceItemsTable = ({
                   <TableCell className='p-2 text-center align-middle justify-center min-w-[120px]'>
                     <div className='w-full flex items-center gap-1'>
                       <TextField
-                        inputRef={el => (inputRefs.current[idx] = el)}
+                        inputRef={el => registerRef(idx, 'stockCode', el)}
+                        onKeyDown={e => handleKeyDown(e, idx, 'stockCode')}
                         value={row.stockCode}
                         onChange={e => handleChange(idx, 'stockCode', e.target.value)}
                         size='small'
@@ -325,6 +383,8 @@ const InvoiceItemsTable = ({
                   <TableCell className='p-2 text-center align-middle justify-center min-w-[300px] '>
                     <Tooltip title={row.stockName} placement='top' arrow disableInteractive>
                       <TextField
+                        inputRef={el => registerRef(idx, 'stockName', el)}
+                        onKeyDown={e => handleKeyDown(e, idx, 'stockName')}
                         value={row.stockName}
                         onChange={e => handleChange(idx, 'stockName', e.target.value)}
                         size='small'
@@ -336,10 +396,27 @@ const InvoiceItemsTable = ({
                     </Tooltip>
                   </TableCell>
 
+                  {/* Açıklama */}
+                  {extraColumns.includes('description') && (
+                    <TableCell className='p-2'>
+                      <TextField
+                        inputRef={el => registerRef(idx, 'description', el)}
+                        onKeyDown={e => handleKeyDown(e, idx, 'description')}
+                        value={row.description || ''}
+                        onChange={e => handleChange(idx, 'description', e.target.value)}
+                        size='small'
+                        className='w-full'
+                        placeholder='Açıklama'
+                      />
+                    </TableCell>
+                  )}
+
                   {/* Miktar */}
                   <TableCell className='p-2 text-right align-middle justify-end min-w-[120px] '>
                     <TextField
                       type='text'
+                      inputRef={el => registerRef(idx, 'quantity', el)}
+                      onKeyDown={e => handleKeyDown(e, idx, 'quantity')}
                       value={
                         focusedIndex && focusedIndex.idx === idx && focusedIndex.field === 'quantity'
                           ? row.quantity
@@ -361,24 +438,21 @@ const InvoiceItemsTable = ({
 
                   {/* Birim */}
                   <TableCell className='p-2 text-center align-middle justify-center min-w-[150px] '>
-                    <Select
+                    <CustomSelectCell
                       value={row.unit}
-                      onChange={e => handleChange(idx, 'unit', e.target.value as string)}
-                      size='small'
-                      className='w-full'
-                    >
-                      {unitOptions.map(opt => (
-                        <MenuItem key={opt} value={opt}>
-                          {opt}
-                        </MenuItem>
-                      ))}
-                    </Select>
+                      options={unitOptionsForSelect}
+                      onChange={(value: string) => handleChange(idx, 'unit', value)}
+                      onKeyDown={(e: React.KeyboardEvent) => handleKeyDown(e, idx, 'unit')}
+                      inputRef={(el: HTMLInputElement | null) => registerRef(idx, 'unit', el)}
+                    />
                   </TableCell>
 
                   {/* Birim Fiyat */}
                   <TableCell className='p-2 text-center align-middle justify-center min-w-[150px]'>
                     <TextField
                       type='text'
+                      inputRef={el => registerRef(idx, 'unitPrice', el)}
+                      onKeyDown={e => handleKeyDown(e, idx, 'unitPrice')}
                       value={
                         focusedIndex && focusedIndex.idx === idx && focusedIndex.field === 'unitPrice'
                           ? row.unitPrice
@@ -409,25 +483,22 @@ const InvoiceItemsTable = ({
 
                   {/* KDV % */}
                   <TableCell className='p-2 text-center align-middle justify-center min-w-[120px]'>
-                    <Select
+                    <CustomSelectCell
                       value={row.vatRate}
-                      onChange={e => handleChange(idx, 'vatRate', e.target.value as string)}
-                      size='small'
-                      className='w-full text-center'
-                      inputProps={{ style: { textAlign: 'center' } }}
-                    >
-                      {vatOptions.map(opt => (
-                        <MenuItem key={opt} value={opt} className='text-center'>
-                          {opt}
-                        </MenuItem>
-                      ))}
-                    </Select>
+                      options={vatOptionsForSelect}
+                      onChange={(val: string) => handleChange(idx, 'vatRate', val)}
+                      onKeyDown={(e: React.KeyboardEvent) => handleKeyDown(e, idx, 'vatRate')}
+                      inputRef={(el: HTMLInputElement | null) => registerRef(idx, 'vatRate', el)}
+                      align='center'
+                    />
                   </TableCell>
 
                   {/* KDV Tutarı */}
                   <TableCell className='p-2 text-center align-middle justify-center min-w-[150px]'>
                     <TextField
                       type='text'
+                      inputRef={el => registerRef(idx, 'vatAmount', el)}
+                      onKeyDown={e => handleKeyDown(e, idx, 'vatAmount')}
                       value={
                         focusedIndex && focusedIndex.idx === idx && focusedIndex.field === 'vatAmount'
                           ? row.vatAmount
@@ -458,58 +529,50 @@ const InvoiceItemsTable = ({
                   {/* Tevkifat Türü */}
                   {currentInvoiceType === 'TEVKIFAT' && !isWithholdingTax && (
                     <TableCell className='p-2 text-center align-middle justify-center min-w-[180px]'>
-                      <Select
-                        value={row.tevkifatType || ''}
-                        onChange={e => handleChange(idx, 'tevkifatType', e.target.value)}
-                        size='small'
-                        displayEmpty
-                        className='w-full'
+                      <CustomSelectCell
+                        value={row.tevkifatType || 'Tevkifat Yok'}
+                        options={tevkifatOptions}
                         renderValue={selected =>
-                          selected
-                            ? kdvTevkifatOrnekleri.find(o => o.kod.toString() === selected)?.kod || selected
+                          typeof selected === 'string'
+                            ? (() => {
+                                const option = kdvTevkifatOrnekleri.find(o => o.kod.toString() === selected)
+
+                                return option ? `${option.kod}-(${option.oran / 10}/10)` : selected
+                              })()
                             : 'Tevkifat Yok'
                         }
-                      >
-                        <MenuItem value=''>Tevkifat Yok</MenuItem>
-                        {kdvTevkifatOrnekleri.map(opt => (
-                          <MenuItem key={opt.kod} value={opt.kod.toString()}>
-                            <span className='flex flex-row items-right gap-2'>
-                              <span
-                                className='inline-block text-left'
-                                style={{ minWidth: 25, fontVariantNumeric: 'tabular-nums' }}
-                              >
-                                {opt.kod}
-                              </span>
-                              -{' '}
-                              <span
-                                className='inline-block text-left'
-                                style={{ minWidth: 25, fontVariantNumeric: 'tabular-nums' }}
-                              >
-                                {opt.oran / 10}/10
-                              </span>
-                              <span className='flex-1'>{opt.hizmet}</span>
-                            </span>
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </TableCell>
-                  )}
-                  {extraColumns.includes('description') && (
-                    <TableCell className='p-2'>
-                      <TextField
-                        value={row.description || ''}
-                        onChange={e => handleChange(idx, 'description', e.target.value)}
-                        size='small'
-                        className='w-full'
-                        placeholder='Açıklama'
+                        onChange={val => handleChange(idx, 'tevkifatType', val)}
+                        onKeyDown={e => handleKeyDown(e, idx, 'tevkifatType')}
+                        inputRef={el => registerRef(idx, 'tevkifatType', el)}
+                        MenuProps={{
+                          PaperProps: {
+                            style: {
+                              maxHeight: isMobile ? 300 : 400,
+                              maxWidth: isMobile ? 250 : 400,
+                              overflow: 'auto'
+                            }
+                          },
+                          anchorOrigin: {
+                            vertical: 'bottom',
+                            horizontal: 'center'
+                          },
+                          transformOrigin: {
+                            vertical: 'top',
+                            horizontal: 'center'
+                          }
+                        }}
+                        placeholder='Tevkifat Yok'
+                        align='center'
                       />
                     </TableCell>
                   )}
-
+                  {/* İskonto */}
                   {extraColumns.includes('discount') && (
                     <TableCell className='p-2'>
                       <TextField
                         type='number'
+                        inputRef={el => registerRef(idx, 'discount', el)}
+                        onKeyDown={e => handleKeyDown(e, idx, 'discount')}
                         value={row.discount || ''}
                         onChange={e => handleChange(idx, 'discount', e.target.value)}
                         size='small'
@@ -519,11 +582,13 @@ const InvoiceItemsTable = ({
                       />
                     </TableCell>
                   )}
-
+                  {/* Not */}
                   {extraColumns.includes('note') && (
                     <TableCell className='p-2'>
                       <TextField
                         value={row.note || ''}
+                        inputRef={el => registerRef(idx, 'note', el)}
+                        onKeyDown={e => handleKeyDown(e, idx, 'note')}
                         onChange={e => handleChange(idx, 'note', e.target.value)}
                         size='small'
                         className='w-full'
@@ -536,6 +601,8 @@ const InvoiceItemsTable = ({
                   <TableCell className='p-2 text-center align-middle justify-center min-w-[150px]'>
                     <TextField
                       type='text'
+                      inputRef={el => registerRef(idx, 'total', el)}
+                      onKeyDown={e => handleKeyDown(e, idx, 'total')}
                       value={
                         focusedIndex && focusedIndex.idx === idx && focusedIndex.field === 'total'
                           ? row.total
