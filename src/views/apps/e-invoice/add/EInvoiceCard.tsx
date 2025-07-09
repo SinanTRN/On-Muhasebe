@@ -38,18 +38,7 @@ import { fetchTCMBRate } from '@/utils/fetchTCMBRate'
 import { isTCMBRateCurrent } from '@/utils/isTCMBRateCurrent'
 import { kdvTevkifatOrnekleri } from '../shared/kdvWithholdingExamples'
 
-const EInvoiceCard = ({
-  includesVAT,
-  setIncludesVAT,
-  currency,
-  setCurrency,
-  exchangeRate,
-  setExchangeRate,
-  currentInvoiceType,
-  setCurrentInvoiceType,
-  isWithholdingTax,
-  setIsWithholdingTax
-}: {
+interface EInvoiceCardProps {
   includesVAT: boolean
   setIncludesVAT: (v: boolean) => void
   currency: string
@@ -60,7 +49,25 @@ const EInvoiceCard = ({
   setCurrentInvoiceType: (v: string) => void
   isWithholdingTax: boolean
   setIsWithholdingTax: (v: boolean) => void
-}) => {
+  bulkWithholdingType?: string
+  setBulkWithholdingType?: (v: string) => void
+}
+
+const EInvoiceCard = ({
+  includesVAT,
+  setIncludesVAT,
+  currency,
+  setCurrency,
+  exchangeRate,
+  setExchangeRate,
+  currentInvoiceType,
+  setCurrentInvoiceType,
+  isWithholdingTax,
+  setIsWithholdingTax,
+
+  //bulkWithholdingType,
+  setBulkWithholdingType
+}: EInvoiceCardProps) => {
   // State'ler
   const [selectedCustomer, setSelectedCustomer] = useState('')
   const [showDifferentCustomer, setShowDifferentCustomer] = useState(false)
@@ -718,6 +725,7 @@ const EInvoiceCard = ({
                               key={opt.kod}
                               onClick={() => {
                                 setWithholdingTaxInfo(prev => ({ ...prev, type: opt.kod.toString() }))
+                                if (setBulkWithholdingType) setBulkWithholdingType(opt.kod.toString())
                                 setKdvPopoverAnchor(null)
                                 setKdvSearch('')
                               }}

@@ -4,10 +4,10 @@ import React, { useState } from 'react'
 
 import Stack from '@mui/material/Stack'
 
-import InvoiceLeftPanel from '@/views/apps/e-invoice/add/EInvoiceCard'
+import EInvoiceCard from '@/views/apps/e-invoice/add/EInvoiceCard'
 import AddActions from '@/views/apps/e-invoice/add/AddActions'
 
-import InvoiceItemsTable from '@/views/apps/e-invoice/add/EInvoiceItemsTable'
+import EInvoiceItemsTable from '@/views/apps/e-invoice/add/EInvoiceItemsTable'
 
 const AddInvoicePage = () => {
   const [includesVAT, setIncludesVAT] = useState(false)
@@ -15,10 +15,11 @@ const AddInvoicePage = () => {
   const [exchangeRate, setExchangeRate] = useState('')
   const [currentInvoiceType, setCurrentInvoiceType] = useState('NORMAL')
   const [isWithholdingTax, setIsWithholdingTax] = useState(false)
+  const [bulkWithholdingType, setBulkWithholdingType] = useState('')
 
   return (
     <Stack className='flex-1 flex-col p-0 m-0 gap-2'>
-      <InvoiceLeftPanel
+      <EInvoiceCard
         includesVAT={includesVAT}
         setIncludesVAT={setIncludesVAT}
         currency={currency}
@@ -29,12 +30,15 @@ const AddInvoicePage = () => {
         setCurrentInvoiceType={setCurrentInvoiceType}
         isWithholdingTax={isWithholdingTax}
         setIsWithholdingTax={setIsWithholdingTax}
+        bulkWithholdingType={bulkWithholdingType}
+        setBulkWithholdingType={setBulkWithholdingType}
       />
-      <InvoiceItemsTable
+      <EInvoiceItemsTable
         includesVAT={includesVAT}
         currency={currency}
         currentInvoiceType={currentInvoiceType}
         isWithholdingTax={isWithholdingTax}
+        bulkWithholdingType={bulkWithholdingType}
       />
       <AddActions />
     </Stack>
