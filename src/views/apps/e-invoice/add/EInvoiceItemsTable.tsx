@@ -655,7 +655,7 @@ const InvoiceItemsTable = ({
               const totalVAT = rows.reduce((sum, row) => sum + parseTurkishNumber(row.vatAmount), 0)
 
               // Vergiler Dahil Toplam Tutar
-              const totalWithTaxes = totalAmount + totalVAT
+              const totalWithTaxes = includesVAT ? totalAmount : totalAmount + totalVAT
 
               // Hesaplanan Tevkifat hesaplama fonksiyonu
               let calculatedWithholding = 0

@@ -103,8 +103,7 @@ const EInvoiceCard = ({
   })
 
   const [withholdingTaxInfo, setWithholdingTaxInfo] = useState({
-    type: '',
-    amount: ''
+    type: '' // KDV Tevkifat Türü
   })
 
   const [shipmentInfo, setShipmentInfo] = useState({
@@ -122,6 +121,15 @@ const EInvoiceCard = ({
   const siteOptions = ['n11', 'hepsiburada', 'trendyol']
   const paymentOptions = ['KREDI/BANKA KARTI', 'EFT/HAVALE', 'KAPIDA ODEME', 'DİĞER']
 
+  const istisnaTurleri = [
+    { kod: '001', ad: 'Konaklama Diplomatik İstisna' },
+    { kod: '101', ad: 'İhracat İstisnası' },
+    { kod: '102', ad: 'Diplomatik İstisna' },
+    { kod: '103', ad: 'Askeri Amaçlı İstisna' },
+    { kod: '104', ad: 'Petrol Arama Faaliyetlerinde Bulunanlara Yapılan Teslimler' },
+    { kod: '105', ad: 'Uluslararası Anlaşmadan Doğan İstisna' }
+  ]
+
   const currencyOptions = ['TRY', 'USD', 'EUR', 'GBP']
   const [isRateCurrent, setIsRateCurrent] = useState(true)
   const [rateDate, setRateDate] = useState('')
@@ -134,8 +142,16 @@ const EInvoiceCard = ({
   const [kdvPopoverAnchor, setKdvPopoverAnchor] = useState<null | HTMLElement>(null)
   const [kdvSearch, setKdvSearch] = useState('')
 
+  const [istisnaPopoverAnchor, setIstisnaPopoverAnchor] = useState<null | HTMLElement>(null)
+  const [istisnaSearch, setIstisnaSearch] = useState('')
+  const [selectedIstisna, setSelectedIstisna] = useState<string>('') // sadece kod saklanıyor
+
   const filteredKdvList = kdvTevkifatOrnekleri.filter(
     opt => opt.hizmet.toLowerCase().includes(kdvSearch.toLowerCase()) || opt.kod.toString().includes(kdvSearch)
+  )
+
+  const filteredIstisnaList = istisnaTurleri.filter(
+    opt => opt.kod.includes(istisnaSearch) || opt.ad.toLowerCase().includes(istisnaSearch.toLowerCase())
   )
 
   // Renk ve stil değişkenleri
@@ -650,7 +666,7 @@ const EInvoiceCard = ({
             />
           )}
         </Box>
-        {isWithholdingTax && (
+        {isWithholdingTax && currentInvoiceType === 'TEVKIFAT' && (
           <Box
             className='flex flex-col gap-4 sm:flex-row sm:gap-6 p-4 rounded-md shadow-md'
             sx={{ background: theme.palette.background.paper }}
@@ -750,6 +766,106 @@ const EInvoiceCard = ({
                           ))
                         ) : (
                           <div className='p-4 text-center text-gray-500'>Eşleşen tür bulunamadı.</div>
+                        )}
+                      </div>
+                    </div>
+                  </Popover>
+                </Grid>
+              </Grid>
+            </Box>
+          </Box>
+        )}
+        {/* İstisna Türü Seçimi */}
+        {currentInvoiceType === 'ISTISNA' && (
+          <Box
+            className='flex flex-col gap-4 sm:flex-row sm:gap-6 p-4 rounded-md shadow-md'
+            sx={{ background: theme.palette.background.paper }}
+          >
+            <Box className='w-full max-w-[70%]'>
+              <Typography variant='h6' className='mb-4'>
+                İstisna Bilgileri
+              </Typography>
+              <Grid
+                container
+                direction={{ xs: 'column', sm: 'row' }}
+                spacing={0}
+                className=' flex flex-row gap-4 w-full'
+              >
+                <Grid item className='w-full sm:w-1/2 lg:w-1/3'>
+                  <Button
+                    fullWidth
+                    variant='outlined'
+                    disableRipple
+                    onClick={e => setIstisnaPopoverAnchor(e.currentTarget)}
+                    className='flex flex-col items-start justify-start gap-[2px] text-left p-[10px] min-h-[80px] !transition-none'
+                    sx={{
+                      background: theme.palette.background.paper,
+                      color: selectedIstisna ? 'text.primary' : 'text.secondary',
+                      borderColor: theme.palette.divider
+                    }}
+                  >
+                    {selectedIstisna ? (
+                      <span className='flex flex-row items-center gap-2'>
+                        <span
+                          className='inline-block text-left'
+                          style={{ minWidth: 25, fontVariantNumeric: 'tabular-nums' }}
+                        >
+                          {selectedIstisna}
+                        </span>
+                        -<span className='flex-1'>{istisnaTurleri.find(o => o.kod === selectedIstisna)?.ad || ''}</span>
+                      </span>
+                    ) : (
+                      'İstisna Türü'
+                    )}
+                  </Button>
+
+                  <Popover
+                    open={Boolean(istisnaPopoverAnchor)}
+                    anchorEl={istisnaPopoverAnchor}
+                    onClose={() => {
+                      setIstisnaPopoverAnchor(null)
+                      setIstisnaSearch('')
+                    }}
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+                    transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+                    PaperProps={{
+                      sx: { width: istisnaPopoverAnchor?.clientWidth || 300, maxWidth: '100%' }
+                    }}
+                  >
+                    <div className='flex flex-col max-h-[400px] w-full'>
+                      <div className='p-2 border-b'>
+                        <TextField
+                          fullWidth
+                          size='small'
+                          placeholder='İstisna türü ara...'
+                          value={istisnaSearch}
+                          onChange={e => setIstisnaSearch(e.target.value)}
+                        />
+                      </div>
+                      <div className='overflow-y-auto flex-1'>
+                        {filteredIstisnaList.length > 0 ? (
+                          filteredIstisnaList.map(opt => (
+                            <MenuItem
+                              key={opt.kod}
+                              onClick={() => {
+                                setSelectedIstisna(opt.kod)
+                                setIstisnaPopoverAnchor(null)
+                                setIstisnaSearch('')
+                              }}
+                            >
+                              <span className='flex flex-row items-right gap-2'>
+                                <span
+                                  className='inline-block text-left'
+                                  style={{ minWidth: 25, fontVariantNumeric: 'tabular-nums' }}
+                                >
+                                  {opt.kod}
+                                </span>
+                                <span className='flex-1'>{opt.ad}</span>
+                              </span>
+                            </MenuItem>
+                          ))
+                        ) : (
+                          <div className='p-4 text-center text-gray-500'>Eşleşen istisna bulunamadı.</div>
                         )}
                       </div>
                     </div>
