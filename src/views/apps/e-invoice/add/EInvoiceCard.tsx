@@ -452,12 +452,15 @@ const EInvoiceCard = ({
         </Box>
         {/* İade Fatura Bilgileri */}
         {currentInvoiceType === 'IADE' && (
-          <Box className='flex-1 w-full min-w-[260px] gap-6 p-4' sx={{ background: theme.palette.background.paper }}>
+          <Box
+            className='flex flex-col  gap-2 p-4 w-full rounded-md shadow-md'
+            sx={{ background: theme.palette.background.paper }}
+          >
             <Typography variant='h6' className='mb-4'>
               İade Fatura Bilgileri
             </Typography>
 
-            <Grid container spacing={4} className='p-4'>
+            <Grid container className=' flex flex-col max-w-[70%] gap-4'>
               {returnInfoList.map((info, index) => (
                 <Grid
                   key={index}
@@ -465,7 +468,7 @@ const EInvoiceCard = ({
                   xs={12}
                   sm={6}
                   lg={4}
-                  className='relative flex flex-col gap-4 rounded-md  p-4'
+                  className='relative flex flex-col gap-4 rounded-md p-4'
                   sx={{
                     background: theme.palette.customColors.greyLightBg
                   }}
@@ -479,7 +482,7 @@ const EInvoiceCard = ({
                       <Icon icon='mdi:close' width={18} height={18} />
                     </IconButton>
                   )}
-                  <div className='flex flex-col gap-4 mt-5'>
+                  <div className='flex flex-col gap-4 mt-5 w-full'>
                     <TextField
                       fullWidth
                       label={`Numarası ${index + 1}`}
