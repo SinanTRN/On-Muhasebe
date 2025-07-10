@@ -27,6 +27,7 @@ import MenuItem from '@mui/material/MenuItem'
 import Popover from '@mui/material/Popover'
 
 import Button from '@mui/material/Button'
+import IconButton from '@mui/material/IconButton'
 
 import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
 import CustomInput from '@/views/apps/e-invoice/shared/PickersCustomInput'
@@ -97,10 +98,7 @@ const EInvoiceCard = ({
     orderDate: null as Date | null
   })
 
-  const [returnInfo, setReturnInfo] = useState({
-    returnNo: '',
-    returnDate: null as Date | null
-  })
+  const [returnInfoList, setReturnInfoList] = useState([{ returnNo: '', returnDate: null as Date | null }])
 
   const [withholdingTaxInfo, setWithholdingTaxInfo] = useState({
     type: '' // KDV Tevkifat Türü
@@ -179,6 +177,15 @@ const EInvoiceCard = ({
       setRateDate('')
     }
   }, [currency])
+
+  // İade fatura bilgileri için ekleme ve silme fonksiyonları
+  const handleAddReturnInfo = () => {
+    setReturnInfoList([...returnInfoList, { returnNo: '', returnDate: null }])
+  }
+
+  const handleRemoveReturnInfo = (index: number) => {
+    setReturnInfoList(returnInfoList.filter((_, i) => i !== index))
+  }
 
   // Drawer kapatma ve editingCustomer sıfırlama fonksiyonu
   const handleCustomerDrawerClose = () => {
@@ -443,41 +450,81 @@ const EInvoiceCard = ({
             </Box>
           </Box>
         </Box>
+        {/* İade Fatura Bilgileri */}
         {currentInvoiceType === 'IADE' && (
-          <Box
-            className='flex flex-col gap-4 sm:flex-row sm:gap-6 p-4 rounded-md shadow-md'
-            sx={{ background: theme.palette.background.paper }}
-          >
-            <Box className='w-full sm:w-1/2 lg:w-1/3 min-w-[260px]'>
-              <Typography variant='h6' className='mb-4'>
-                İade Fatura Bilgileri
-              </Typography>
-              <Grid container direction='column' spacing={0} className=' flex flex-col gap-4 max-w-[70%]'>
-                <Grid item>
-                  <TextField
-                    fullWidth
-                    label='Numarası'
-                    value={returnInfo.returnNo}
-                    onChange={e => setReturnInfo(prev => ({ ...prev, returnNo: e.target.value }))}
-                    InputProps={{ style: inputBg }}
-                  />
+          <Box className='flex-1 w-full min-w-[260px] gap-6 p-4' sx={{ background: theme.palette.background.paper }}>
+            <Typography variant='h6' className='mb-4'>
+              İade Fatura Bilgileri
+            </Typography>
+
+            <Grid container spacing={4} className='p-4'>
+              {returnInfoList.map((info, index) => (
+                <Grid
+                  key={index}
+                  item
+                  xs={12}
+                  sm={6}
+                  lg={4}
+                  className='relative flex flex-col gap-4 rounded-md  p-4'
+                  sx={{
+                    background: theme.palette.customColors.greyLightBg
+                  }}
+                >
+                  {returnInfoList.length > 1 && (
+                    <IconButton
+                      onClick={() => handleRemoveReturnInfo(index)}
+                      size='small'
+                      sx={{ position: 'absolute', top: 8, right: 8 }}
+                    >
+                      <Icon icon='mdi:close' width={18} height={18} />
+                    </IconButton>
+                  )}
+                  <div className='flex flex-col gap-4 mt-5'>
+                    <TextField
+                      fullWidth
+                      label={`Numarası ${index + 1}`}
+                      value={info.returnNo}
+                      onChange={e => {
+                        const newList = [...returnInfoList]
+
+                        newList[index].returnNo = e.target.value
+                        setReturnInfoList(newList)
+                      }}
+                      InputProps={{ style: inputBg }}
+                    />
+
+                    <AppReactDatepicker
+                      selected={info.returnDate}
+                      onChange={date => {
+                        const newList = [...returnInfoList]
+
+                        newList[index].returnDate = date
+                        setReturnInfoList(newList)
+                      }}
+                      showTimeSelect
+                      timeFormat='HH:mm'
+                      timeIntervals={15}
+                      dateFormat='dd.MM.yyyy HH:mm'
+                      customInput={
+                        <CustomInput label={`Tarihi ${index + 1}`} fullWidth InputProps={{ style: inputBg }} />
+                      }
+
+                      //boxProps={{ width: '100%' }}
+                    />
+                  </div>
                 </Grid>
-                <Grid item>
-                  <AppReactDatepicker
-                    selected={returnInfo.returnDate}
-                    onChange={date => setReturnInfo(prev => ({ ...prev, returnDate: date }))}
-                    showTimeSelect
-                    timeFormat='HH:mm'
-                    timeIntervals={15}
-                    dateFormat='dd.MM.yyyy HH:mm'
-                    customInput={<CustomInput label='Tarihi' fullWidth InputProps={{ style: inputBg }} />}
-                    boxProps={{ width: '100%' }}
-                  />
-                </Grid>
-              </Grid>
+              ))}
+            </Grid>
+
+            <Box mt={2}>
+              <Button variant='outlined' onClick={handleAddReturnInfo}>
+                + İade Bilgisi Ekle
+              </Button>
             </Box>
           </Box>
         )}
+
+        {/* Sipariş ve Gönderim Bilgileri */}
         {(invoiceInfo.isEInvoice || dueDateAndPaymentMethod) && (
           <Box
             className='flex flex-col gap-4 sm:flex-row sm:gap-6 p-4 rounded-md shadow-md'
@@ -620,6 +667,7 @@ const EInvoiceCard = ({
             </Box>
           </Box>
         )}
+        {/*Checkbox'lar */}
         <Box
           className='flex flex-col sm:flex-row gap-4 p-4  rounded-md shadow-md'
           sx={{ background: theme.palette.background.paper }}
@@ -666,6 +714,7 @@ const EInvoiceCard = ({
             />
           )}
         </Box>
+        {/* Toplu Tevkifat Bilgileri */}
         {isWithholdingTax && currentInvoiceType === 'TEVKIFAT' && (
           <Box
             className='flex flex-col gap-4 sm:flex-row sm:gap-6 p-4 rounded-md shadow-md'
