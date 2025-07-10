@@ -460,7 +460,7 @@ const EInvoiceCard = ({
               İade Fatura Bilgileri
             </Typography>
 
-            <Grid container className=' flex flex-col max-w-[70%] gap-4'>
+            <Grid container className=' flex flex-col w-full gap-4'>
               {returnInfoList.map((info, index) => (
                 <Grid
                   key={index}
@@ -484,9 +484,8 @@ const EInvoiceCard = ({
                       </IconButton>
                     </Box>
                   )}
-                  <div className='flex flex-col gap-4 mt-5 w-full'>
+                  <div className='flex flex-col sm:flex-row gap-4 mt-5 w-full'>
                     <TextField
-                      fullWidth
                       label={`Numarası ${index + 1}`}
                       value={info.returnNo}
                       onChange={e => {
