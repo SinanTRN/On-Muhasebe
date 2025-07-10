@@ -520,7 +520,7 @@ const EInvoiceCard = ({
             </Grid>
 
             <Box mt={2}>
-              <Button variant='outlined' onClick={handleAddReturnInfo}>
+              <Button disableRipple variant='outlined' onClick={handleAddReturnInfo}>
                 + İade Bilgisi Ekle
               </Button>
             </Box>

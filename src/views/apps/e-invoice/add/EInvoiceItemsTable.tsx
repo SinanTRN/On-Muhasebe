@@ -28,6 +28,18 @@ import CustomSelectCell from '../shared/CustomSelectCell'
 const unitOptions = ['Adet', 'Kilogram', 'Litre', 'Metre']
 const vatOptions = ['0', '1', '8', '10', '18', '20']
 
+const ozelMatrahOptions = [
+  { value: '801', label: '801 - Milli Piyango, Spor Toto vb. Oyunlar' },
+  { value: '802', label: '802 - At yarışları ve diğer müşterek bahis ve talih oyunları' },
+  {
+    value: '803',
+    label: '803 - Profesyonel Sanatçıların Yer Aldığı Gösteriler, Konserler, Profesyonel Sporcuların Faaliyetleri'
+  },
+  { value: '804', label: '804 - Gümrük Depolarında ve Müzayede Mahallerinde Yapılan Satışlar' },
+  { value: '805', label: '805 - Altından Mamul veya Altın İçeren Ziynet Eşyaları ile Sikke Altınların Teslimi' },
+  { value: '806', label: '806 - Tütün Mamulleri' }
+]
+
 const unitOptionsForSelect = unitOptions.map(opt => ({ value: opt, label: opt }))
 const vatOptionsForSelect = vatOptions.map(opt => ({ value: opt, label: opt }))
 
@@ -59,6 +71,7 @@ type InvoiceRow = {
   discount: string
   note: string
   tevkifatType?: string
+  ozelMatrahType?: string
 }
 type ManualFieldKey = 'unitPrice' | 'vatAmount' | 'total'
 
@@ -150,6 +163,7 @@ const InvoiceItemsTable = ({
         'vatRate',
         'vatAmount',
         ...(currentInvoiceType === 'TEVKIFAT' && !isWithholdingTax ? ['tevkifatType'] : []),
+        ...(currentInvoiceType === 'OZELMATRAH' ? ['ozelMatrahType'] : []),
         ...(extraColumns.includes('discount') ? ['discount'] : []),
         ...(extraColumns.includes('note') ? ['note'] : []),
         'total'
@@ -346,6 +360,11 @@ const InvoiceItemsTable = ({
                 <TableCell className='p-4 text-right align-center justify-center min-w-[150px]'>KDV Tutarı</TableCell>
                 {currentInvoiceType === 'TEVKIFAT' && !isWithholdingTax && (
                   <TableCell className='p-4 text-center align-center justify-center min-w-[180px]'>Tevkifat</TableCell>
+                )}
+                {currentInvoiceType === 'OZELMATRAH' && !isWithholdingTax && (
+                  <TableCell className='p-4 text-center align-center justify-center min-w-[180px]'>
+                    Özel Matrah
+                  </TableCell>
                 )}
                 {extraColumns.includes('discount') && (
                   <TableCell className='p-4 text-center min-w-[120px]'>İskonto (%)</TableCell>
@@ -571,6 +590,42 @@ const InvoiceItemsTable = ({
                       />
                     </TableCell>
                   )}
+                  {currentInvoiceType === 'OZELMATRAH' && (
+                    <TableCell className='p-2 text-center align-middle justify-center min-w-[250px]'>
+                      <CustomSelectCell
+                        value={row.ozelMatrahType || 'Seçiniz'}
+                        options={ozelMatrahOptions}
+                        renderValue={selected => {
+                          const option = ozelMatrahOptions.find(o => o.value === selected)
+
+                          return option ? option.value : 'Seçiniz'
+                        }}
+                        onChange={val => handleChange(idx, 'ozelMatrahType', val)}
+                        onKeyDown={e => handleKeyDown(e, idx, 'ozelMatrahType')}
+                        inputRef={el => registerRef(idx, 'ozelMatrahType', el)}
+                        MenuProps={{
+                          PaperProps: {
+                            style: {
+                              maxHeight: isMobile ? 300 : 400,
+                              maxWidth: isMobile ? 250 : 400,
+                              overflow: 'auto'
+                            }
+                          },
+                          anchorOrigin: {
+                            vertical: 'bottom',
+                            horizontal: 'center'
+                          },
+                          transformOrigin: {
+                            vertical: 'top',
+                            horizontal: 'center'
+                          }
+                        }}
+                        placeholder='Seçiniz'
+                        align='center'
+                      />
+                    </TableCell>
+                  )}
+
                   {/* İskonto */}
                   {extraColumns.includes('discount') && (
                     <TableCell className='p-2'>
