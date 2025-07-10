@@ -23,25 +23,13 @@ import {
 import { Icon } from '@iconify/react'
 
 import { kdvTevkifatOrnekleri } from '../shared/kdvWithholdingExamples'
+import { ozelMatrahOptions } from '../shared/SpecialTaskBaseExamples'
+import { unitOptions } from '../shared/UnitExamples'
+import { vatOptions } from '../shared/VatExamples'
 import CustomSelectCell from '../shared/CustomSelectCell'
 
-const unitOptions = ['Adet', 'Kilogram', 'Litre', 'Metre']
-const vatOptions = ['0', '1', '8', '10', '18', '20']
-
-const ozelMatrahOptions = [
-  { value: '801', label: '801 - Milli Piyango, Spor Toto vb. Oyunlar' },
-  { value: '802', label: '802 - At yarışları ve diğer müşterek bahis ve talih oyunları' },
-  {
-    value: '803',
-    label: '803 - Profesyonel Sanatçıların Yer Aldığı Gösteriler, Konserler, Profesyonel Sporcuların Faaliyetleri'
-  },
-  { value: '804', label: '804 - Gümrük Depolarında ve Müzayede Mahallerinde Yapılan Satışlar' },
-  { value: '805', label: '805 - Altından Mamul veya Altın İçeren Ziynet Eşyaları ile Sikke Altınların Teslimi' },
-  { value: '806', label: '806 - Tütün Mamulleri' }
-]
-
-const unitOptionsForSelect = unitOptions.map(opt => ({ value: opt, label: opt }))
-const vatOptionsForSelect = vatOptions.map(opt => ({ value: opt, label: opt }))
+const unitOptionsForSelect = unitOptions.map(opt => ({ value: opt.value.toString(), label: opt.label }))
+const vatOptionsForSelect = vatOptions.map(opt => ({ value: opt.value.toString(), label: opt.label }))
 
 const tevkifatOptions = [
   { value: 'Tevkifat Yok', label: 'Tevkifat Yok' },
@@ -467,11 +455,37 @@ const InvoiceItemsTable = ({
                   {/* Birim */}
                   <TableCell className='p-2 text-center align-middle justify-center min-w-[150px] '>
                     <CustomSelectCell
-                      value={row.unit}
+                      value={row.unit || 'Adet'}
+                      renderValue={selected =>
+                        typeof selected === 'string'
+                          ? (() => {
+                              const option = unitOptions.find(o => o.value.toString() === selected)
+
+                              return option ? option.label : selected
+                            })()
+                          : 'Adet'
+                      }
                       options={unitOptionsForSelect}
                       onChange={(value: string) => handleChange(idx, 'unit', value)}
                       onKeyDown={(e: React.KeyboardEvent) => handleKeyDown(e, idx, 'unit')}
                       inputRef={(el: HTMLInputElement | null) => registerRef(idx, 'unit', el)}
+                      MenuProps={{
+                        PaperProps: {
+                          style: {
+                            maxHeight: 150,
+                            maxWidth: isMobile ? 250 : 400,
+                            overflow: 'auto'
+                          }
+                        },
+                        anchorOrigin: {
+                          vertical: 'bottom',
+                          horizontal: 'center'
+                        },
+                        transformOrigin: {
+                          vertical: 'top',
+                          horizontal: 'center'
+                        }
+                      }}
                     />
                   </TableCell>
                   {/* Birim Fiyat */}
@@ -510,11 +524,37 @@ const InvoiceItemsTable = ({
                   {/* KDV % */}
                   <TableCell className='p-2 text-center align-middle justify-center min-w-[120px]'>
                     <CustomSelectCell
-                      value={row.vatRate}
+                      value={row.vatRate || '20'}
+                      renderValue={selected =>
+                        typeof selected === 'string'
+                          ? (() => {
+                              const option = vatOptions.find(o => o.value.toString() === selected)
+
+                              return option ? option.label : selected
+                            })()
+                          : 'KDV %'
+                      }
                       options={vatOptionsForSelect}
                       onChange={(val: string) => handleChange(idx, 'vatRate', val)}
                       onKeyDown={(e: React.KeyboardEvent) => handleKeyDown(e, idx, 'vatRate')}
                       inputRef={(el: HTMLInputElement | null) => registerRef(idx, 'vatRate', el)}
+                      MenuProps={{
+                        PaperProps: {
+                          style: {
+                            maxHeight: 150,
+                            maxWidth: isMobile ? 250 : 400,
+                            overflow: 'auto'
+                          }
+                        },
+                        anchorOrigin: {
+                          vertical: 'bottom',
+                          horizontal: 'center'
+                        },
+                        transformOrigin: {
+                          vertical: 'top',
+                          horizontal: 'center'
+                        }
+                      }}
                       align='center'
                     />
                   </TableCell>
@@ -571,7 +611,7 @@ const InvoiceItemsTable = ({
                         MenuProps={{
                           PaperProps: {
                             style: {
-                              maxHeight: isMobile ? 300 : 400,
+                              maxHeight: 150,
                               maxWidth: isMobile ? 250 : 400,
                               overflow: 'auto'
                             }
@@ -590,6 +630,7 @@ const InvoiceItemsTable = ({
                       />
                     </TableCell>
                   )}
+                  {/* Özel Matrah Türü */}
                   {currentInvoiceType === 'OZELMATRAH' && (
                     <TableCell className='p-2 text-center align-middle justify-center min-w-[250px]'>
                       <CustomSelectCell
@@ -606,7 +647,7 @@ const InvoiceItemsTable = ({
                         MenuProps={{
                           PaperProps: {
                             style: {
-                              maxHeight: isMobile ? 300 : 400,
+                              maxHeight: 150,
                               maxWidth: isMobile ? 250 : 400,
                               overflow: 'auto'
                             }
@@ -625,7 +666,6 @@ const InvoiceItemsTable = ({
                       />
                     </TableCell>
                   )}
-
                   {/* İskonto */}
                   {extraColumns.includes('discount') && (
                     <TableCell className='p-2'>
