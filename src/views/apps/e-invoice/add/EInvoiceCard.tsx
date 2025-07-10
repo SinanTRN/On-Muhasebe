@@ -468,19 +468,21 @@ const EInvoiceCard = ({
                   xs={12}
                   sm={6}
                   lg={4}
-                  className='relative flex flex-col gap-4 rounded-md p-4'
+                  className='flex flex-col gap-4 rounded-md p-4'
                   sx={{
                     background: theme.palette.customColors.greyLightBg
                   }}
                 >
                   {returnInfoList.length > 1 && (
-                    <IconButton
-                      onClick={() => handleRemoveReturnInfo(index)}
-                      size='small'
-                      sx={{ position: 'absolute', top: 8, right: 8 }}
-                    >
-                      <Icon icon='mdi:close' width={18} height={18} />
-                    </IconButton>
+                    <Box className='relative'>
+                      <IconButton
+                        onClick={() => handleRemoveReturnInfo(index)}
+                        size='small'
+                        sx={{ position: 'absolute', top: 8, right: 8 }}
+                      >
+                        <Icon icon='mdi:close' width={18} height={18} />
+                      </IconButton>
+                    </Box>
                   )}
                   <div className='flex flex-col gap-4 mt-5 w-full'>
                     <TextField
@@ -509,10 +511,20 @@ const EInvoiceCard = ({
                       timeIntervals={15}
                       dateFormat='dd.MM.yyyy HH:mm'
                       customInput={
-                        <CustomInput label={`Tarihi ${index + 1}`} fullWidth InputProps={{ style: inputBg }} />
+                        <CustomInput
+                          label={`Tarihi ${index + 1}`}
+                          fullWidth
+                          InputProps={{
+                            style: {
+                              ...inputBg,
+                              height: 56,
+                              fontSize: 16,
+                              paddingLeft: 16,
+                              paddingRight: 16
+                            }
+                          }}
+                        />
                       }
-
-                      //boxProps={{ width: '100%' }}
                     />
                   </div>
                 </Grid>
