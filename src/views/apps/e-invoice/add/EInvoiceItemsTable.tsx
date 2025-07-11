@@ -25,8 +25,12 @@ import { Icon } from '@iconify/react'
 import { kdvTevkifatOrnekleri } from '../shared/kdvWithholdingExamples'
 import { ozelMatrahOptions } from '../shared/SpecialTaskBaseExamples'
 import { unitOptions } from '../shared/UnitExamples'
+
 import { vatOptions } from '../shared/VatExamples'
 import CustomSelectCell from '../shared/CustomSelectCell'
+
+//const vatOptions = ['0', '1', '8', '10', '18', '20']
+//const vatOptionsForSelect = vatOptions.map(opt => ({ value: opt, label: opt }))
 
 const unitOptionsForSelect = unitOptions.map(opt => ({ value: opt.value.toString(), label: opt.label }))
 const vatOptionsForSelect = vatOptions.map(opt => ({ value: opt.value.toString(), label: opt.label }))
@@ -524,7 +528,7 @@ const InvoiceItemsTable = ({
                   {/* KDV % */}
                   <TableCell className='p-2 text-center align-middle justify-center min-w-[120px]'>
                     <CustomSelectCell
-                      value={row.vatRate || '20'}
+                      value={row.vatRate}
                       renderValue={selected =>
                         typeof selected === 'string'
                           ? (() => {
@@ -538,6 +542,7 @@ const InvoiceItemsTable = ({
                       onChange={(val: string) => handleChange(idx, 'vatRate', val)}
                       onKeyDown={(e: React.KeyboardEvent) => handleKeyDown(e, idx, 'vatRate')}
                       inputRef={(el: HTMLInputElement | null) => registerRef(idx, 'vatRate', el)}
+                      align='center'
                       MenuProps={{
                         PaperProps: {
                           style: {
@@ -555,7 +560,6 @@ const InvoiceItemsTable = ({
                           horizontal: 'center'
                         }
                       }}
-                      align='center'
                     />
                   </TableCell>
                   {/* KDV Tutarı */}

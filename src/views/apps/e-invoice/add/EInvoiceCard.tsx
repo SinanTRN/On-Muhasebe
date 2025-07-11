@@ -265,6 +265,7 @@ const EInvoiceCard = ({
                 label='Ödeme Yapacak Müşteri'
               />
             </Box>
+            {/* Farklı müşteri alanı */}
             {showDifferentCustomer && (
               <Box className='  w-full max-w-[70%] '>
                 <Typography variant='h6' sx={{ mb: 4 }}>
@@ -939,6 +940,7 @@ const EInvoiceCard = ({
           </Box>
         )}
       </Stack>
+      {/* Müşteri Ekleme/Güncelleme Drawer */}
       <AddCustomerDrawer
         open={customerDrawerOpen}
         setOpen={open => {
