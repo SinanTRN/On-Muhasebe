@@ -280,22 +280,42 @@ const InvoiceItemsTable = ({
         prevRows.map((row, i) => {
           if (i !== idx) return row
           const quantity = parseTurkishNumber(row.quantity)
+          const discounts = discountKeys.map(key => {
+            if (!activeDiscounts.includes(key)) return 0
+            if (focusedIndex && focusedIndex.idx === idx && focusedIndex.field === key) {
+              if (field === key) {
+                return parseTurkishNumber(value)
+              } else {
+                return parseTurkishNumber(row[key as keyof InvoiceRow] ?? '0')
+              }
+            } else {
+              return parseTurkishNumber(row[key as keyof InvoiceRow] ?? '0')
+            }
+          })
           let calculatedUnitPrice = quantity !== 0 ? parseTurkishNumber(value) : 0
-
           discounts.forEach(d => {
             if (d > 0) {
               calculatedUnitPrice = calculatedUnitPrice / (1 - d / 100)
             }
           })
-
+          // KDV tutarını da güncelle
+          const vatRate = parseTurkishNumber(row.vatRate)
+          const newNetAmount = parseTurkishNumber(value)
+          let newVatAmount = 0
+          if (includesVAT) {
+            const priceExclVAT = newNetAmount / (1 + vatRate / 100)
+            newVatAmount = newNetAmount - priceExclVAT
+          } else {
+            newVatAmount = (newNetAmount * vatRate) / 100
+          }
           return {
             ...row,
             netAmount: value,
-            unitPrice: formatTurkishNumber(quantity !== 0 ? calculatedUnitPrice / quantity : 0)
+            unitPrice: formatTurkishNumber(quantity !== 0 ? calculatedUnitPrice / quantity : 0),
+            vatAmount: formatTurkishNumber(newVatAmount)
           }
         })
       )
-
       return
     }
 
