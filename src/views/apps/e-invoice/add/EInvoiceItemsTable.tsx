@@ -280,8 +280,10 @@ const InvoiceItemsTable = ({
         prevRows.map((row, i) => {
           if (i !== idx) return row
           const quantity = parseTurkishNumber(row.quantity)
+
           const discounts = discountKeys.map(key => {
             if (!activeDiscounts.includes(key)) return 0
+
             if (focusedIndex && focusedIndex.idx === idx && focusedIndex.field === key) {
               if (field === key) {
                 return parseTurkishNumber(value)
@@ -292,22 +294,28 @@ const InvoiceItemsTable = ({
               return parseTurkishNumber(row[key as keyof InvoiceRow] ?? '0')
             }
           })
+
           let calculatedUnitPrice = quantity !== 0 ? parseTurkishNumber(value) : 0
+
           discounts.forEach(d => {
             if (d > 0) {
               calculatedUnitPrice = calculatedUnitPrice / (1 - d / 100)
             }
           })
+
           // KDV tutarını da güncelle
           const vatRate = parseTurkishNumber(row.vatRate)
           const newNetAmount = parseTurkishNumber(value)
           let newVatAmount = 0
+
           if (includesVAT) {
             const priceExclVAT = newNetAmount / (1 + vatRate / 100)
+
             newVatAmount = newNetAmount - priceExclVAT
           } else {
             newVatAmount = (newNetAmount * vatRate) / 100
           }
+
           return {
             ...row,
             netAmount: value,
@@ -316,6 +324,7 @@ const InvoiceItemsTable = ({
           }
         })
       )
+
       return
     }
 
@@ -763,7 +772,7 @@ const InvoiceItemsTable = ({
                         onKeyDown={e => handleKeyDown(e, idx, 'discount1')}
                         value={
                           focusedIndex && focusedIndex.idx === idx && focusedIndex.field === 'discount1'
-                            ? row.discount1 ?? ''
+                            ? (row.discount1 ?? '')
                             : formatTurkishNumber(row.discount1 ?? '')
                         }
                         onFocus={() => setFocusedIndex({ idx, field: 'discount1' })}
@@ -789,7 +798,7 @@ const InvoiceItemsTable = ({
                         onKeyDown={e => handleKeyDown(e, idx, 'discount2')}
                         value={
                           focusedIndex && focusedIndex.idx === idx && focusedIndex.field === 'discount2'
-                            ? row.discount2 ?? ''
+                            ? (row.discount2 ?? '')
                             : formatTurkishNumber(row.discount2 ?? '')
                         }
                         onFocus={() => setFocusedIndex({ idx, field: 'discount2' })}
@@ -815,7 +824,7 @@ const InvoiceItemsTable = ({
                         onKeyDown={e => handleKeyDown(e, idx, 'discount3')}
                         value={
                           focusedIndex && focusedIndex.idx === idx && focusedIndex.field === 'discount3'
-                            ? row.discount3 ?? ''
+                            ? (row.discount3 ?? '')
                             : formatTurkishNumber(row.discount3 ?? '')
                         }
                         onFocus={() => setFocusedIndex({ idx, field: 'discount3' })}
@@ -841,7 +850,7 @@ const InvoiceItemsTable = ({
                         onKeyDown={e => handleKeyDown(e, idx, 'discount4')}
                         value={
                           focusedIndex && focusedIndex.idx === idx && focusedIndex.field === 'discount4'
-                            ? row.discount4 ?? ''
+                            ? (row.discount4 ?? '')
                             : formatTurkishNumber(row.discount4 ?? '')
                         }
                         onFocus={() => setFocusedIndex({ idx, field: 'discount4' })}
