@@ -64,6 +64,11 @@ type InvoiceRow = {
   note: string
   tevkifatType?: string
   ozelMatrahType?: string
+  discount1?: string
+  discount2?: string
+  discount3?: string
+  discount4?: string
+  netAmount?: string
 }
 type ManualFieldKey = 'unitPrice' | 'vatAmount' | 'total'
 
@@ -80,7 +85,12 @@ const defaultRow: InvoiceRow = {
   description: '',
   discount: '',
   note: '',
-  tevkifatType: ''
+  tevkifatType: '',
+  discount1: '',
+  discount2: '',
+  discount3: '',
+  discount4: '',
+  netAmount: ''
 }
 
 // Para birimi sembolünü döndüren fonksiyon
@@ -120,6 +130,8 @@ const InvoiceItemsTable = ({
   const [extraColumns, setExtraColumns] = useState<string[]>([])
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [focusedIndex, setFocusedIndex] = useState<{ idx: number; field: string } | null>(null)
+  const [showDiscountMenu, setShowDiscountMenu] = useState(false)
+  const [activeDiscounts, setActiveDiscounts] = useState<string[]>([])
 
   const cellRefs = useRef<{ [rowIndex: number]: { [field: string]: HTMLElement | null } }>({})
 
@@ -180,7 +192,6 @@ const InvoiceItemsTable = ({
   // Ekstra sütunların anahtarlarını ve etiketlerini tanımlıyoruz
   const allOptionalColumns = [
     { key: 'description', label: 'Açıklama' },
-    { key: 'discount', label: 'İskonto' },
     { key: 'note', label: 'Not' }
   ]
 
@@ -195,6 +206,11 @@ const InvoiceItemsTable = ({
   // Ekstra sütunları açıp kapatan fonksiyon
   const toggleColumn = (key: string) => {
     setExtraColumns(prev => (prev.includes(key) ? prev.filter(col => col !== key) : [...prev, key]))
+  }
+
+  // İskonto sütunlarını açıp kapatan fonksiyon
+  const toggleDiscountColumn = (key: string) => {
+    setActiveDiscounts(prev => (prev.includes(key) ? prev.filter(col => col !== key) : [...prev, key]))
   }
 
   // Türkçe formatta sayıları ayrıştırma ve formatlama
@@ -261,13 +277,31 @@ const InvoiceItemsTable = ({
 
       const manual = manualFields[idx] || {}
 
+      // İskonto hesaplama
+      const discounts = [
+        activeDiscounts.includes('discount1') ? parseTurkishNumber(updatedRow.discount1 ?? '0') : 0,
+        activeDiscounts.includes('discount2') ? parseTurkishNumber(updatedRow.discount2 ?? '0') : 0,
+        activeDiscounts.includes('discount3') ? parseTurkishNumber(updatedRow.discount3 ?? '0') : 0,
+        activeDiscounts.includes('discount4') ? parseTurkishNumber(updatedRow.discount4 ?? '0') : 0
+      ]
+
+      let netAmount = unitPrice * quantity
+
+      discounts.forEach(d => {
+        if (d > 0) {
+          netAmount = netAmount * (1 - d / 100)
+        }
+      })
+      updatedRow.netAmount = formatTurkishNumber(netAmount)
+
+      // KDV net tutar üzerinden hesaplanacak
       if (!manual.vatAmount) {
         if (includesVAT) {
-          const priceExclVAT = unitPrice / (1 + vatRate / 100)
+          const priceExclVAT = netAmount / (1 + vatRate / 100)
 
-          vatAmount = (unitPrice - priceExclVAT) * quantity
+          vatAmount = netAmount - priceExclVAT
         } else {
-          vatAmount = ((unitPrice * vatRate) / 100) * quantity
+          vatAmount = (netAmount * vatRate) / 100
         }
 
         updatedRow.vatAmount = formatTurkishNumber(vatAmount)
@@ -276,6 +310,7 @@ const InvoiceItemsTable = ({
         manual.vatAmount = !manual.vatAmount
       }
 
+      // Toplam fiyat yine unitPrice * quantity olarak kalsın
       if (!manual.total) {
         total = unitPrice * quantity
         updatedRow.total = formatTurkishNumber(total)
@@ -331,13 +366,53 @@ const InvoiceItemsTable = ({
                   <IconButton onClick={handleMenuOpen} size='small'>
                     <Icon icon='mdi:dots-vertical' width={20} />
                   </IconButton>
-                  <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
-                    {allOptionalColumns.map(col => (
-                      <MenuItem disableRipple key={col.key} onClick={() => toggleColumn(col.key)}>
-                        <Checkbox checked={extraColumns.includes(col.key)} />
-                        {col.label}
-                      </MenuItem>
-                    ))}
+                  <Menu
+                    anchorEl={anchorEl}
+                    open={Boolean(anchorEl)}
+                    onClose={() => {
+                      setShowDiscountMenu(false)
+                      handleMenuClose()
+                    }}
+                    PaperProps={{
+                      style: {
+                        maxHeight: 200,
+                        maxWidth: isMobile ? 250 : 400,
+                        overflow: 'auto'
+                      }
+                    }}
+                    anchorOrigin={{
+                      vertical: 'bottom',
+                      horizontal: 'center'
+                    }}
+                    transformOrigin={{
+                      vertical: 'top',
+                      horizontal: 'center'
+                    }}
+                  >
+                    {!showDiscountMenu
+                      ? [
+                          <MenuItem disableRipple key='discount-main' onClick={() => setShowDiscountMenu(true)}>
+                            <Checkbox checked={activeDiscounts.length > 0} />
+                            İskonto
+                          </MenuItem>,
+                          ...allOptionalColumns.map(col => (
+                            <MenuItem disableRipple key={col.key} onClick={() => toggleColumn(col.key)}>
+                              <Checkbox checked={extraColumns.includes(col.key)} />
+                              {col.label}
+                            </MenuItem>
+                          ))
+                        ]
+                      : [
+                          <MenuItem disableRipple key='back' onClick={() => setShowDiscountMenu(false)}>
+                            <Icon icon='mdi:arrow-left' style={{ marginRight: 8 }} /> Geri
+                          </MenuItem>,
+                          ...['discount1', 'discount2', 'discount3', 'discount4'].map((key, i) => (
+                            <MenuItem disableRipple key={key} onClick={() => toggleDiscountColumn(key)}>
+                              <Checkbox checked={activeDiscounts.includes(key)} />
+                              {`İskonto${i + 1}`}
+                            </MenuItem>
+                          ))
+                        ]}
                   </Menu>
                 </TableCell>
                 <TableCell className='p-4 text-left align-center justify-center min-w-[120px] '>Stok Kodu</TableCell>
@@ -348,6 +423,18 @@ const InvoiceItemsTable = ({
                 <TableCell className='p-4 text-right align-center justify-end min-w-[120px]  '>Miktar</TableCell>
                 <TableCell className='p-4 text-center align-center justify-center min-w-[150px] '>Birim</TableCell>
                 <TableCell className='p-4 text-right align-center justify-center min-w-[150px] '>Birim Fiyat</TableCell>
+                {activeDiscounts.includes('discount1') && (
+                  <TableCell className='p-4 text-center min-w-[120px]'>İskonto1 %</TableCell>
+                )}
+                {activeDiscounts.includes('discount2') && (
+                  <TableCell className='p-4 text-center min-w-[120px]'>İskonto2 %</TableCell>
+                )}
+                {activeDiscounts.includes('discount3') && (
+                  <TableCell className='p-4 text-center min-w-[120px]'>İskonto3 %</TableCell>
+                )}
+                {activeDiscounts.includes('discount4') && (
+                  <TableCell className='p-4 text-center min-w-[120px]'>İskonto4 %</TableCell>
+                )}
                 <TableCell className='p-4 text-center align-center justify-center min-w-[120px] '>KDV %</TableCell>
                 <TableCell className='p-4 text-right align-center justify-center min-w-[150px]'>KDV Tutarı</TableCell>
                 {currentInvoiceType === 'TEVKIFAT' && !isWithholdingTax && (
@@ -358,11 +445,6 @@ const InvoiceItemsTable = ({
                     Özel Matrah
                   </TableCell>
                 )}
-                {extraColumns.includes('discount') && (
-                  <TableCell className='p-4 text-center min-w-[120px]'>İskonto (%)</TableCell>
-                )}
-                {extraColumns.includes('note') && <TableCell className='p-4 text-center min-w-[200px]'>Not</TableCell>}
-
                 <TableCell className='p-4 text-right align-center justify-center min-w-[150px]'>Toplam Fiyat</TableCell>
               </TableRow>
             </TableHead>
@@ -525,6 +607,66 @@ const InvoiceItemsTable = ({
                       }}
                     />
                   </TableCell>
+                  {/* İskonto1 */}
+                  {activeDiscounts.includes('discount1') && (
+                    <TableCell className='p-2 text-center align-middle justify-center min-w-[120px]'>
+                      <TextField
+                        type='number'
+                        inputRef={el => registerRef(idx, 'discount1', el)}
+                        onKeyDown={e => handleKeyDown(e, idx, 'discount1')}
+                        value={row.discount1 || 0}
+                        onChange={e => handleChange(idx, 'discount1', e.target.value)}
+                        size='small'
+                        className='w-full'
+                        inputProps={{ min: 0, max: 100, style: { textAlign: 'center' } }}
+                      />
+                    </TableCell>
+                  )}
+                  {/* İskonto2 */}
+                  {activeDiscounts.includes('discount2') && (
+                    <TableCell className='p-2 text-center align-middle justify-center min-w-[120px]'>
+                      <TextField
+                        type='number'
+                        inputRef={el => registerRef(idx, 'discount2', el)}
+                        onKeyDown={e => handleKeyDown(e, idx, 'discount2')}
+                        value={row.discount2 || 0}
+                        onChange={e => handleChange(idx, 'discount2', e.target.value)}
+                        size='small'
+                        className='w-full'
+                        inputProps={{ min: 0, max: 100, style: { textAlign: 'center' } }}
+                      />
+                    </TableCell>
+                  )}
+                  {/* İskonto3 */}
+                  {activeDiscounts.includes('discount3') && (
+                    <TableCell className='p-2 text-center align-middle justify-center min-w-[120px]'>
+                      <TextField
+                        type='number'
+                        inputRef={el => registerRef(idx, 'discount3', el)}
+                        onKeyDown={e => handleKeyDown(e, idx, 'discount3')}
+                        value={row.discount3 || 0}
+                        onChange={e => handleChange(idx, 'discount3', e.target.value)}
+                        size='small'
+                        className='w-full'
+                        inputProps={{ min: 0, max: 100, style: { textAlign: 'center' } }}
+                      />
+                    </TableCell>
+                  )}
+                  {/* İskonto4 */}
+                  {activeDiscounts.includes('discount4') && (
+                    <TableCell className='p-2 text-center align-middle justify-center min-w-[120px]'>
+                      <TextField
+                        type='number'
+                        inputRef={el => registerRef(idx, 'discount4', el)}
+                        onKeyDown={e => handleKeyDown(e, idx, 'discount4')}
+                        value={row.discount4 || 0}
+                        onChange={e => handleChange(idx, 'discount4', e.target.value)}
+                        size='small'
+                        className='w-full'
+                        inputProps={{ min: 0, max: 100, style: { textAlign: 'center' } }}
+                      />
+                    </TableCell>
+                  )}
                   {/* KDV % */}
                   <TableCell className='p-2 text-center align-middle justify-center min-w-[120px]'>
                     <CustomSelectCell
@@ -670,36 +812,6 @@ const InvoiceItemsTable = ({
                       />
                     </TableCell>
                   )}
-                  {/* İskonto */}
-                  {extraColumns.includes('discount') && (
-                    <TableCell className='p-2'>
-                      <TextField
-                        type='number'
-                        inputRef={el => registerRef(idx, 'discount', el)}
-                        onKeyDown={e => handleKeyDown(e, idx, 'discount')}
-                        value={row.discount || ''}
-                        onChange={e => handleChange(idx, 'discount', e.target.value)}
-                        size='small'
-                        className='w-full'
-                        placeholder='İskonto'
-                        inputProps={{ min: 0, max: 100 }}
-                      />
-                    </TableCell>
-                  )}
-                  {/* Not */}
-                  {extraColumns.includes('note') && (
-                    <TableCell className='p-2'>
-                      <TextField
-                        value={row.note || ''}
-                        inputRef={el => registerRef(idx, 'note', el)}
-                        onKeyDown={e => handleKeyDown(e, idx, 'note')}
-                        onChange={e => handleChange(idx, 'note', e.target.value)}
-                        size='small'
-                        className='w-full'
-                        placeholder='Not'
-                      />
-                    </TableCell>
-                  )}
                   {/* Toplam Fiyat */}
                   <TableCell className='p-2 text-center align-middle justify-center min-w-[150px]'>
                     <TextField
@@ -732,6 +844,24 @@ const InvoiceItemsTable = ({
                       placeholder='Toplam Fiyat'
                     />
                   </TableCell>
+                  {/* Net Tutar */}
+                  {activeDiscounts.some(key => parseTurkishNumber(row[key as keyof InvoiceRow] ?? '') > 0) && (
+                    <TableCell className='p-2 text-center align-middle justify-center min-w-[150px]'>
+                      <TextField
+                        type='text'
+                        value={formatTurkishNumber(row.netAmount ?? '')}
+                        size='small'
+                        variant='outlined'
+                        className='w-full'
+                        inputProps={{ style: { textAlign: 'right' }, readOnly: true }}
+                        InputProps={{
+                          endAdornment: <InputAdornment position='end'>{getCurrencySymbol(currency)}</InputAdornment>
+                        }}
+                        placeholder='Net Tutar'
+                        disabled
+                      />
+                    </TableCell>
+                  )}
                 </TableRow>
               ))}
             </TableBody>
