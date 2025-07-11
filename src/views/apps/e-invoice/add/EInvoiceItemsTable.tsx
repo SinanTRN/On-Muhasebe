@@ -337,6 +337,16 @@ const InvoiceItemsTable = ({
       }))
     }
 
+    // Eğer birim fiyat, miktar, iskonto veya KDV oranı değişiyorsa manualFields.netAmount'ı sıfırla
+    const autoNetAmountFields = ['unitPrice', 'quantity', 'vatRate', 'discount1', 'discount2', 'discount3', 'discount4']
+
+    if (autoNetAmountFields.includes(field)) {
+      setManualFields(prev => ({
+        ...prev,
+        [idx]: { ...prev[idx], netAmount: false }
+      }))
+    }
+
     const updated = rows.map((row, i) => {
       if (i !== idx) return row
 
