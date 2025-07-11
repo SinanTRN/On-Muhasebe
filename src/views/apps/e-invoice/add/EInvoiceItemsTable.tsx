@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 
 import {
   Table,
@@ -185,9 +185,9 @@ const InvoiceItemsTable = ({
   }
 
   // Manuel alanların durumunu tutan state
-  const [manualFields, setManualFields] = useState<{
-    [key: number]: { unitPrice?: boolean; vatAmount?: boolean; total?: boolean }
-  }>({})
+  const [manualFields, setManualFields] = useState<
+    Record<number, { unitPrice?: boolean; vatAmount?: boolean; total?: boolean; netAmount?: boolean }>
+  >({})
 
   // Ekstra sütunların anahtarlarını ve etiketlerini tanımlıyoruz
   const allOptionalColumns = [
@@ -250,6 +250,55 @@ const InvoiceItemsTable = ({
 
   // Satırdaki değişiklikleri işleyen fonksiyon
   const handleChange = (idx: number, field: string, value: any) => {
+    // Satırın mevcut halini alın
+    const currentRow = rows[idx]
+
+    // İskonto dizisini bir kez tanımlayın, odaklanmışsa inputtaki değeri kullan
+    const discountKeys = ['discount1', 'discount2', 'discount3', 'discount4']
+
+    const discounts = discountKeys.map(key => {
+      if (!activeDiscounts.includes(key)) return 0
+
+      if (focusedIndex && focusedIndex.idx === idx && focusedIndex.field === key) {
+        // Eğer bu alan odakta ise, inputtaki değeri kullan
+        if (field === key) {
+          return parseTurkishNumber(value)
+        } else {
+          return parseTurkishNumber(currentRow[key as keyof InvoiceRow] ?? '0')
+        }
+      } else {
+        return parseTurkishNumber(currentRow[key as keyof InvoiceRow] ?? '0')
+      }
+    })
+
+    if (field === 'netAmount') {
+      setManualFields(prev => ({
+        ...prev,
+        [idx]: { ...prev[idx], netAmount: !!value }
+      }))
+      setRows(prevRows =>
+        prevRows.map((row, i) => {
+          if (i !== idx) return row
+          const quantity = parseTurkishNumber(row.quantity)
+          let calculatedUnitPrice = quantity !== 0 ? parseTurkishNumber(value) : 0
+
+          discounts.forEach(d => {
+            if (d > 0) {
+              calculatedUnitPrice = calculatedUnitPrice / (1 - d / 100)
+            }
+          })
+
+          return {
+            ...row,
+            netAmount: value,
+            unitPrice: formatTurkishNumber(quantity !== 0 ? calculatedUnitPrice / quantity : 0)
+          }
+        })
+      )
+
+      return
+    }
+
     if (['unitPrice', 'total'].includes(field)) {
       const fieldKey = field as ManualFieldKey
 
@@ -277,31 +326,44 @@ const InvoiceItemsTable = ({
 
       const manual = manualFields[idx] || {}
 
-      // İskonto hesaplama
-      const discounts = [
-        activeDiscounts.includes('discount1') ? parseTurkishNumber(updatedRow.discount1 ?? '0') : 0,
-        activeDiscounts.includes('discount2') ? parseTurkishNumber(updatedRow.discount2 ?? '0') : 0,
-        activeDiscounts.includes('discount3') ? parseTurkishNumber(updatedRow.discount3 ?? '0') : 0,
-        activeDiscounts.includes('discount4') ? parseTurkishNumber(updatedRow.discount4 ?? '0') : 0
-      ]
+      // Eğer netAmount elle girilmediyse otomatik hesapla
+      if (!manual.netAmount) {
+        // Toplam iskonto oranını uygula
+        const grossTotal = unitPrice * quantity
+        let discountMultiplier = 1
 
-      let netAmount = unitPrice * quantity
+        discounts.forEach(d => {
+          if (d > 0) {
+            discountMultiplier *= 1 - d / 100
+          }
+        })
+        const calculatedNetAmount = grossTotal * discountMultiplier
 
-      discounts.forEach(d => {
-        if (d > 0) {
-          netAmount = netAmount * (1 - d / 100)
-        }
-      })
-      updatedRow.netAmount = formatTurkishNumber(netAmount)
+        updatedRow.netAmount = formatTurkishNumber(calculatedNetAmount)
+      } else if (field === 'netAmount') {
+        // Elle girilen değeri göster
+        updatedRow.netAmount = value
+      }
 
       // KDV net tutar üzerinden hesaplanacak
       if (!manual.vatAmount) {
-        if (includesVAT) {
-          const priceExclVAT = netAmount / (1 + vatRate / 100)
+        // KDV, net tutar (iskontolu ve miktarlı) üzerinden hesaplanmalı
+        const grossTotal = unitPrice * quantity
+        let discountMultiplier = 1
 
-          vatAmount = netAmount - priceExclVAT
+        discounts.forEach(d => {
+          if (d > 0) {
+            discountMultiplier *= 1 - d / 100
+          }
+        })
+        const calculatedNetAmount = grossTotal * discountMultiplier
+
+        if (includesVAT) {
+          const priceExclVAT = calculatedNetAmount / (1 + vatRate / 100)
+
+          vatAmount = calculatedNetAmount - priceExclVAT
         } else {
-          vatAmount = (netAmount * vatRate) / 100
+          vatAmount = (calculatedNetAmount * vatRate) / 100
         }
 
         updatedRow.vatAmount = formatTurkishNumber(vatAmount)
@@ -340,6 +402,64 @@ const InvoiceItemsTable = ({
     if (rows.length === 1) return
     setRows(rows.filter((_, i) => i !== idx))
   }
+
+  // activeDiscounts değiştiğinde tüm satırları ve manualFields'ı güncelle
+  useEffect(() => {
+    setRows(prevRows =>
+      prevRows.map(row => {
+        const quantity = parseTurkishNumber(row.quantity)
+        const unitPrice = parseTurkishNumber(row.unitPrice)
+        const vatRate = parseTurkishNumber(row.vatRate)
+
+        // Yeni aktif iskontoları uygula, odaklanmışsa inputtaki değeri kullan
+        const discountKeys = ['discount1', 'discount2', 'discount3', 'discount4']
+
+        const discounts = discountKeys.map(key => {
+          if (!activeDiscounts.includes(key)) return 0
+
+          return parseTurkishNumber(row[key as keyof InvoiceRow] ?? '0')
+        })
+
+        const grossTotal = unitPrice * quantity
+        let discountMultiplier = 1
+
+        discounts.forEach(d => {
+          if (d > 0) {
+            discountMultiplier *= 1 - d / 100
+          }
+        })
+        const calculatedNetAmount = grossTotal * discountMultiplier
+        let vatAmount = 0
+
+        if (includesVAT) {
+          const priceExclVAT = calculatedNetAmount / (1 + vatRate / 100)
+
+          vatAmount = calculatedNetAmount - priceExclVAT
+        } else {
+          vatAmount = (calculatedNetAmount * vatRate) / 100
+        }
+
+        return {
+          ...row,
+          netAmount: formatTurkishNumber(calculatedNetAmount),
+          vatAmount: formatTurkishNumber(vatAmount)
+        }
+      })
+    )
+    setManualFields(prev => {
+      const updated: typeof prev = {}
+
+      Object.keys(prev).forEach(idx => {
+        updated[Number(idx)] = {
+          ...prev[Number(idx)],
+          netAmount: false,
+          vatAmount: false
+        }
+      })
+
+      return updated
+    })
+  }, [activeDiscounts])
 
   return (
     <div className='p-4  rounded-md shadow-md' style={{ background: theme.palette.background.paper }}>
@@ -445,7 +565,14 @@ const InvoiceItemsTable = ({
                     Özel Matrah
                   </TableCell>
                 )}
-                <TableCell className='p-4 text-right align-center justify-center min-w-[150px]'>Toplam Fiyat</TableCell>
+                {activeDiscounts.length === 0 && (
+                  <TableCell className='p-4 text-right align-center justify-center min-w-[150px]'>
+                    Toplam Fiyat
+                  </TableCell>
+                )}
+                {activeDiscounts.length > 0 && (
+                  <TableCell className='p-4 text-right align-center justify-center min-w-[150px]'>Net Tutar</TableCell>
+                )}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -611,14 +738,25 @@ const InvoiceItemsTable = ({
                   {activeDiscounts.includes('discount1') && (
                     <TableCell className='p-2 text-center align-middle justify-center min-w-[120px]'>
                       <TextField
-                        type='number'
+                        type='text'
                         inputRef={el => registerRef(idx, 'discount1', el)}
                         onKeyDown={e => handleKeyDown(e, idx, 'discount1')}
-                        value={row.discount1 || 0}
+                        value={
+                          focusedIndex && focusedIndex.idx === idx && focusedIndex.field === 'discount1'
+                            ? row.discount1 ?? ''
+                            : formatTurkishNumber(row.discount1 ?? '')
+                        }
+                        onFocus={() => setFocusedIndex({ idx, field: 'discount1' })}
+                        onBlur={e => {
+                          setFocusedIndex(null)
+                          handleChange(idx, 'discount1', e.target.value)
+                        }}
                         onChange={e => handleChange(idx, 'discount1', e.target.value)}
                         size='small'
+                        variant='outlined'
                         className='w-full'
                         inputProps={{ min: 0, max: 100, style: { textAlign: 'center' } }}
+                        placeholder='İskonto1 %'
                       />
                     </TableCell>
                   )}
@@ -626,14 +764,25 @@ const InvoiceItemsTable = ({
                   {activeDiscounts.includes('discount2') && (
                     <TableCell className='p-2 text-center align-middle justify-center min-w-[120px]'>
                       <TextField
-                        type='number'
+                        type='text'
                         inputRef={el => registerRef(idx, 'discount2', el)}
                         onKeyDown={e => handleKeyDown(e, idx, 'discount2')}
-                        value={row.discount2 || 0}
+                        value={
+                          focusedIndex && focusedIndex.idx === idx && focusedIndex.field === 'discount2'
+                            ? row.discount2 ?? ''
+                            : formatTurkishNumber(row.discount2 ?? '')
+                        }
+                        onFocus={() => setFocusedIndex({ idx, field: 'discount2' })}
+                        onBlur={e => {
+                          setFocusedIndex(null)
+                          handleChange(idx, 'discount2', e.target.value)
+                        }}
                         onChange={e => handleChange(idx, 'discount2', e.target.value)}
                         size='small'
+                        variant='outlined'
                         className='w-full'
                         inputProps={{ min: 0, max: 100, style: { textAlign: 'center' } }}
+                        placeholder='İskonto2 %'
                       />
                     </TableCell>
                   )}
@@ -641,14 +790,25 @@ const InvoiceItemsTable = ({
                   {activeDiscounts.includes('discount3') && (
                     <TableCell className='p-2 text-center align-middle justify-center min-w-[120px]'>
                       <TextField
-                        type='number'
+                        type='text'
                         inputRef={el => registerRef(idx, 'discount3', el)}
                         onKeyDown={e => handleKeyDown(e, idx, 'discount3')}
-                        value={row.discount3 || 0}
+                        value={
+                          focusedIndex && focusedIndex.idx === idx && focusedIndex.field === 'discount3'
+                            ? row.discount3 ?? ''
+                            : formatTurkishNumber(row.discount3 ?? '')
+                        }
+                        onFocus={() => setFocusedIndex({ idx, field: 'discount3' })}
+                        onBlur={e => {
+                          setFocusedIndex(null)
+                          handleChange(idx, 'discount3', e.target.value)
+                        }}
                         onChange={e => handleChange(idx, 'discount3', e.target.value)}
                         size='small'
+                        variant='outlined'
                         className='w-full'
                         inputProps={{ min: 0, max: 100, style: { textAlign: 'center' } }}
+                        placeholder='İskonto3 %'
                       />
                     </TableCell>
                   )}
@@ -656,14 +816,25 @@ const InvoiceItemsTable = ({
                   {activeDiscounts.includes('discount4') && (
                     <TableCell className='p-2 text-center align-middle justify-center min-w-[120px]'>
                       <TextField
-                        type='number'
+                        type='text'
                         inputRef={el => registerRef(idx, 'discount4', el)}
                         onKeyDown={e => handleKeyDown(e, idx, 'discount4')}
-                        value={row.discount4 || 0}
+                        value={
+                          focusedIndex && focusedIndex.idx === idx && focusedIndex.field === 'discount4'
+                            ? row.discount4 ?? ''
+                            : formatTurkishNumber(row.discount4 ?? '')
+                        }
+                        onFocus={() => setFocusedIndex({ idx, field: 'discount4' })}
+                        onBlur={e => {
+                          setFocusedIndex(null)
+                          handleChange(idx, 'discount4', e.target.value)
+                        }}
                         onChange={e => handleChange(idx, 'discount4', e.target.value)}
                         size='small'
+                        variant='outlined'
                         className='w-full'
                         inputProps={{ min: 0, max: 100, style: { textAlign: 'center' } }}
+                        placeholder='İskonto4 %'
                       />
                     </TableCell>
                   )}
@@ -813,52 +984,65 @@ const InvoiceItemsTable = ({
                     </TableCell>
                   )}
                   {/* Toplam Fiyat */}
-                  <TableCell className='p-2 text-center align-middle justify-center min-w-[150px]'>
-                    <TextField
-                      type='text'
-                      inputRef={el => registerRef(idx, 'total', el)}
-                      onKeyDown={e => handleKeyDown(e, idx, 'total')}
-                      value={
-                        focusedIndex && focusedIndex.idx === idx && focusedIndex.field === 'total'
-                          ? row.total
-                          : formatTurkishNumber(row.total)
-                      }
-                      onFocus={() => setFocusedIndex({ idx, field: 'total' })}
-                      onBlur={e => {
-                        setFocusedIndex(null)
-                        handleChange(idx, 'total', e.target.value)
-                      }}
-                      onChange={e => {
-                        const inputVal = e.target.value
-                        const sanitized = inputVal.replace(/[^0-9.,]/g, '')
-
-                        handleChange(idx, 'total', sanitized)
-                      }}
-                      size='small'
-                      variant='outlined'
-                      className='w-full'
-                      inputProps={{ style: { textAlign: 'right' } }}
-                      InputProps={{
-                        endAdornment: <InputAdornment position='end'>{getCurrencySymbol(currency)}</InputAdornment>
-                      }}
-                      placeholder='Toplam Fiyat'
-                    />
-                  </TableCell>
-                  {/* Net Tutar */}
-                  {activeDiscounts.some(key => parseTurkishNumber(row[key as keyof InvoiceRow] ?? '') > 0) && (
+                  {activeDiscounts.length === 0 && (
                     <TableCell className='p-2 text-center align-middle justify-center min-w-[150px]'>
                       <TextField
                         type='text'
-                        value={formatTurkishNumber(row.netAmount ?? '')}
+                        inputRef={el => registerRef(idx, 'total', el)}
+                        onKeyDown={e => handleKeyDown(e, idx, 'total')}
+                        value={
+                          focusedIndex && focusedIndex.idx === idx && focusedIndex.field === 'total'
+                            ? row.total
+                            : formatTurkishNumber(row.total)
+                        }
+                        onFocus={() => setFocusedIndex({ idx, field: 'total' })}
+                        onBlur={e => {
+                          setFocusedIndex(null)
+                          handleChange(idx, 'total', e.target.value)
+                        }}
+                        onChange={e => {
+                          const inputVal = e.target.value
+                          const sanitized = inputVal.replace(/[^0-9.,]/g, '')
+
+                          handleChange(idx, 'total', sanitized)
+                        }}
                         size='small'
                         variant='outlined'
                         className='w-full'
-                        inputProps={{ style: { textAlign: 'right' }, readOnly: true }}
+                        inputProps={{ style: { textAlign: 'right' } }}
+                        InputProps={{
+                          endAdornment: <InputAdornment position='end'>{getCurrencySymbol(currency)}</InputAdornment>
+                        }}
+                        placeholder='Toplam Fiyat'
+                      />
+                    </TableCell>
+                  )}
+                  {/* Net Tutar */}
+                  {activeDiscounts.length > 0 && (
+                    <TableCell className='p-2 text-center align-middle justify-center min-w-[150px]'>
+                      <TextField
+                        type='text'
+                        inputRef={el => registerRef(idx, 'netAmount', el)}
+                        onKeyDown={e => handleKeyDown(e, idx, 'netAmount')}
+                        value={
+                          focusedIndex && focusedIndex.idx === idx && focusedIndex.field === 'netAmount'
+                            ? (row.netAmount ?? '')
+                            : formatTurkishNumber(row.netAmount ?? '')
+                        }
+                        onFocus={() => setFocusedIndex({ idx, field: 'netAmount' })}
+                        onBlur={e => {
+                          setFocusedIndex(null)
+                          handleChange(idx, 'netAmount', e.target.value)
+                        }}
+                        onChange={e => handleChange(idx, 'netAmount', e.target.value)}
+                        size='small'
+                        variant='outlined'
+                        className='w-full'
+                        inputProps={{ style: { textAlign: 'right' } }}
                         InputProps={{
                           endAdornment: <InputAdornment position='end'>{getCurrencySymbol(currency)}</InputAdornment>
                         }}
                         placeholder='Net Tutar'
-                        disabled
                       />
                     </TableCell>
                   )}
