@@ -469,7 +469,7 @@ const EInvoiceCard = ({
               İade Fatura Bilgileri
             </Typography>
 
-            <Grid container className=' flex flex-col w-full gap-4'>
+            <Grid container className='flex flex-col w-full gap-4'>
               {returnInfoList.map((info, index) => (
                 <Grid
                   key={index}
@@ -478,22 +478,9 @@ const EInvoiceCard = ({
                   sm={6}
                   lg={4}
                   className='flex flex-col gap-4 rounded-md p-4'
-                  sx={{
-                    background: theme.palette.customColors.greyLightBg
-                  }}
+                  sx={{ position: 'relative' }}
                 >
-                  {returnInfoList.length > 1 && (
-                    <Box className='relative'>
-                      <IconButton
-                        onClick={() => handleRemoveReturnInfo(index)}
-                        size='small'
-                        sx={{ position: 'absolute', top: 8, right: 8 }}
-                      >
-                        <Icon icon='mdi:close' width={18} height={18} />
-                      </IconButton>
-                    </Box>
-                  )}
-                  <div className='flex flex-col sm:flex-row gap-4 mt-5 w-full'>
+                  <div className='flex flex-col sm:flex-row items-center gap-4 w-full'>
                     <TextField
                       label={`Numarası ${index + 1}`}
                       value={info.returnNo}
@@ -534,6 +521,17 @@ const EInvoiceCard = ({
                         />
                       }
                     />
+
+                    {/* Çöp Kutusu Butonu */}
+                    {returnInfoList.length > 1 && (
+                      <IconButton
+                        onClick={() => handleRemoveReturnInfo(index)}
+                        size='small'
+                        disabled={returnInfoList.length === 1}
+                      >
+                        <Icon icon='ri:delete-bin-6-line' color='#f44336' width={18} />
+                      </IconButton>
+                    )}
                   </div>
                 </Grid>
               ))}
