@@ -115,6 +115,7 @@ interface InvoiceItemsTableProps {
   currentInvoiceType: string
   isWithholdingTax: boolean
   bulkWithholdingType?: string
+  exchangeRate?: string // Döviz kuru eklendi (string)
 }
 
 const InvoiceItemsTable = ({
@@ -122,7 +123,8 @@ const InvoiceItemsTable = ({
   currency,
   currentInvoiceType,
   isWithholdingTax,
-  bulkWithholdingType = ''
+  bulkWithholdingType = '',
+  exchangeRate = ''
 }: InvoiceItemsTableProps) => {
   //State'ler
   const [rows, setRows] = useState<InvoiceRow[]>([{ ...defaultRow }])
@@ -1162,6 +1164,14 @@ const InvoiceItemsTable = ({
               const payableAmountWithWithholding =
                 currentInvoiceType === 'TEVKIFAT' ? totalWithTaxes - calculatedWithholding : totalWithTaxes
 
+              // TL karşılığı hesaplama (sadece döviz ise)
+              let payableAmountInTRY = payableAmountWithWithholding
+              const rate = parseFloat(exchangeRate)
+
+              if (currency !== 'TRY' && rate && !isNaN(rate)) {
+                payableAmountInTRY = payableAmountWithWithholding * rate
+              }
+
               // Temadan uygun renkler
               const valueBg = theme.palette.mode === 'dark' ? theme.palette.background.default : theme.palette.grey[100]
               const valueBorder = theme.palette.divider
@@ -1260,9 +1270,25 @@ const InvoiceItemsTable = ({
                     <tr>
                       <td className=' font-medium'>Ödenecek Tutar:</td>
                       <td>
-                        <span style={valueBoxBoldStyle}>
-                          <span>{formatTurkishNumber(payableAmountWithWithholding)}</span>
-                          <span style={{ marginLeft: 6 }}>{getCurrencySymbol(currency)}</span>
+                        <span
+                          style={{
+                            ...valueBoxBoldStyle,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'flex-end',
+                            gap: 2
+                          }}
+                        >
+                          <span>
+                            {formatTurkishNumber(payableAmountWithWithholding)}
+                            <span style={{ marginLeft: 6 }}>{getCurrencySymbol(currency)}</span>
+                          </span>
+                          {/* Eğer para birimi TRY değilse, TL karşılığını da kutunun hemen altında küçük ve gri olarak göster */}
+                          {currency !== 'TRY' && rate && !isNaN(rate) && (
+                            <span style={{ fontSize: '0.95em', color: theme.palette.text.secondary, marginTop: 2 }}>
+                              ≈ {formatTurkishNumber(payableAmountInTRY)} ₺
+                            </span>
+                          )}
                         </span>
                       </td>
                     </tr>

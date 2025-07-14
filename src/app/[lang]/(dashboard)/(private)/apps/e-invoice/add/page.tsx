@@ -39,6 +39,7 @@ const AddInvoicePage = () => {
         currentInvoiceType={currentInvoiceType}
         isWithholdingTax={isWithholdingTax}
         bulkWithholdingType={bulkWithholdingType}
+        exchangeRate={exchangeRate}
       />
       <AddActions />
     </Stack>
