@@ -176,7 +176,7 @@ const EInvoiceCard = ({
       setIsRateCurrent(true)
       setRateDate('')
     }
-  }, [currency])
+  }, [currency, setExchangeRate])
 
   // İade fatura bilgileri için ekleme ve silme fonksiyonları
   const handleAddReturnInfo = () => {
