@@ -651,6 +651,7 @@ const InvoiceItemsTable = ({
                       />
                     </div>
                   </TableCell>
+                  {/* Alıcı Stok Kodu */}
                   {extraColumns.includes('receiverStockCode') && (
                     <TableCell className='p-2 text-center align-middle justify-center min-w-[180px]'>
                       <TextField
