@@ -29,9 +29,6 @@ import { unitOptions } from '../shared/UnitExamples'
 import { vatOptions } from '../shared/VatExamples'
 import CustomSelectCell from '../shared/CustomSelectCell'
 
-//const vatOptions = ['0', '1', '8', '10', '18', '20']
-//const vatOptionsForSelect = vatOptions.map(opt => ({ value: opt, label: opt }))
-
 const unitOptionsForSelect = unitOptions.map(opt => ({ value: opt.value.toString(), label: opt.label }))
 const vatOptionsForSelect = vatOptions.map(opt => ({ value: opt.value.toString(), label: opt.label }))
 
@@ -135,6 +132,7 @@ const InvoiceItemsTable = ({
   const [focusedIndex, setFocusedIndex] = useState<{ idx: number; field: string } | null>(null)
   const [showDiscountMenu, setShowDiscountMenu] = useState(false)
   const [activeDiscounts, setActiveDiscounts] = useState<string[]>([])
+  const [documentNote, setDocumentNote] = useState('')
 
   const cellRefs = useRef<{ [rowIndex: number]: { [field: string]: HTMLElement | null } }>({})
 
@@ -1107,222 +1105,249 @@ const InvoiceItemsTable = ({
           </Table>
         </TableContainer>
       </Paper>
-      {/* Özet Bilgiler Alanı */}
-      <div className='flex flex-col items-end mt-4'>
-        <div className='w-full max-w-md'>
+      <div className='flex flex-col md:flex-row gap-4 items-start p-2  w-full justify-between'>
+        {/* Sol: Belge Açıklaması */}
+        <div className='flex-1 w-full max-w-md'>
           <Paper
-            className='p-4 '
-            sx={{ background: theme.palette.background.paper, borderRadius: 2, boxShadow: 'none' }}
+            className='p-4 h-full'
+            sx={{
+              background: theme.palette.background.paper,
+              borderRadius: 2,
+              boxShadow: 'none',
+              height: '100%'
+            }}
           >
-            {/* Hesaplamalar */}
-            {(() => {
-              // Mal/Hizmet Toplam Tutarı
-              const totalAmount = rows.reduce((sum, row) => sum + parseTurkishNumber(row.total), 0)
-
-              // Toplam İskonto Hesaplama
-              let totalDiscount = 0
-
-              if (activeDiscounts.length > 0) {
-                totalDiscount = rows.reduce((sum, row) => {
-                  const unitPrice = parseTurkishNumber(row.unitPrice)
-                  const quantity = parseTurkishNumber(row.quantity)
-                  const grossTotal = unitPrice * quantity
-                  let discountMultiplier = 1
-                  const discountKeys = ['discount1', 'discount2', 'discount3', 'discount4']
-
-                  const discounts = discountKeys.map(key =>
-                    activeDiscounts.includes(key) ? parseTurkishNumber(row[key as keyof InvoiceRow] ?? '0') : 0
-                  )
-
-                  discounts.forEach(d => {
-                    if (d > 0) {
-                      discountMultiplier *= 1 - d / 100
-                    }
-                  })
-                  const netAmount = grossTotal * discountMultiplier
-
-                  return sum + (grossTotal - netAmount)
-                }, 0)
-              }
-
-              // Hesaplanan KDV
-              const totalVAT = rows.reduce((sum, row) => sum + parseTurkishNumber(row.vatAmount), 0)
-
-              // Net Tutar (Matrah): Mal/Hizmet Toplam Tutarı - Toplam İskonto
-              const netTotal = totalAmount - totalDiscount
-
-              // Vergiler Dahil Toplam Tutar
-              const totalWithTaxes = includesVAT ? netTotal : netTotal + totalVAT
-
-              // Hesaplanan Tevkifat hesaplama fonksiyonu
-              let calculatedWithholding = 0
-              let withholdingRate = 0
-              const isBulkWithholding = isWithholdingTax // toplu tevkifat seçili mi?
-
-              if (currentInvoiceType === 'TEVKIFAT') {
-                if (isBulkWithholding) {
-                  // Toplu tevkifat oranı: bulkWithholdingType prop'undan alınır
-                  const bulkKdvOranObj = kdvTevkifatOrnekleri.find(o => o.kod.toString() === bulkWithholdingType)
-
-                  withholdingRate = bulkKdvOranObj ? bulkKdvOranObj.oran / 10 : 0
-                  calculatedWithholding = (totalVAT * withholdingRate) / 10
-                } else {
-                  // Her satır için ayrı ayrı hesapla
-                  calculatedWithholding = rows.reduce((sum, row) => {
-                    if (row.tevkifatType && row.tevkifatType !== 'Tevkifat Yok') {
-                      const kdvOranObj = kdvTevkifatOrnekleri.find(o => o.kod.toString() === row.tevkifatType)
-                      const oran = kdvOranObj ? kdvOranObj.oran / 10 : 0
-
-                      return sum + (parseTurkishNumber(row.vatAmount) * oran) / 10
-                    }
-
-                    return sum
-                  }, 0)
-                }
-              }
-
-              // Ödenecek Tutar güncelle
-              const payableAmountWithWithholding =
-                currentInvoiceType === 'TEVKIFAT' ? totalWithTaxes - calculatedWithholding : totalWithTaxes
-
-              // TL karşılığı hesaplama (sadece döviz ise)
-              let payableAmountInTRY = payableAmountWithWithholding
-              const rate = parseFloat(exchangeRate)
-
-              if (currency !== 'TRY' && rate && !isNaN(rate)) {
-                payableAmountInTRY = payableAmountWithWithholding * rate
-              }
-
-              // Temadan uygun renkler
-              const valueBg = theme.palette.mode === 'dark' ? theme.palette.background.default : theme.palette.grey[100]
-              const valueBorder = theme.palette.divider
-
-              // Kutular için ortak stil
-              const valueBoxStyle = {
-                display: 'flex',
-                flexDirection: 'row' as const,
-                alignItems: 'center',
-                justifyContent: 'flex-end',
-                minWidth: 140,
-                width: '100%',
-                background: valueBg,
-                borderRadius: 8,
-                padding: '6px 16px',
-                fontWeight: 400,
-                fontSize: '1rem',
-                textAlign: 'right' as const,
-                border: `1px solid ${valueBorder}`,
-                boxSizing: 'border-box' as const,
-                transition: 'width 0.2s'
-              }
-
-              const valueBoxBoldStyle = {
-                ...valueBoxStyle,
-                fontWeight: 700
-              }
-
-              return (
-                <table className='w-full text-right'>
-                  <colgroup>
-                    <col style={{ width: '60%' }} />
-                    <col style={{ width: '40%' }} />
-                  </colgroup>
-                  <tbody className='[&>tr>td]:py-1 [&>tr>td]:pr-2'>
-                    <tr>
-                      <td className=' font-medium'>Mal/Hizmet Toplam Tutarı:</td>
-                      <td>
-                        <span style={valueBoxStyle}>
-                          <span>{formatTurkishNumber(totalAmount)}</span>
-                          <span style={{ marginLeft: 6 }}>{getCurrencySymbol(currency)}</span>
-                        </span>
-                      </td>
-                    </tr>
-                    {/* Toplam İskonto Alanı */}
-                    {activeDiscounts.length > 0 && (
-                      <tr>
-                        <td className=' font-medium'>Toplam İskonto:</td>
-                        <td>
-                          <span style={valueBoxStyle}>
-                            <span>{formatTurkishNumber(totalDiscount)}</span>
-                            <span style={{ marginLeft: 6 }}>{getCurrencySymbol(currency)}</span>
-                          </span>
-                        </td>
-                      </tr>
-                    )}
-                    <tr>
-                      <td className=' font-medium'>Net Tutar (Matrah):</td>
-                      <td>
-                        <span style={valueBoxStyle}>
-                          <span>{formatTurkishNumber(netTotal)}</span>
-                          <span style={{ marginLeft: 6 }}>{getCurrencySymbol(currency)}</span>
-                        </span>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className=' font-medium'>Hesaplanan KDV:</td>
-                      <td>
-                        <span style={valueBoxStyle}>
-                          <span>{formatTurkishNumber(totalVAT)}</span>
-                          <span style={{ marginLeft: 6 }}>{getCurrencySymbol(currency)}</span>
-                        </span>
-                      </td>
-                    </tr>
-                    {/* Hesaplanan Tevkifat Alanı */}
-                    {currentInvoiceType === 'TEVKIFAT' && (
-                      <tr>
-                        <td className=' font-medium'>Hesaplanan Tevkifat:</td>
-                        <td>
-                          <span style={valueBoxStyle}>
-                            <span>{formatTurkishNumber(calculatedWithholding)}</span>
-                            <span style={{ marginLeft: 6 }}>{getCurrencySymbol(currency)}</span>
-                          </span>
-                        </td>
-                      </tr>
-                    )}
-                    <tr>
-                      <td className=' font-medium'>Vergiler Dahil Toplam Tutar:</td>
-                      <td>
-                        <span style={valueBoxStyle}>
-                          <span>{formatTurkishNumber(totalWithTaxes)}</span>
-                          <span style={{ marginLeft: 6 }}>{getCurrencySymbol(currency)}</span>
-                        </span>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className=' font-medium'>Ödenecek Tutar:</td>
-                      <td>
-                        <span
-                          style={{
-                            ...valueBoxBoldStyle,
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'flex-end',
-                            gap: 2
-                          }}
-                        >
-                          <span>
-                            {formatTurkishNumber(payableAmountWithWithholding)}
-                            <span style={{ marginLeft: 6 }}>{getCurrencySymbol(currency)}</span>
-                          </span>
-                        </span>
-                      </td>
-                    </tr>
-                    {/* Eğer para birimi TRY değilse, TL karşılığını yeni bir satırda göster */}
-                    {currency !== 'TRY' && rate && !isNaN(rate) && (
-                      <tr>
-                        <td className=' font-medium'>Ödenecek Toplam TL Tutarı:</td>
-                        <td>
-                          <span style={valueBoxBoldStyle}>
-                            {formatTurkishNumber(payableAmountInTRY)} ₺
-                          </span>
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              )
-            })()}
+            <TextField
+              label='Belge Açıklaması'
+              multiline
+              minRows={4}
+              fullWidth
+              variant='outlined'
+              value={documentNote}
+              onChange={e => setDocumentNote(e.target.value)}
+            />
           </Paper>
+        </div>
+        {/* Sağ: Hesap Özeti (mevcut alanın olduğu yer) */}
+        <div className='flex-1 w-full max-w-md'>
+          {/* Özet Bilgiler Alanı */}
+          <div className='flex flex-col items-end'>
+            <div className='w-full max-w-md'>
+              <Paper
+                className='p-4 '
+                sx={{ background: theme.palette.background.paper, borderRadius: 2, boxShadow: 'none' }}
+              >
+                {/* Hesaplamalar */}
+                {(() => {
+                  // Mal/Hizmet Toplam Tutarı
+                  const totalAmount = rows.reduce((sum, row) => sum + parseTurkishNumber(row.total), 0)
+
+                  // Toplam İskonto Hesaplama
+                  let totalDiscount = 0
+
+                  if (activeDiscounts.length > 0) {
+                    totalDiscount = rows.reduce((sum, row) => {
+                      const unitPrice = parseTurkishNumber(row.unitPrice)
+                      const quantity = parseTurkishNumber(row.quantity)
+                      const grossTotal = unitPrice * quantity
+                      let discountMultiplier = 1
+                      const discountKeys = ['discount1', 'discount2', 'discount3', 'discount4']
+
+                      const discounts = discountKeys.map(key =>
+                        activeDiscounts.includes(key) ? parseTurkishNumber(row[key as keyof InvoiceRow] ?? '0') : 0
+                      )
+
+                      discounts.forEach(d => {
+                        if (d > 0) {
+                          discountMultiplier *= 1 - d / 100
+                        }
+                      })
+                      const netAmount = grossTotal * discountMultiplier
+
+                      return sum + (grossTotal - netAmount)
+                    }, 0)
+                  }
+
+                  // Hesaplanan KDV
+                  const totalVAT = rows.reduce((sum, row) => sum + parseTurkishNumber(row.vatAmount), 0)
+
+                  // Net Tutar (Matrah): Mal/Hizmet Toplam Tutarı - Toplam İskonto
+                  const netTotal = totalAmount - totalDiscount
+
+                  // Vergiler Dahil Toplam Tutar
+                  const totalWithTaxes = includesVAT ? netTotal : netTotal + totalVAT
+
+                  // Hesaplanan Tevkifat hesaplama fonksiyonu
+                  let calculatedWithholding = 0
+                  let withholdingRate = 0
+                  const isBulkWithholding = isWithholdingTax // toplu tevkifat seçili mi?
+
+                  if (currentInvoiceType === 'TEVKIFAT') {
+                    if (isBulkWithholding) {
+                      // Toplu tevkifat oranı: bulkWithholdingType prop'undan alınır
+                      const bulkKdvOranObj = kdvTevkifatOrnekleri.find(o => o.kod.toString() === bulkWithholdingType)
+
+                      withholdingRate = bulkKdvOranObj ? bulkKdvOranObj.oran / 10 : 0
+                      calculatedWithholding = (totalVAT * withholdingRate) / 10
+                    } else {
+                      // Her satır için ayrı ayrı hesapla
+                      calculatedWithholding = rows.reduce((sum, row) => {
+                        if (row.tevkifatType && row.tevkifatType !== 'Tevkifat Yok') {
+                          const kdvOranObj = kdvTevkifatOrnekleri.find(o => o.kod.toString() === row.tevkifatType)
+                          const oran = kdvOranObj ? kdvOranObj.oran / 10 : 0
+
+                          return sum + (parseTurkishNumber(row.vatAmount) * oran) / 10
+                        }
+
+                        return sum
+                      }, 0)
+                    }
+                  }
+
+                  // Ödenecek Tutar güncelle
+                  const payableAmountWithWithholding =
+                    currentInvoiceType === 'TEVKIFAT' ? totalWithTaxes - calculatedWithholding : totalWithTaxes
+
+                  // TL karşılığı hesaplama (sadece döviz ise)
+                  let payableAmountInTRY = payableAmountWithWithholding
+                  const rate = parseFloat(exchangeRate)
+
+                  if (currency !== 'TRY' && rate && !isNaN(rate)) {
+                    payableAmountInTRY = payableAmountWithWithholding * rate
+                  }
+
+                  // Temadan uygun renkler
+                  const valueBg =
+                    theme.palette.mode === 'dark' ? theme.palette.background.default : theme.palette.grey[100]
+
+                  const valueBorder = theme.palette.divider
+
+                  // Kutular için ortak stil
+                  const valueBoxStyle = {
+                    display: 'flex',
+                    flexDirection: 'row' as const,
+                    alignItems: 'center',
+                    justifyContent: 'flex-end',
+                    minWidth: 140,
+                    width: '100%',
+                    background: valueBg,
+                    borderRadius: 8,
+                    padding: '6px 16px',
+                    fontWeight: 400,
+                    fontSize: '1rem',
+                    textAlign: 'right' as const,
+                    border: `1px solid ${valueBorder}`,
+                    boxSizing: 'border-box' as const,
+                    transition: 'width 0.2s'
+                  }
+
+                  const valueBoxBoldStyle = {
+                    ...valueBoxStyle,
+                    fontWeight: 700
+                  }
+
+                  return (
+                    <table className='w-full text-right'>
+                      <colgroup>
+                        <col style={{ width: '60%' }} />
+                        <col style={{ width: '40%' }} />
+                      </colgroup>
+                      <tbody className='[&>tr>td]:py-1 [&>tr>td]:pr-2'>
+                        <tr>
+                          <td className=' font-medium'>Mal/Hizmet Toplam Tutarı:</td>
+                          <td>
+                            <span style={valueBoxStyle}>
+                              <span>{formatTurkishNumber(totalAmount)}</span>
+                              <span style={{ marginLeft: 6 }}>{getCurrencySymbol(currency)}</span>
+                            </span>
+                          </td>
+                        </tr>
+                        {/* Toplam İskonto Alanı */}
+                        {activeDiscounts.length > 0 && (
+                          <tr>
+                            <td className=' font-medium'>Toplam İskonto:</td>
+                            <td>
+                              <span style={valueBoxStyle}>
+                                <span>{formatTurkishNumber(totalDiscount)}</span>
+                                <span style={{ marginLeft: 6 }}>{getCurrencySymbol(currency)}</span>
+                              </span>
+                            </td>
+                          </tr>
+                        )}
+                        <tr>
+                          <td className=' font-medium'>Net Tutar (Matrah):</td>
+                          <td>
+                            <span style={valueBoxStyle}>
+                              <span>{formatTurkishNumber(netTotal)}</span>
+                              <span style={{ marginLeft: 6 }}>{getCurrencySymbol(currency)}</span>
+                            </span>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td className=' font-medium'>Hesaplanan KDV:</td>
+                          <td>
+                            <span style={valueBoxStyle}>
+                              <span>{formatTurkishNumber(totalVAT)}</span>
+                              <span style={{ marginLeft: 6 }}>{getCurrencySymbol(currency)}</span>
+                            </span>
+                          </td>
+                        </tr>
+                        {/* Hesaplanan Tevkifat Alanı */}
+                        {currentInvoiceType === 'TEVKIFAT' && (
+                          <tr>
+                            <td className=' font-medium'>Hesaplanan Tevkifat:</td>
+                            <td>
+                              <span style={valueBoxStyle}>
+                                <span>{formatTurkishNumber(calculatedWithholding)}</span>
+                                <span style={{ marginLeft: 6 }}>{getCurrencySymbol(currency)}</span>
+                              </span>
+                            </td>
+                          </tr>
+                        )}
+                        <tr>
+                          <td className=' font-medium'>Vergiler Dahil Toplam Tutar:</td>
+                          <td>
+                            <span style={valueBoxStyle}>
+                              <span>{formatTurkishNumber(totalWithTaxes)}</span>
+                              <span style={{ marginLeft: 6 }}>{getCurrencySymbol(currency)}</span>
+                            </span>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td className=' font-medium'>Ödenecek Tutar:</td>
+                          <td>
+                            <span
+                              style={{
+                                ...valueBoxBoldStyle,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'flex-end',
+                                gap: 2
+                              }}
+                            >
+                              <span>
+                                {formatTurkishNumber(payableAmountWithWithholding)}
+                                <span style={{ marginLeft: 6 }}>{getCurrencySymbol(currency)}</span>
+                              </span>
+                            </span>
+                          </td>
+                        </tr>
+                        {/* Eğer para birimi TRY değilse, TL karşılığını yeni bir satırda göster */}
+                        {currency !== 'TRY' && rate && !isNaN(rate) && (
+                          <tr>
+                            <td className=' font-medium'>Ödenecek Toplam TL Tutarı:</td>
+                            <td>
+                              <span style={valueBoxBoldStyle}>{formatTurkishNumber(payableAmountInTRY)} ₺</span>
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  )
+                })()}
+              </Paper>
+            </div>
+          </div>
         </div>
       </div>
     </div>
