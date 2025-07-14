@@ -1304,15 +1304,20 @@ const InvoiceItemsTable = ({
                             {formatTurkishNumber(payableAmountWithWithholding)}
                             <span style={{ marginLeft: 6 }}>{getCurrencySymbol(currency)}</span>
                           </span>
-                          {/* Eğer para birimi TRY değilse, TL karşılığını da kutunun hemen altında küçük ve gri olarak göster */}
-                          {currency !== 'TRY' && rate && !isNaN(rate) && (
-                            <span style={{ fontSize: '0.95em', color: theme.palette.text.secondary, marginTop: 2 }}>
-                              ≈ {formatTurkishNumber(payableAmountInTRY)} ₺
-                            </span>
-                          )}
                         </span>
                       </td>
                     </tr>
+                    {/* Eğer para birimi TRY değilse, TL karşılığını yeni bir satırda göster */}
+                    {currency !== 'TRY' && rate && !isNaN(rate) && (
+                      <tr>
+                        <td className=' font-medium'>Ödenecek Toplam TL Tutarı:</td>
+                        <td>
+                          <span style={valueBoxBoldStyle}>
+                            {formatTurkishNumber(payableAmountInTRY)} ₺
+                          </span>
+                        </td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
               )
