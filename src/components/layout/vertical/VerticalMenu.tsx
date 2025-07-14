@@ -113,9 +113,6 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
           <MenuItem href={`/${locale}/apps/e-invoice/add`} icon={<i className='ri-article-line' />}>
             {dictionary['navigation'].eInvoice}
           </MenuItem>
-          <MenuItem href={`/${locale}/apps/e-archive/add`} icon={<i className='ri-archive-2-line' />}>
-            {dictionary['navigation'].eArchive}
-          </MenuItem>
           <MenuItem href={`/${locale}/apps/e-delivery-note/add`} icon={<i className='ri-truck-line' />}>
             {dictionary['navigation'].eDeliveryNote}
           </MenuItem>
@@ -123,9 +120,6 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
         <MenuSection label={dictionary['navigation'].draft}>
           <MenuItem href={`/${locale}/apps/e-invoice/draft`} icon={<i className='ri-article-line' />}>
             {dictionary['navigation'].eInvoice}
-          </MenuItem>
-          <MenuItem href={`/${locale}/apps/e-archive/draft`} icon={<i className='ri-archive-2-line' />}>
-            {dictionary['navigation'].eArchive}
           </MenuItem>
           <MenuItem href={`/${locale}/apps/e-delivery-note/draft`} icon={<i className='ri-truck-line' />}>
             {dictionary['navigation'].eDeliveryNote}
@@ -135,9 +129,6 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
           <MenuItem href={`/${locale}/apps/e-invoice/incoming`} icon={<i className='ri-article-line' />}>
             {dictionary['navigation'].eInvoice}
           </MenuItem>
-          <MenuItem href={`/${locale}/apps/e-archive/incoming`} icon={<i className='ri-archive-2-line' />}>
-            {dictionary['navigation'].eArchive}
-          </MenuItem>
           <MenuItem href={`/${locale}/apps/e-delivery-note/incoming`} icon={<i className='ri-truck-line' />}>
             {dictionary['navigation'].eDeliveryNote}
           </MenuItem>
@@ -145,9 +136,6 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
         <MenuSection label={dictionary['navigation'].outgoing}>
           <MenuItem href={`/${locale}/apps/e-invoice/outgoing`} icon={<i className='ri-article-line' />}>
             {dictionary['navigation'].eInvoice}
-          </MenuItem>
-          <MenuItem href={`/${locale}/apps/e-archive/outgoing`} icon={<i className='ri-archive-2-line' />}>
-            {dictionary['navigation'].eArchive}
           </MenuItem>
           <MenuItem href={`/${locale}/apps/e-delivery-note/outgoing`} icon={<i className='ri-truck-line' />}>
             {dictionary['navigation'].eDeliveryNote}

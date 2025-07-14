@@ -51,6 +51,7 @@ const tevkifatOptions = [
 
 type InvoiceRow = {
   stockCode: string
+  receiverStockCode?: string
   stockName: string
   quantity: string
   unit: string
@@ -194,7 +195,7 @@ const InvoiceItemsTable = ({
   // Ekstra sütunların anahtarlarını ve etiketlerini tanımlıyoruz
   const allOptionalColumns = [
     { key: 'description', label: 'Açıklama' },
-    { key: 'note', label: 'Not' }
+    { key: 'receiverStockCode', label: 'Alıcı Stok Kodu' }
   ]
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -576,7 +577,12 @@ const InvoiceItemsTable = ({
                         ]}
                   </Menu>
                 </TableCell>
-                <TableCell className='p-4 text-left align-center justify-center min-w-[120px] '>Stok Kodu</TableCell>
+                <TableCell className='p-4 text-left align-center justify-center min-w-[180px] '>Stok Kodu</TableCell>
+                {extraColumns.includes('receiverStockCode') && (
+                  <TableCell className='p-4 text-left align-center justify-center min-w-[180px]'>
+                    Alıcı Stok Kodu
+                  </TableCell>
+                )}
                 <TableCell className='p-4 text-left align-center justify-center min-w-[300px] '>Stok Adı</TableCell>
                 {extraColumns.includes('description') && (
                   <TableCell className='p-4 text-left align-center justify-center min-w-[200px]'>Açıklama</TableCell>
@@ -631,7 +637,7 @@ const InvoiceItemsTable = ({
                     </div>
                   </TableCell>
                   {/* Stok Kodu */}
-                  <TableCell className='p-2 text-center align-middle justify-center min-w-[120px]'>
+                  <TableCell className='p-2 text-center align-middle justify-center min-w-[180px]'>
                     <div className='w-full flex items-center gap-1'>
                       <TextField
                         inputRef={el => registerRef(idx, 'stockCode', el)}
@@ -645,6 +651,20 @@ const InvoiceItemsTable = ({
                       />
                     </div>
                   </TableCell>
+                  {extraColumns.includes('receiverStockCode') && (
+                    <TableCell className='p-2 text-center align-middle justify-center min-w-[180px]'>
+                      <TextField
+                        inputRef={el => registerRef(idx, 'receiverStockCode', el)}
+                        onKeyDown={e => handleKeyDown(e, idx, 'receiverStockCode')}
+                        value={row.receiverStockCode || ''}
+                        onChange={e => handleChange(idx, 'receiverStockCode', e.target.value)}
+                        size='small'
+                        variant='outlined'
+                        inputProps={{ maxLength: 100 }}
+                        placeholder='Alıcı Stok Kodu'
+                      />
+                    </TableCell>
+                  )}
                   {/* Stok Adı */}
                   <TableCell className='p-2 text-center align-middle justify-center min-w-[300px] '>
                     <Tooltip title={row.stockName} placement='top' arrow disableInteractive>

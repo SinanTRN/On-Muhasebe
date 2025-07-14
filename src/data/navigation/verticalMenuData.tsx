@@ -82,10 +82,6 @@ const verticalMenuData = (dictionary: Awaited<ReturnType<typeof getDictionary>>)
         icon: 'ri-article-line'
       },
       {
-        label: dictionary['navigation'].eArchive,
-        icon: 'ri-archive-2-line'
-      },
-      {
         label: dictionary['navigation'].eDeliveryNote,
         icon: 'ri-truck-line'
       }
@@ -100,10 +96,6 @@ const verticalMenuData = (dictionary: Awaited<ReturnType<typeof getDictionary>>)
       {
         label: dictionary['navigation'].eInvoice,
         icon: 'ri-article-line'
-      },
-      {
-        label: dictionary['navigation'].eArchive,
-        icon: 'ri-archive-2-line'
       },
       {
         label: dictionary['navigation'].eDeliveryNote,
@@ -122,10 +114,6 @@ const verticalMenuData = (dictionary: Awaited<ReturnType<typeof getDictionary>>)
         icon: 'ri-article-line'
       },
       {
-        label: dictionary['navigation'].eArchive,
-        icon: 'ri-archive-2-line'
-      },
-      {
         label: dictionary['navigation'].eDeliveryNote,
         icon: 'ri-truck-line'
       }
@@ -140,10 +128,6 @@ const verticalMenuData = (dictionary: Awaited<ReturnType<typeof getDictionary>>)
       {
         label: dictionary['navigation'].eInvoice,
         icon: 'ri-article-line'
-      },
-      {
-        label: dictionary['navigation'].eArchive,
-        icon: 'ri-archive-2-line'
       },
       {
         label: dictionary['navigation'].eDeliveryNote,
