@@ -604,14 +604,7 @@ const InvoiceItemsTable = ({
                     Özel Matrah
                   </TableCell>
                 )}
-                {activeDiscounts.length === 0 && (
-                  <TableCell className='p-4 text-right align-center justify-center min-w-[150px]'>
-                    Toplam Fiyat
-                  </TableCell>
-                )}
-                {activeDiscounts.length > 0 && (
-                  <TableCell className='p-4 text-right align-center justify-center min-w-[150px]'>Net Tutar</TableCell>
-                )}
+                <TableCell className='p-4 text-right align-center justify-center min-w-[150px]'>Toplam Fiyat</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -1103,11 +1096,40 @@ const InvoiceItemsTable = ({
               // Mal/Hizmet Toplam Tutarı
               const totalAmount = rows.reduce((sum, row) => sum + parseTurkishNumber(row.total), 0)
 
+              // Toplam İskonto Hesaplama
+              let totalDiscount = 0
+
+              if (activeDiscounts.length > 0) {
+                totalDiscount = rows.reduce((sum, row) => {
+                  const unitPrice = parseTurkishNumber(row.unitPrice)
+                  const quantity = parseTurkishNumber(row.quantity)
+                  const grossTotal = unitPrice * quantity
+                  let discountMultiplier = 1
+                  const discountKeys = ['discount1', 'discount2', 'discount3', 'discount4']
+
+                  const discounts = discountKeys.map(key =>
+                    activeDiscounts.includes(key) ? parseTurkishNumber(row[key as keyof InvoiceRow] ?? '0') : 0
+                  )
+
+                  discounts.forEach(d => {
+                    if (d > 0) {
+                      discountMultiplier *= 1 - d / 100
+                    }
+                  })
+                  const netAmount = grossTotal * discountMultiplier
+
+                  return sum + (grossTotal - netAmount)
+                }, 0)
+              }
+
               // Hesaplanan KDV
               const totalVAT = rows.reduce((sum, row) => sum + parseTurkishNumber(row.vatAmount), 0)
 
+              // Net Tutar (Matrah): Mal/Hizmet Toplam Tutarı - Toplam İskonto
+              const netTotal = totalAmount - totalDiscount
+
               // Vergiler Dahil Toplam Tutar
-              const totalWithTaxes = includesVAT ? totalAmount : totalAmount + totalVAT
+              const totalWithTaxes = includesVAT ? netTotal : netTotal + totalVAT
 
               // Hesaplanan Tevkifat hesaplama fonksiyonu
               let calculatedWithholding = 0
@@ -1174,9 +1196,9 @@ const InvoiceItemsTable = ({
                     <col style={{ width: '60%' }} />
                     <col style={{ width: '40%' }} />
                   </colgroup>
-                  <tbody>
+                  <tbody className='[&>tr>td]:py-1 [&>tr>td]:pr-2'>
                     <tr>
-                      <td className='py-1 pr-2 font-medium'>Mal/Hizmet Toplam Tutarı:</td>
+                      <td className=' font-medium'>Mal/Hizmet Toplam Tutarı:</td>
                       <td>
                         <span style={valueBoxStyle}>
                           <span>{formatTurkishNumber(totalAmount)}</span>
@@ -1184,17 +1206,29 @@ const InvoiceItemsTable = ({
                         </span>
                       </td>
                     </tr>
+                    {/* Toplam İskonto Alanı */}
+                    {activeDiscounts.length > 0 && (
+                      <tr>
+                        <td className=' font-medium'>Toplam İskonto:</td>
+                        <td>
+                          <span style={valueBoxStyle}>
+                            <span>{formatTurkishNumber(totalDiscount)}</span>
+                            <span style={{ marginLeft: 6 }}>{getCurrencySymbol(currency)}</span>
+                          </span>
+                        </td>
+                      </tr>
+                    )}
                     <tr>
-                      <td className='py-1 pr-2 font-medium'>Net Tutar (Matrah):</td>
+                      <td className=' font-medium'>Net Tutar (Matrah):</td>
                       <td>
                         <span style={valueBoxStyle}>
-                          <span>{formatTurkishNumber(totalAmount)}</span>
+                          <span>{formatTurkishNumber(netTotal)}</span>
                           <span style={{ marginLeft: 6 }}>{getCurrencySymbol(currency)}</span>
                         </span>
                       </td>
                     </tr>
                     <tr>
-                      <td className='py-1 pr-2 font-medium'>Hesaplanan KDV:</td>
+                      <td className=' font-medium'>Hesaplanan KDV:</td>
                       <td>
                         <span style={valueBoxStyle}>
                           <span>{formatTurkishNumber(totalVAT)}</span>
@@ -1205,7 +1239,7 @@ const InvoiceItemsTable = ({
                     {/* Hesaplanan Tevkifat Alanı */}
                     {currentInvoiceType === 'TEVKIFAT' && (
                       <tr>
-                        <td className='py-1 pr-2 font-medium'>Hesaplanan Tevkifat:</td>
+                        <td className=' font-medium'>Hesaplanan Tevkifat:</td>
                         <td>
                           <span style={valueBoxStyle}>
                             <span>{formatTurkishNumber(calculatedWithholding)}</span>
@@ -1215,7 +1249,7 @@ const InvoiceItemsTable = ({
                       </tr>
                     )}
                     <tr>
-                      <td className='py-1 pr-2 font-medium'>Vergiler Dahil Toplam Tutar:</td>
+                      <td className=' font-medium'>Vergiler Dahil Toplam Tutar:</td>
                       <td>
                         <span style={valueBoxStyle}>
                           <span>{formatTurkishNumber(totalWithTaxes)}</span>
@@ -1224,7 +1258,7 @@ const InvoiceItemsTable = ({
                       </td>
                     </tr>
                     <tr>
-                      <td className='py-1 pr-2 font-medium'>Ödenecek Tutar:</td>
+                      <td className=' font-medium'>Ödenecek Tutar:</td>
                       <td>
                         <span style={valueBoxBoldStyle}>
                           <span>{formatTurkishNumber(payableAmountWithWithholding)}</span>
