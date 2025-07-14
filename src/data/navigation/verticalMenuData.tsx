@@ -72,108 +72,87 @@ const verticalMenuData = (dictionary: Awaited<ReturnType<typeof getDictionary>>)
     ]
   },
 
+  // Create Section
   {
-    label: dictionary['navigation'].eInvoice,
+    label: dictionary['navigation'].create,
     isSection: true,
     children: [
       {
-        label: dictionary['navigation'].create,
-        icon: 'ri-add-box-line',
-        children: [
-          {
-            label: dictionary['navigation'].new,
-            href: '/apps/e-invoice/add'
-          },
-          {
-            label: dictionary['navigation'].draft,
-            href: '/apps/e-invoice/draft'
-          }
-        ]
+        label: dictionary['navigation'].eInvoice,
+        icon: 'ri-article-line'
       },
       {
-        label: dictionary['navigation'].status,
-        icon: 'ri-bar-chart-box-line',
-        children: [
-          {
-            label: dictionary['navigation'].incoming,
-            href: '/apps/ecommerce/dashboard'
-          },
-          {
-            label: dictionary['navigation'].outgoing,
-            href: '/apps/ecommerce/manage-reviews'
-          }
-        ]
+        label: dictionary['navigation'].eArchive,
+        icon: 'ri-archive-2-line'
+      },
+      {
+        label: dictionary['navigation'].eDeliveryNote,
+        icon: 'ri-truck-line'
       }
     ]
   },
+
+  // Draft Section
   {
-    label: dictionary['navigation'].eArchive,
+    label: dictionary['navigation'].draft,
     isSection: true,
     children: [
       {
-        label: dictionary['navigation'].create,
-        icon: 'ri-add-box-line',
-        children: [
-          {
-            label: dictionary['navigation'].new,
-            href: '/apps/ecommerce/dashboard'
-          },
-          {
-            label: dictionary['navigation'].draft,
-            href: '/apps/ecommerce/manage-reviews'
-          }
-        ]
+        label: dictionary['navigation'].eInvoice,
+        icon: 'ri-article-line'
       },
       {
-        label: dictionary['navigation'].status,
-        icon: 'ri-bar-chart-box-line',
-        children: [
-          {
-            label: dictionary['navigation'].incoming,
-            href: '/apps/ecommerce/dashboard'
-          },
-          {
-            label: dictionary['navigation'].outgoing,
-            href: '/apps/ecommerce/manage-reviews'
-          }
-        ]
+        label: dictionary['navigation'].eArchive,
+        icon: 'ri-archive-2-line'
+      },
+      {
+        label: dictionary['navigation'].eDeliveryNote,
+        icon: 'ri-truck-line'
       }
     ]
   },
+
+  // Incoming Section
   {
-    label: dictionary['navigation'].eDeliveryNote,
+    label: dictionary['navigation'].incoming,
     isSection: true,
     children: [
       {
-        label: dictionary['navigation'].create,
-        icon: 'ri-add-box-line',
-        children: [
-          {
-            label: dictionary['navigation'].new,
-            href: '/apps/ecommerce/dashboard'
-          },
-          {
-            label: dictionary['navigation'].draft,
-            href: '/apps/ecommerce/manage-reviews'
-          }
-        ]
+        label: dictionary['navigation'].eInvoice,
+        icon: 'ri-article-line'
       },
       {
-        label: dictionary['navigation'].status,
-        icon: 'ri-bar-chart-box-line',
-        children: [
-          {
-            label: dictionary['navigation'].incoming,
-            href: '/apps/ecommerce/dashboard'
-          },
-          {
-            label: dictionary['navigation'].outgoing,
-            href: '/apps/ecommerce/manage-reviews'
-          }
-        ]
+        label: dictionary['navigation'].eArchive,
+        icon: 'ri-archive-2-line'
+      },
+      {
+        label: dictionary['navigation'].eDeliveryNote,
+        icon: 'ri-truck-line'
       }
     ]
   },
+
+  // Outgoing Section
+  {
+    label: dictionary['navigation'].outgoing,
+    isSection: true,
+    children: [
+      {
+        label: dictionary['navigation'].eInvoice,
+        icon: 'ri-article-line'
+      },
+      {
+        label: dictionary['navigation'].eArchive,
+        icon: 'ri-archive-2-line'
+      },
+      {
+        label: dictionary['navigation'].eDeliveryNote,
+        icon: 'ri-truck-line'
+      }
+    ]
+  },
+
+  // Reports Section
   {
     label: dictionary['navigation'].reports,
     isSection: true,
@@ -190,6 +169,8 @@ const verticalMenuData = (dictionary: Awaited<ReturnType<typeof getDictionary>>)
       }
     ]
   },
+
+  // Settings Section
   {
     label: dictionary['navigation'].settings,
     isSection: true,

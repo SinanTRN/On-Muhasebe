@@ -109,35 +109,49 @@ const VerticalMenu = ({ dictionary, scrollMenu }: Props) => {
             {dictionary['navigation'].helpCenter}
           </MenuItem>
         </SubMenu>
-        <MenuSection label={dictionary['navigation'].eInvoice}>
-          <SubMenu label={dictionary['navigation'].create} icon={<i className='ri-add-box-line' />}>
-            <MenuItem href={`/${locale}/apps/e-invoice/add`}>{dictionary['navigation'].new}</MenuItem>
-            <MenuItem href={`/${locale}/apps/e-invoice/draft`}>{dictionary['navigation'].draft}</MenuItem>
-          </SubMenu>
-          <SubMenu label={dictionary['navigation'].status} icon={<i className='ri-bar-chart-box-line' />}>
-            <MenuItem href={`/${locale}/apps/e-invoice/incoming`}>{dictionary['navigation'].incoming}</MenuItem>
-            <MenuItem href={`/${locale}/apps/e-invoice/outgoing`}>{dictionary['navigation'].outgoing}</MenuItem>
-          </SubMenu>
+        <MenuSection label={dictionary['navigation'].create}>
+          <MenuItem href={`/${locale}/apps/e-invoice/add`} icon={<i className='ri-article-line' />}>
+            {dictionary['navigation'].eInvoice}
+          </MenuItem>
+          <MenuItem href={`/${locale}/apps/e-archive/add`} icon={<i className='ri-archive-2-line' />}>
+            {dictionary['navigation'].eArchive}
+          </MenuItem>
+          <MenuItem href={`/${locale}/apps/e-delivery-note/add`} icon={<i className='ri-truck-line' />}>
+            {dictionary['navigation'].eDeliveryNote}
+          </MenuItem>
         </MenuSection>
-        <MenuSection label={dictionary['navigation'].eArchive}>
-          <SubMenu label={dictionary['navigation'].create} icon={<i className='ri-add-box-line' />}>
-            <MenuItem href={`/${locale}/apps/ecommerce/dashboard`}>{dictionary['navigation'].new}</MenuItem>
-            <MenuItem href={`/${locale}/apps/ecommerce/customers/list`}>{dictionary['navigation'].draft}</MenuItem>
-          </SubMenu>
-          <SubMenu label={dictionary['navigation'].status} icon={<i className='ri-bar-chart-box-line' />}>
-            <MenuItem href={`/${locale}/apps/ecommerce/dashboard`}>{dictionary['navigation'].incoming}</MenuItem>
-            <MenuItem href={`/${locale}/apps/ecommerce/customers/list`}>{dictionary['navigation'].outgoing}</MenuItem>
-          </SubMenu>
+        <MenuSection label={dictionary['navigation'].draft}>
+          <MenuItem href={`/${locale}/apps/e-invoice/draft`} icon={<i className='ri-article-line' />}>
+            {dictionary['navigation'].eInvoice}
+          </MenuItem>
+          <MenuItem href={`/${locale}/apps/e-archive/draft`} icon={<i className='ri-archive-2-line' />}>
+            {dictionary['navigation'].eArchive}
+          </MenuItem>
+          <MenuItem href={`/${locale}/apps/e-delivery-note/draft`} icon={<i className='ri-truck-line' />}>
+            {dictionary['navigation'].eDeliveryNote}
+          </MenuItem>
         </MenuSection>
-        <MenuSection label={dictionary['navigation'].eDeliveryNote}>
-          <SubMenu label={dictionary['navigation'].create} icon={<i className='ri-add-box-line' />}>
-            <MenuItem href={`/${locale}/apps/ecommerce/dashboard`}>{dictionary['navigation'].new}</MenuItem>
-            <MenuItem href={`/${locale}/apps/ecommerce/customers/list`}>{dictionary['navigation'].draft}</MenuItem>
-          </SubMenu>
-          <SubMenu label={dictionary['navigation'].status} icon={<i className='ri-bar-chart-box-line' />}>
-            <MenuItem href={`/${locale}/apps/ecommerce/dashboard`}>{dictionary['navigation'].incoming}</MenuItem>
-            <MenuItem href={`/${locale}/apps/ecommerce/customers/list`}>{dictionary['navigation'].outgoing}</MenuItem>
-          </SubMenu>
+        <MenuSection label={dictionary['navigation'].incoming}>
+          <MenuItem href={`/${locale}/apps/e-invoice/incoming`} icon={<i className='ri-article-line' />}>
+            {dictionary['navigation'].eInvoice}
+          </MenuItem>
+          <MenuItem href={`/${locale}/apps/e-archive/incoming`} icon={<i className='ri-archive-2-line' />}>
+            {dictionary['navigation'].eArchive}
+          </MenuItem>
+          <MenuItem href={`/${locale}/apps/e-delivery-note/incoming`} icon={<i className='ri-truck-line' />}>
+            {dictionary['navigation'].eDeliveryNote}
+          </MenuItem>
+        </MenuSection>
+        <MenuSection label={dictionary['navigation'].outgoing}>
+          <MenuItem href={`/${locale}/apps/e-invoice/outgoing`} icon={<i className='ri-article-line' />}>
+            {dictionary['navigation'].eInvoice}
+          </MenuItem>
+          <MenuItem href={`/${locale}/apps/e-archive/outgoing`} icon={<i className='ri-archive-2-line' />}>
+            {dictionary['navigation'].eArchive}
+          </MenuItem>
+          <MenuItem href={`/${locale}/apps/e-delivery-note/outgoing`} icon={<i className='ri-truck-line' />}>
+            {dictionary['navigation'].eDeliveryNote}
+          </MenuItem>
         </MenuSection>
         <MenuSection label={dictionary['navigation'].reports}>
           <MenuItem href={`/${locale}/reports/sales`} icon={<i className='ri-bar-chart-line' />}>
