@@ -75,6 +75,7 @@ const EInvoiceCard = ({
   const [differentCustomer, setDifferentCustomer] = useState('')
   const [dueDateAndPaymentMethod, setDueDateAndPaymentMethod] = useState(false)
   const [customers, setCustomers] = useState<Tbl[]>(sampleCustomers)
+  const [deliveryAndOrder, setDeliveryAndOrder] = useState(false)
 
   const [invoiceInfo, setInvoiceInfo] = useState({
     documentNo: '',
@@ -87,6 +88,13 @@ const EInvoiceCard = ({
     invoiceType: 'NORMAL',
     status: 'CLOSED',
     isEInvoice: false
+  })
+
+  const [deliveryAndOrderInfo, setDeliveryAndOrderInfo] = useState({
+    orderNumber: '',
+    orderDate: null as Date | null,
+    deliveryNumber: '',
+    deliveryDate: null as Date | null
   })
 
   const [customerDrawerOpen, setCustomerDrawerOpen] = useState(false)
@@ -538,7 +546,6 @@ const EInvoiceCard = ({
             </Box>
           </Box>
         )}
-
         {/* Sipariş ve Gönderim Bilgileri */}
         {(invoiceInfo.isEInvoice || dueDateAndPaymentMethod) && (
           <Box
@@ -714,6 +721,7 @@ const EInvoiceCard = ({
               />
             }
             label='E-Ticaret'
+            className='sm:mr-4'
           />
           {currentInvoiceType === 'TEVKIFAT' && (
             <FormControlLabel
@@ -728,7 +736,84 @@ const EInvoiceCard = ({
               className='sm:mr-4'
             />
           )}
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={deliveryAndOrder}
+                onChange={e => setDeliveryAndOrder(e.target.checked)}
+                color='primary'
+              />
+            }
+            label='İrsaliye & Sipariş Bilgileri'
+            className='sm:mr-4'
+          />
         </Box>
+        {/* İrsaliye ve Sipariş Bilgileri */}
+        {deliveryAndOrder && (
+          <Box
+            className='flex flex-col gap-4 sm:flex-row sm:gap-6 p-4 rounded-md shadow-md'
+            sx={{ background: theme.palette.background.paper }}
+          >
+            {/* İrsaliye Bilgileri */}
+            <Box className='w-full flex-1 min-w-[260px]'>
+              <Typography variant='h6' className='mb-4'>
+                İrsaliye Bilgileri
+              </Typography>
+              <Grid container direction='column' spacing={0} className='flex flex-col gap-4 max-w-[70%]'>
+                <Grid item>
+                  <TextField
+                    fullWidth
+                    label='İrsaliye No'
+                    value={deliveryAndOrderInfo.deliveryNumber}
+                    onChange={e => setDeliveryAndOrderInfo({ ...deliveryAndOrderInfo, deliveryNumber: e.target.value })}
+                    InputProps={{ style: inputBg }}
+                  />
+                </Grid>
+                <Grid item>
+                  <AppReactDatepicker
+                    selected={deliveryAndOrderInfo.deliveryDate}
+                    onChange={date => setDeliveryAndOrderInfo({ ...deliveryAndOrderInfo, deliveryDate: date })}
+                    showTimeSelect
+                    timeFormat='HH:mm'
+                    timeIntervals={15}
+                    dateFormat='dd.MM.yyyy HH:mm'
+                    customInput={<CustomInput label='İrsaliye Tarihi' fullWidth InputProps={{ style: inputBg }} />}
+                    boxProps={{ width: '100%' }}
+                  />
+                </Grid>
+              </Grid>
+            </Box>
+            {/* Sipariş Bilgileri */}
+            <Box className='w-full flex-1 min-w-[260px]'>
+              <Typography variant='h6' className='mb-4'>
+                Sipariş Bilgileri
+              </Typography>
+              <Grid container direction='column' spacing={0} className='flex flex-col gap-4 max-w-[70%]'>
+                <Grid item>
+                  <TextField
+                    fullWidth
+                    label='Sipariş No'
+                    value={deliveryAndOrderInfo.orderNumber}
+                    onChange={e => setDeliveryAndOrderInfo({ ...deliveryAndOrderInfo, orderNumber: e.target.value })}
+                    InputProps={{ style: inputBg }}
+                  />
+                </Grid>
+                <Grid item>
+                  <AppReactDatepicker
+                    selected={deliveryAndOrderInfo.orderDate}
+                    onChange={date => setDeliveryAndOrderInfo({ ...deliveryAndOrderInfo, orderDate: date })}
+                    showTimeSelect
+                    timeFormat='HH:mm'
+                    timeIntervals={15}
+                    dateFormat='dd.MM.yyyy HH:mm'
+                    customInput={<CustomInput label='Sipariş Tarihi' fullWidth InputProps={{ style: inputBg }} />}
+                    boxProps={{ width: '100%' }}
+                  />
+                </Grid>
+              </Grid>
+            </Box>
+          </Box>
+        )}
         {/* Toplu Tevkifat Bilgileri */}
         {isWithholdingTax && currentInvoiceType === 'TEVKIFAT' && (
           <Box
