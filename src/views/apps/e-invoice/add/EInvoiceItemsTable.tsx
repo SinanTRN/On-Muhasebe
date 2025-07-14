@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect, useCallback } from 'react'
 
 import {
   Table,
@@ -239,7 +239,7 @@ const InvoiceItemsTable = ({
   }
 
   // Türkçe formatta sayıları biçimlendirme
-  const formatTurkishNumber = (val: string | number): string => {
+  const formatTurkishNumber = useCallback((val: string | number): string => {
     const num = typeof val === 'string' ? parseTurkishNumber(val) : val
 
     if (isNaN(num)) return ''
@@ -248,7 +248,7 @@ const InvoiceItemsTable = ({
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
     })
-  }
+  }, [])
 
   // Satırdaki değişiklikleri işleyen fonksiyon
   const handleChange = (idx: number, field: string, value: any) => {
@@ -500,7 +500,7 @@ const InvoiceItemsTable = ({
 
       return updated
     })
-  }, [activeDiscounts])
+  }, [activeDiscounts, includesVAT, formatTurkishNumber])
 
   return (
     <div className='p-4  rounded-md shadow-md' style={{ background: theme.palette.background.paper }}>
