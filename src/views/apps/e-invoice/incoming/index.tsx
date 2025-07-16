@@ -1,4 +1,4 @@
-import EInvoiceListTable from './EInvoiceListTable'
+import EInvoiceListTable from '../shared/EInvoiceListTable'
 
 const EInvoiceIncoming = () => {
   // Örnek veri
