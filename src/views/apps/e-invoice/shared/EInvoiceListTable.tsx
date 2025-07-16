@@ -169,7 +169,7 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
   }
 
   return (
-    <Card>
+    <Card className='p-4  rounded-md shadow-md'>
       <CardContent>
         <div style={{ display: 'flex', gap: 16, marginBottom: 16, flexWrap: 'wrap' }}>
           <TextField
