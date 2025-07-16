@@ -40,7 +40,7 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
   const [statusFilter, setStatusFilter] = useState('')
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(0)
-  const [rowsPerPage, setRowsPerPage] = useState(5)
+  const [rowsPerPage, setRowsPerPage] = useState(10)
   const [startDate, setStartDate] = useState<Date | null>(null)
   const [endDate, setEndDate] = useState<Date | null>(null)
 
@@ -188,7 +188,7 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
               ))}
               {pagedData.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={5} align='center'>Kayıt bulunamadı.</TableCell>
+                  <TableCell colSpan={10} align='center'>Kayıt bulunamadı.</TableCell>
                 </TableRow>
               )}
             </TableBody>
@@ -201,7 +201,7 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
             page={page}
             onPageChange={() => {}}
             rowsPerPage={rowsPerPage}
-            rowsPerPageOptions={[5, 10, 25]}
+            rowsPerPageOptions={[10, 25]}
             labelRowsPerPage="Satır / Sayfa"
             labelDisplayedRows={({ from, to, count, page }) =>
               `${from}-${to} arası, toplam ${count !== -1 ? count : `>${to}`} kayıt (Sayfa ${page + 1})`
