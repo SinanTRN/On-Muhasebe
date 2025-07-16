@@ -1,5 +1,5 @@
 'use client'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Table from '@mui/material/Table'
@@ -18,24 +18,30 @@ import TablePagination from '@mui/material/TablePagination'
 import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
 import Pagination from '@mui/material/Pagination'
 import Stack from '@mui/material/Stack'
+import Checkbox from '@mui/material/Checkbox'
 
 type Invoice = {
-  id: string
-  sender: string
-  receiver: string
-  date: string
-  amount: number
-  status: string
+  id: string // Fatura No
+  status: string // Durum
+  vknTckn: string
+  title: string // Unvan
+  nameSurname: string // Ad Soyad
+  type: string // Tip
+  amount: number // Tutar
+  unit: string // Birim
+  receivedAt: string // Alınma Zamanı (ISO string)
+  response: string // Yanıt
+  envelopeStatus: string // Fatura Zarf Durumu
 }
 
 type Props = {
   invoiceData: Invoice[]
 }
 
-const statusOptions = ['Kabul Edildi', 'Beklemede', 'Reddedildi']
+const statusOptions = ['Başarılı', 'Hatalı', 'Beklemede']
 
 const EInvoiceListTable = ({ invoiceData }: Props) => {
-  const [orderBy, setOrderBy] = useState<keyof Invoice>('date')
+  const [orderBy, setOrderBy] = useState<keyof Invoice>('receivedAt')
   const [order, setOrder] = useState<'asc' | 'desc'>('desc')
   const [statusFilter, setStatusFilter] = useState('')
   const [search, setSearch] = useState('')
@@ -43,6 +49,7 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
   const [rowsPerPage, setRowsPerPage] = useState(10)
   const [startDate, setStartDate] = useState<Date | null>(null)
   const [endDate, setEndDate] = useState<Date | null>(null)
+  const [selected, setSelected] = useState<string[]>([])
 
   const handleSort = (property: keyof Invoice) => {
     const isAsc = orderBy === property && order === 'asc'
@@ -53,13 +60,16 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
   const filteredData = useMemo(() => {
     return invoiceData
       .filter(inv => {
-        // Durum ve arama filtreleri
-        const statusMatch = !statusFilter || inv.status === statusFilter
+        // Arama ve filtreler (örnek: id, vknTckn, title, nameSurname, type, response, envelopeStatus)
         const searchMatch =
           inv.id.toLowerCase().includes(search.toLowerCase()) ||
-          inv.sender.toLowerCase().includes(search.toLowerCase())
+          inv.vknTckn.toLowerCase().includes(search.toLowerCase()) ||
+          inv.title.toLowerCase().includes(search.toLowerCase()) ||
+          inv.nameSurname.toLowerCase().includes(search.toLowerCase())
+        // Durum filtreleri (örnek: envelopeStatus)
+        const statusMatch = !statusFilter || inv.envelopeStatus === statusFilter
         // Tarih filtreleri
-        const invoiceDate = new Date(inv.date)
+        const invoiceDate = new Date(inv.receivedAt)
         let dateMatch = true
         if (startDate && endDate) {
           dateMatch = invoiceDate >= startDate && invoiceDate <= endDate
@@ -73,14 +83,18 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
       .sort((a, b) => {
         if (orderBy === 'amount') {
           return order === 'asc' ? a.amount - b.amount : b.amount - a.amount
-        } else if (orderBy === 'date') {
+        } else if (orderBy === 'receivedAt') {
           return order === 'asc'
-            ? a.date.localeCompare(b.date)
-            : b.date.localeCompare(a.date)
+            ? (a.receivedAt || '').localeCompare(b.receivedAt || '')
+            : (b.receivedAt || '').localeCompare(a.receivedAt || '')
+        } else if (orderBy === 'status') {
+          return order === 'asc'
+            ? (a.status || '').localeCompare(b.status || '')
+            : (b.status || '').localeCompare(a.status || '')
         } else {
           return order === 'asc'
-            ? String(a[orderBy]).localeCompare(String(b[orderBy]))
-            : String(b[orderBy]).localeCompare(String(a[orderBy]))
+            ? String(a[orderBy] || '').localeCompare(String(b[orderBy] || ''))
+            : String(b[orderBy] || '').localeCompare(String(a[orderBy] || ''))
         }
       })
   }, [invoiceData, statusFilter, search, order, orderBy, startDate, endDate])
@@ -88,6 +102,40 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
   const pagedData = useMemo(() => {
     return filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
   }, [filteredData, page, rowsPerPage])
+
+  useEffect(() => {
+    const maxPage = Math.max(0, Math.ceil(filteredData.length / rowsPerPage) - 1)
+    if (page > maxPage) {
+      setPage(maxPage)
+    }
+  }, [filteredData.length, rowsPerPage])
+
+  const isSelected = (id: string) => selected.indexOf(id) !== -1
+  const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.checked) {
+      const newSelected = pagedData.map((n) => n.id)
+      setSelected(newSelected)
+      return
+    }
+    setSelected([])
+  }
+  const handleClick = (id: string) => {
+    const selectedIndex = selected.indexOf(id)
+    let newSelected: string[] = []
+    if (selectedIndex === -1) {
+      newSelected = newSelected.concat(selected, id)
+    } else if (selectedIndex === 0) {
+      newSelected = newSelected.concat(selected.slice(1))
+    } else if (selectedIndex === selected.length - 1) {
+      newSelected = newSelected.concat(selected.slice(0, -1))
+    } else if (selectedIndex > 0) {
+      newSelected = newSelected.concat(
+        selected.slice(0, selectedIndex),
+        selected.slice(selectedIndex + 1)
+      )
+    }
+    setSelected(newSelected)
+  }
 
   return (
     <Card>
@@ -139,56 +187,55 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>
-                  <TableSortLabel
-                    active={orderBy === 'id'}
-                    direction={orderBy === 'id' ? order : 'asc'}
-                    onClick={() => handleSort('id')}
-                  >Fatura No</TableSortLabel>
+                <TableCell padding='checkbox'>
+                  <Checkbox
+                    indeterminate={selected.length > 0 && selected.length < pagedData.length}
+                    checked={pagedData.length > 0 && selected.length === pagedData.length}
+                    onChange={handleSelectAllClick}
+                    inputProps={{ 'aria-label': 'Tümünü seç' }}
+                  />
                 </TableCell>
-                <TableCell>
-                  <TableSortLabel
-                    active={orderBy === 'sender'}
-                    direction={orderBy === 'sender' ? order : 'asc'}
-                    onClick={() => handleSort('sender')}
-                  >Gönderici</TableSortLabel>
-                </TableCell>
-                <TableCell>
-                  <TableSortLabel
-                    active={orderBy === 'date'}
-                    direction={orderBy === 'date' ? order : 'asc'}
-                    onClick={() => handleSort('date')}
-                  >Tarih</TableSortLabel>
-                </TableCell>
-                <TableCell align='right'>
-                  <TableSortLabel
-                    active={orderBy === 'amount'}
-                    direction={orderBy === 'amount' ? order : 'asc'}
-                    onClick={() => handleSort('amount')}
-                  >Tutar</TableSortLabel>
-                </TableCell>
-                <TableCell>
-                  <TableSortLabel
-                    active={orderBy === 'status'}
-                    direction={orderBy === 'status' ? order : 'asc'}
-                    onClick={() => handleSort('status')}
-                  >Durum</TableSortLabel>
-                </TableCell>
+                <TableCell>Fatura No</TableCell>
+                <TableCell>Tarih</TableCell>
+                <TableCell>VKN/TCKN</TableCell>
+                <TableCell>Unvan</TableCell>
+                <TableCell>Ad Soyad</TableCell>
+                <TableCell>Tip</TableCell>
+                <TableCell align='right'>Tutar</TableCell>
+                <TableCell>Birim</TableCell>
+                <TableCell>Alınma Zamanı</TableCell>
+                <TableCell>Durum</TableCell>
+                <TableCell>Yanıt</TableCell>
+                <TableCell>Fatura Zarf Durumu</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {pagedData.map(row => (
-                <TableRow key={row.id}>
+                <TableRow key={row.id} selected={isSelected(row.id)}>
+                  <TableCell padding='checkbox'>
+                    <Checkbox
+                      checked={isSelected(row.id)}
+                      onChange={() => handleClick(row.id)}
+                      inputProps={{ 'aria-label': `Seç ${row.id}` }}
+                    />
+                  </TableCell>
                   <TableCell>{row.id}</TableCell>
-                  <TableCell>{row.sender}</TableCell>
-                  <TableCell>{new Date(row.date).toLocaleDateString('tr-TR')}</TableCell>
+                  <TableCell>{new Date(row.receivedAt).toLocaleDateString('tr-TR')}</TableCell>
+                  <TableCell>{row.vknTckn}</TableCell>
+                  <TableCell>{row.title}</TableCell>
+                  <TableCell>{row.nameSurname}</TableCell>
+                  <TableCell>{row.type}</TableCell>
                   <TableCell align='right'>{row.amount.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' })}</TableCell>
+                  <TableCell>{row.unit}</TableCell>
+                  <TableCell>{new Date(row.receivedAt).toLocaleString('tr-TR')}</TableCell>
                   <TableCell>{row.status}</TableCell>
+                  <TableCell>{row.response}</TableCell>
+                  <TableCell>{row.envelopeStatus}</TableCell>
                 </TableRow>
               ))}
               {pagedData.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={10} align='center'>Kayıt bulunamadı.</TableCell>
+                  <TableCell colSpan={14} align='center'>Kayıt bulunamadı.</TableCell>
                 </TableRow>
               )}
             </TableBody>
