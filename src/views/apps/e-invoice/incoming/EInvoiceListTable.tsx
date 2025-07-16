@@ -16,6 +16,8 @@ import InputLabel from '@mui/material/InputLabel'
 import FormControl from '@mui/material/FormControl'
 import TablePagination from '@mui/material/TablePagination'
 import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
+import Pagination from '@mui/material/Pagination'
+import Stack from '@mui/material/Stack'
 
 type Invoice = {
   id: string
@@ -192,22 +194,36 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
             </TableBody>
           </Table>
         </TableContainer>
-        <TablePagination
-          component='div'
-          count={filteredData.length}
-          page={page}
-          onPageChange={(_, newPage) => setPage(newPage)}
-          rowsPerPage={rowsPerPage}
-          onRowsPerPageChange={e => {
-            setRowsPerPage(parseInt(e.target.value, 10))
-            setPage(0)
-          }}
-          rowsPerPageOptions={[5, 10, 25]}
-          labelRowsPerPage='Satır / sayfa'
-          labelDisplayedRows={({ from, to, count, page }) => `${from}-${to} arası, toplam ${count !== -1 ? count : `>${to}`} kayıt (Sayfa ${page + 1})`}
-          showFirstButton
-          showLastButton
-        />
+        <Stack direction='row' alignItems='center' justifyContent='space-between' sx={{ mt: 2, flexWrap: 'wrap', gap: 2 }}>
+          <TablePagination
+            count={filteredData.length}
+            page={page}
+            rowsPerPage={rowsPerPage}
+            rowsPerPageOptions={[5, 10, 25]}
+            labelRowsPerPage='Satır / Sayfa'
+            labelDisplayedRows={({ from, to, count, page }) => `${from}-${to} arası, toplam ${count !== -1 ? count : `>${to}`} kayıt (Sayfa ${page + 1})`}
+            sx={{ minWidth: 300 }}
+            style={{ border: 'none', boxShadow: 'none' }}
+            onPageChange={(_, newPage) => setPage(newPage)}
+            onRowsPerPageChange={e => {
+              setRowsPerPage(parseInt(e.target.value, 10))
+              setPage(0)
+            }}
+          />
+          <Pagination
+            count={Math.ceil(filteredData.length / rowsPerPage)}
+            page={page + 1}
+            onChange={(_, value) => setPage(value - 1)}
+            color='primary'
+            showFirstButton
+            showLastButton
+            siblingCount={1}
+            boundaryCount={1}
+            shape='rounded'
+            size='medium'
+            sx={{ '& .MuiPaginationItem-root': { fontWeight: 500 } }}
+          />
+        </Stack>
       </CardContent>
     </Card>
   )
