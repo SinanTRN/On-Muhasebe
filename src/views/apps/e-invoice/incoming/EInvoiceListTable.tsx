@@ -196,15 +196,16 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
         </TableContainer>
         <Stack direction='row' alignItems='center' justifyContent='space-between' sx={{ mt: 2, flexWrap: 'wrap', gap: 2 }}>
           <TablePagination
+            component='div'
             count={filteredData.length}
             page={page}
+            onPageChange={() => {}}
             rowsPerPage={rowsPerPage}
             rowsPerPageOptions={[5, 10, 25]}
             labelRowsPerPage='Satır / Sayfa'
             labelDisplayedRows={({ from, to, count, page }) => `${from}-${to} arası, toplam ${count !== -1 ? count : `>${to}`} kayıt (Sayfa ${page + 1})`}
-            sx={{ minWidth: 300 }}
+            sx={{ minWidth: 300, '& .MuiTablePagination-actions': { display: 'none' } }}
             style={{ border: 'none', boxShadow: 'none' }}
-            onPageChange={(_, newPage) => setPage(newPage)}
             onRowsPerPageChange={e => {
               setRowsPerPage(parseInt(e.target.value, 10))
               setPage(0)
