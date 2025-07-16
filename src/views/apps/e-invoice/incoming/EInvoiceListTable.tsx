@@ -50,8 +50,7 @@ const statusOptions = [
   'Kabul Başarısız',
   'Beklenen sürede tamamlanmadı',
   'Ret',
-  'Ret - Başarısız',
-
+  'Ret - Başarısız'
 ]
 
 const EInvoiceListTable = ({ invoiceData }: Props) => {
@@ -137,7 +136,7 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
     if (page > maxPage) {
       setPage(maxPage)
     }
-  }, [filteredData.length, rowsPerPage])
+  }, [filteredData.length, rowsPerPage, page])
 
   const isSelected = (id: string) => selected.indexOf(id) !== -1
 
