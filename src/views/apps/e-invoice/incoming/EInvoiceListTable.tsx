@@ -204,6 +204,9 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
           }}
           rowsPerPageOptions={[5, 10, 25]}
           labelRowsPerPage='Satır / sayfa'
+          labelDisplayedRows={({ from, to, count, page }) => `${from}-${to} arası, toplam ${count !== -1 ? count : `>${to}`} kayıt (Sayfa ${page + 1})`}
+          showFirstButton
+          showLastButton
         />
       </CardContent>
     </Card>
