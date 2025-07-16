@@ -194,37 +194,39 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
             </TableBody>
           </Table>
         </TableContainer>
-        <Stack direction='row' alignItems='center' justifyContent='space-between' sx={{ mt: 2, flexWrap: 'wrap', gap: 2 }}>
+        <div className="flex flex-wrap items-center justify-end mt-2 gap-2">
           <TablePagination
-            component='div'
+            component="div"
             count={filteredData.length}
             page={page}
             onPageChange={() => {}}
             rowsPerPage={rowsPerPage}
             rowsPerPageOptions={[5, 10, 25]}
-            labelRowsPerPage='Satır / Sayfa'
-            labelDisplayedRows={({ from, to, count, page }) => `${from}-${to} arası, toplam ${count !== -1 ? count : `>${to}`} kayıt (Sayfa ${page + 1})`}
+            labelRowsPerPage="Satır / Sayfa"
+            labelDisplayedRows={({ from, to, count, page }) =>
+              `${from}-${to} arası, toplam ${count !== -1 ? count : `>${to}`} kayıt (Sayfa ${page + 1})`
+            }
             sx={{ minWidth: 300, '& .MuiTablePagination-actions': { display: 'none' } }}
             style={{ border: 'none', boxShadow: 'none' }}
             onRowsPerPageChange={e => {
-              setRowsPerPage(parseInt(e.target.value, 10))
-              setPage(0)
+              setRowsPerPage(parseInt(e.target.value, 10));
+              setPage(0);
             }}
           />
           <Pagination
             count={Math.ceil(filteredData.length / rowsPerPage)}
             page={page + 1}
             onChange={(_, value) => setPage(value - 1)}
-            color='primary'
+            color="primary"
             showFirstButton
             showLastButton
             siblingCount={1}
             boundaryCount={1}
-            shape='rounded'
-            size='medium'
+            shape="rounded"
+            size="medium"
             sx={{ '& .MuiPaginationItem-root': { fontWeight: 500 } }}
           />
-        </Stack>
+        </div>
       </CardContent>
     </Card>
   )
