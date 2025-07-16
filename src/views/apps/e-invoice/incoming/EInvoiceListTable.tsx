@@ -1,6 +1,7 @@
 'use client'
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, } from 'react'
 import Card from '@mui/material/Card'
+import {useMediaQuery,useTheme } from '@mui/material'
 import CardContent from '@mui/material/CardContent'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
@@ -38,7 +39,14 @@ type Props = {
   invoiceData: Invoice[]
 }
 
-const statusOptions = ['Başarılı', 'Hatalı', 'Beklemede']
+const statusOptions = [  'Alındı',
+  'Yanıt bekliyor',
+  'Kabul',
+  'Kabul Başarısız',
+  'Kabul işlemi Beklenen sürede tamamlanmadı',
+  'Ret',
+  'Ret - Başarısız',
+  'Ret işlemi Beklenen sürede tamamlanmadı']
 
 const EInvoiceListTable = ({ invoiceData }: Props) => {
   const [orderBy, setOrderBy] = useState<keyof Invoice>('receivedAt')
@@ -50,6 +58,9 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
   const [startDate, setStartDate] = useState<Date | null>(null)
   const [endDate, setEndDate] = useState<Date | null>(null)
   const [selected, setSelected] = useState<string[]>([])
+
+  const theme=useTheme()
+  const isMobile= useMediaQuery(theme => theme.breakpoints.down('sm'))
 
   const handleSort = (property: keyof Invoice) => {
     const isAsc = orderBy === property && order === 'asc'
@@ -142,7 +153,7 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
       <CardContent>
         <div style={{ display: 'flex', gap: 16, marginBottom: 16, flexWrap: 'wrap' }}>
           <TextField
-            label='Ara (Fatura No, Gönderici)'
+            label='Ara (Fatura No, Unvan)'
             value={search}
             onChange={e => setSearch(e.target.value)}
             size='small'
@@ -153,6 +164,23 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
               value={statusFilter}
               label='Durum'
               onChange={e => setStatusFilter(e.target.value)}
+              MenuProps={{
+                PaperProps: {
+                  style: {
+                    maxHeight: 150,
+                    maxWidth: isMobile ? 250 : 400,
+                    overflow: 'auto'
+                  }
+                },
+                anchorOrigin: {
+                  vertical: 'bottom',
+                  horizontal: 'center'
+                },
+                transformOrigin: {
+                  vertical: 'top',
+                  horizontal: 'center'
+                }
+              }}
             >
               <MenuItem value=''>Tümü</MenuItem>
               {statusOptions.map(opt => (
