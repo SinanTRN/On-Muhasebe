@@ -223,18 +223,90 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
                     inputProps={{ 'aria-label': 'Tümünü seç' }}
                   />
                 </TableCell>
-                <TableCell>Fatura No</TableCell>
-                <TableCell>Tarih</TableCell>
-                <TableCell>VKN/TCKN</TableCell>
-                <TableCell>Unvan</TableCell>
-                <TableCell>Ad Soyad</TableCell>
-                <TableCell>Tip</TableCell>
-                <TableCell align='right'>Tutar</TableCell>
-                <TableCell>Birim</TableCell>
-                <TableCell>Alınma Zamanı</TableCell>
-                <TableCell>Durum</TableCell>
-                <TableCell>Yanıt</TableCell>
-                <TableCell>Fatura Zarf Durumu</TableCell>
+                <TableCell>
+                  <TableSortLabel
+                    active={orderBy === 'id'}
+                    direction={orderBy === 'id' ? order : 'asc'}
+                    onClick={() => handleSort('id')}
+                  >Fatura No</TableSortLabel>
+                </TableCell>
+                <TableCell>
+                  <TableSortLabel
+                    active={orderBy === 'receivedAt'}
+                    direction={orderBy === 'receivedAt' ? order : 'asc'}
+                    onClick={() => handleSort('receivedAt')}
+                  >Tarih</TableSortLabel>
+                </TableCell>
+                <TableCell>
+                  <TableSortLabel
+                    active={orderBy === 'vknTckn'}
+                    direction={orderBy === 'vknTckn' ? order : 'asc'}
+                    onClick={() => handleSort('vknTckn')}
+                  >VKN/TCKN</TableSortLabel>
+                </TableCell>
+                <TableCell>
+                  <TableSortLabel
+                    active={orderBy === 'title'}
+                    direction={orderBy === 'title' ? order : 'asc'}
+                    onClick={() => handleSort('title')}
+                  >Unvan</TableSortLabel>
+                </TableCell>
+                <TableCell>
+                  <TableSortLabel
+                    active={orderBy === 'nameSurname'}
+                    direction={orderBy === 'nameSurname' ? order : 'asc'}
+                    onClick={() => handleSort('nameSurname')}
+                  >Ad Soyad</TableSortLabel>
+                </TableCell>
+                <TableCell>
+                  <TableSortLabel
+                    active={orderBy === 'type'}
+                    direction={orderBy === 'type' ? order : 'asc'}
+                    onClick={() => handleSort('type')}
+                  >Tip</TableSortLabel>
+                </TableCell>
+                <TableCell align='right'>
+                  <TableSortLabel
+                    active={orderBy === 'amount'}
+                    direction={orderBy === 'amount' ? order : 'asc'}
+                    onClick={() => handleSort('amount')}
+                  >Tutar</TableSortLabel>
+                </TableCell>
+                <TableCell>
+                  <TableSortLabel
+                    active={orderBy === 'unit'}
+                    direction={orderBy === 'unit' ? order : 'asc'}
+                    onClick={() => handleSort('unit')}
+                  >Birim</TableSortLabel>
+                </TableCell>
+                <TableCell>
+                  <TableSortLabel
+                    active={orderBy === 'receivedAt'}
+                    direction={orderBy === 'receivedAt' ? order : 'asc'}
+                    onClick={() => handleSort('receivedAt')}
+                  >Alınma Zamanı</TableSortLabel>
+                </TableCell>
+                <TableCell>
+                  <TableSortLabel
+                    active={orderBy === 'status'}
+                    direction={orderBy === 'status' ? order : 'asc'}
+                    onClick={() => handleSort('status')}
+                  >Durum</TableSortLabel>
+                </TableCell>
+                <TableCell>
+                  <TableSortLabel
+                    active={orderBy === 'response'}
+                    direction={orderBy === 'response' ? order : 'asc'}
+                    onClick={() => handleSort('response')}
+                  >Yanıt</TableSortLabel>
+                </TableCell>
+                <TableCell>
+                  <TableSortLabel
+                    active={orderBy === 'envelopeStatus'}
+                    direction={orderBy === 'envelopeStatus' ? order : 'asc'}
+                    onClick={() => handleSort('envelopeStatus')}
+                  >Fatura Zarf Durumu</TableSortLabel>
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
