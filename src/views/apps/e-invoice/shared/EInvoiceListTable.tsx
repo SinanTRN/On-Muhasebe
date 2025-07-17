@@ -23,6 +23,8 @@ import Checkbox from '@mui/material/Checkbox'
 import Chip from '@mui/material/Chip'
 
 import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
+import './EInvoiceListTable.module.css'
+import EInvoiceListFilterBar from './EInvoiceListFilterBar'
 
 type Invoice = {
   id: string // Fatura No
@@ -69,6 +71,7 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
 
   const handleSort = (property: keyof Invoice) => {
     const isAsc = orderBy === property && order === 'asc'
+
     setOrder(isAsc ? 'desc' : 'asc')
     setOrderBy(property)
     setPage(0) // Sıralama değişince ilk sayfaya dön
@@ -170,98 +173,8 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
 
   return (
     <Card className='p-4  rounded-md shadow-md'>
-      <CardContent>
-        <div style={{ display: 'flex', gap: 16, marginBottom: 16, flexWrap: 'wrap' }}>
-          <TextField
-            label='Ara (Fatura No, Unvan)'
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            size='small'
-          />
-          <FormControl size='small' style={{ minWidth: 160 }}>
-            <InputLabel>Durum</InputLabel>
-            <Select
-              value={statusFilter}
-              label='Durum'
-              onChange={e => setStatusFilter(e.target.value)}
-              MenuProps={{
-                PaperProps: {
-                  style: {
-                    maxHeight: 150,
-                    maxWidth: isMobile ? 250 : 400,
-                    overflow: 'auto'
-                  }
-                },
-                anchorOrigin: {
-                  vertical: 'bottom',
-                  horizontal: 'center'
-                },
-                transformOrigin: {
-                  vertical: 'top',
-                  horizontal: 'center'
-                }
-              }}
-            >
-              <MenuItem value=''>Tümü</MenuItem>
-              {statusOptions.map(opt => (
-                <MenuItem key={opt} value={opt}>
-                  {opt}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <AppReactDatepicker
-            selected={startDate || undefined}
-            onChange={date => setStartDate(date)}
-            dateFormat='dd.MM.yyyy'
-            customInput={<TextField size='small' label='Başlangıç Tarihi' placeholder='Başlangıç Tarihi' />}
-            showPopperArrow={false}
-            maxDate={endDate || undefined}
-            selectsStart
-            startDate={startDate || undefined}
-            endDate={endDate || undefined}
-          />
-          <AppReactDatepicker
-            selected={endDate || undefined}
-            onChange={date => setEndDate(date)}
-            dateFormat='dd.MM.yyyy'
-            customInput={<TextField size='small' label='Bitiş Tarihi' placeholder='Bitiş Tarihi' />}
-            showPopperArrow={false}
-            minDate={startDate || undefined}
-            selectsEnd
-            startDate={startDate || undefined}
-            endDate={endDate || undefined}
-          />
-          <FormControl size='small' style={{ minWidth: 150 }}>
-            <InputLabel>Okundu Bilgisi</InputLabel>
-            <Select
-              value={readFilter}
-              label='Okundu Bilgisi'
-              onChange={e => setReadFilter(e.target.value)}
-              MenuProps={{
-                PaperProps: {
-                  style: {
-                    maxHeight: 150,
-                    maxWidth: isMobile ? 250 : 400,
-                    overflow: 'auto'
-                  }
-                },
-                anchorOrigin: {
-                  vertical: 'bottom',
-                  horizontal: 'center'
-                },
-                transformOrigin: {
-                  vertical: 'top',
-                  horizontal: 'center'
-                }
-              }}
-            >
-              <MenuItem value=''>Tümü</MenuItem>
-              <MenuItem value='okundu'>Okundu</MenuItem>
-              <MenuItem value='okunmadi'>Okunmadı</MenuItem>
-            </Select>
-          </FormControl>
-        </div>
+
+
         <TableContainer>
           <Table>
             <TableHead>
@@ -424,7 +337,7 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
                       if (val === 'Ulaştırıldı') return <Chip label={val} color='success' size='small' />
                       if (val === 'Yanıt Bekliyor') return <Chip label={val} color='warning' size='small' />
                       if (val === 'Yanıt Gerekmiyor') return <Chip label={val} color='default' size='small' />
-                      if (val === 'Teyit Ediniz') return <Chip label={val} color='info' size='small' />
+                      if (val === 'Teyit Ediniz') return <Chip label={val} color='primary' size='small' />
 
                       return null
                     })()}
@@ -492,9 +405,9 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
             sx={{ '& .MuiPaginationItem-root': { fontWeight: 500 } }}
           />
         </div>
-      </CardContent>
+
     </Card>
   )
 }
 
-export default EInvoiceListTable 
+export default EInvoiceListTable
