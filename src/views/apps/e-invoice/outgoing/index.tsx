@@ -1,8 +1,10 @@
 'use client'
+import { useState, useMemo } from 'react'
+
+import { Stack } from '@mui/material'
+
 import EInvoiceListTable from '../shared/EInvoiceListTable'
 import EInvoiceListFilterBar from '../shared/EInvoiceListFilterBar'
-import { useState, useMemo } from 'react'
-import {Stack} from '@mui/material'
 
 // Örnek outgoing veri
 const outgoingInvoices = [
@@ -36,9 +38,11 @@ const EInvoiceOutgoing = () => {
         inv.vknTckn.toLowerCase().includes(search.toLowerCase()) ||
         inv.title.toLowerCase().includes(search.toLowerCase()) ||
         inv.nameSurname.toLowerCase().includes(search.toLowerCase())
+
       const statusMatch = !statusFilter || inv.status === statusFilter
       const invoiceDate = new Date(inv.receivedAt)
       let dateMatch = true
+
       if (startDate && endDate) {
         dateMatch = invoiceDate >= startDate && invoiceDate <= endDate
       } else if (startDate) {
@@ -46,9 +50,12 @@ const EInvoiceOutgoing = () => {
       } else if (endDate) {
         dateMatch = invoiceDate <= endDate
       }
+
       let readMatch = true
+
       if (readFilter === 'okundu') readMatch = inv.read === true
       else if (readFilter === 'okunmadi') readMatch = inv.read === false
+
       return statusMatch && searchMatch && dateMatch && readMatch
     })
   }, [search, statusFilter, startDate, endDate, readFilter])
@@ -72,4 +79,4 @@ const EInvoiceOutgoing = () => {
   )
 }
 
-export default EInvoiceOutgoing 
+export default EInvoiceOutgoing

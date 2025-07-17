@@ -1,11 +1,14 @@
 import React from 'react'
+
 import TextField from '@mui/material/TextField'
 import Select from '@mui/material/Select'
 import MenuItem from '@mui/material/MenuItem'
 import InputLabel from '@mui/material/InputLabel'
 import FormControl from '@mui/material/FormControl'
+
+import { useMediaQuery, useTheme } from '@mui/material'
+
 import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
-import { useMediaQuery,useTheme } from '@mui/material'
 
 const statusOptions = [
   'Alındı',
@@ -43,15 +46,14 @@ const EInvoiceListFilterBar = ({
   setReadFilter
 }: Props) => {
   const isMobile = useMediaQuery(theme => theme.breakpoints.down('sm'))
-  const theme=useTheme()
+  const theme = useTheme()
+
   return (
-    <div className=' flex flex-col gap-4 sm:flex-row sm:gap-6 p-4 rounded-md shadow-md' style={{ background: theme.palette.background.paper }}>
-      <TextField
-        label='Ara (Fatura No, Unvan)'
-        value={search}
-        onChange={e => setSearch(e.target.value)}
-        size='small'
-      />
+    <div
+      className=' flex flex-col gap-4 sm:flex-row sm:gap-6 p-4 rounded-md shadow-md'
+      style={{ background: theme.palette.background.paper }}
+    >
+      <TextField label='Ara (Fatura No, Unvan)' value={search} onChange={e => setSearch(e.target.value)} size='small' />
       <FormControl size='small' style={{ minWidth: 160 }}>
         <InputLabel>Durum</InputLabel>
         <Select
@@ -139,4 +141,4 @@ const EInvoiceListFilterBar = ({
   )
 }
 
-export default EInvoiceListFilterBar 
+export default EInvoiceListFilterBar
