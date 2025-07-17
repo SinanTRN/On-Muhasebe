@@ -8,7 +8,7 @@ import EInvoiceListFilterBar from '../shared/EInvoiceListFilterBar'
 
 const EInvoiceIncoming = () => {
   // Örnek veri
-  const invoiceData = [
+  const invoiceData =useMemo(()=> [
     {
       id: 'EFTR-2025001',
       vknTckn: '12345678901',
@@ -429,7 +429,7 @@ const EInvoiceIncoming = () => {
       envelopeStatus: 'Beklemede',
       read: false
     }
-  ]
+  ],[])
 
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('')

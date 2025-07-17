@@ -43,6 +43,7 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
 
   const handleSort = (property: keyof Invoice) => {
     const isAsc = orderBy === property && order === 'asc'
+
     setOrder(isAsc ? 'desc' : 'asc')
     setOrderBy(property)
     setPage(0)
@@ -76,6 +77,7 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
 
   useEffect(() => {
     const maxPage = Math.max(0, Math.ceil(sortedData.length / rowsPerPage) - 1)
+
     if (page > maxPage) {
       setPage(maxPage)
     }
@@ -86,15 +88,19 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
       const newSelected = pagedData.map(n => n.id)
+
       setSelected(newSelected)
+
       return
     }
+
     setSelected([])
   }
 
   const handleClick = (id: string) => {
     const selectedIndex = selected.indexOf(id)
     let newSelected: string[] = []
+
     if (selectedIndex === -1) {
       newSelected = newSelected.concat(selected, id)
     } else if (selectedIndex === 0) {
@@ -104,6 +110,7 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
     } else if (selectedIndex > 0) {
       newSelected = newSelected.concat(selected.slice(0, selectedIndex), selected.slice(selectedIndex + 1))
     }
+
     setSelected(newSelected)
   }
 
@@ -256,28 +263,34 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
                 <TableCell>
                   {(() => {
                     const val = row.status
+
                     if (val === 'Kabul' || val === 'Alındı') return <Chip label={val} color='success' size='small' />
                     if (val.startsWith('Ret')) return <Chip label={val} color='error' size='small' />
                     if (val === 'Yanıt bekliyor') return <Chip label={val} color='warning' size='small' />
+
                     return <Chip label={val} size='small' />
                   })()}
                 </TableCell>
                 <TableCell>
                   {(() => {
                     const val = row.response
+
                     if (val === 'Ulaştırıldı') return <Chip label={val} color='success' size='small' />
                     if (val === 'Yanıt Bekliyor') return <Chip label={val} color='warning' size='small' />
                     if (val === 'Yanıt Gerekmiyor') return <Chip label={val} color='default' size='small' />
                     if (val === 'Teyit Ediniz') return <Chip label={val} color='primary' size='small' />
+
                     return null
                   })()}
                 </TableCell>
                 <TableCell>
                   {(() => {
                     const val = row.envelopeStatus
+
                     if (val === 'Başarılı') return <Chip label={val} color='success' size='small' />
                     if (val === 'Hatalı') return <Chip label={val} color='error' size='small' />
                     if (val === 'Beklemede') return <Chip label={val} color='warning' size='small' />
+
                     return <Chip label={val} size='small' />
                   })()}
                 </TableCell>
