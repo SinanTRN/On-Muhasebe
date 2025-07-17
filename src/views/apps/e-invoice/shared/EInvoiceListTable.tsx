@@ -131,31 +131,34 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
                 />
               </TableCell>
               {/* Tip */}
-              <TableCell className='p-4 text-left align-center justify-center min-w-[100px]'>
+              <TableCell className='p-4 text-left align-center justify-center min-w-[100px] '>
                 <TableSortLabel
                   active={orderBy === 'type'}
                   direction={orderBy === 'type' ? order : 'asc'}
                   onClick={() => handleSort('type')}
+                  hideSortIcon
                 >
                   Tip
                 </TableSortLabel>
               </TableCell>
               {/* Fatura No */}
-              <TableCell className='p-4 text-left align-center justify-center min-w-[180px]'>
+              <TableCell className='p-4 text-left align-center justify-center min-w-[180px] '>
                 <TableSortLabel
                   active={orderBy === 'id'}
                   direction={orderBy === 'id' ? order : 'asc'}
                   onClick={() => handleSort('id')}
+                  hideSortIcon
                 >
                   Fatura No
                 </TableSortLabel>
               </TableCell>
               {/* Tarih */}
-              <TableCell className='p-4 text-left align-center justify-center min-w-[200px]'>
+              <TableCell className='p-4 text-left align-center justify-center min-w-[200px] '>
                 <TableSortLabel
                   active={orderBy === 'receivedAt'}
                   direction={orderBy === 'receivedAt' ? order : 'asc'}
                   onClick={() => handleSort('receivedAt')}
+                  hideSortIcon
                 >
                   Tarih
                 </TableSortLabel>
@@ -166,6 +169,7 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
                   active={orderBy === 'vknTckn'}
                   direction={orderBy === 'vknTckn' ? order : 'asc'}
                   onClick={() => handleSort('vknTckn')}
+                  hideSortIcon
                 >
                   VKN/TCKN
                 </TableSortLabel>
@@ -176,6 +180,7 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
                   active={orderBy === 'title'}
                   direction={orderBy === 'title' ? order : 'asc'}
                   onClick={() => handleSort('title')}
+                  hideSortIcon
                 >
                   Unvan
                 </TableSortLabel>
@@ -186,6 +191,7 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
                   active={orderBy === 'nameSurname'}
                   direction={orderBy === 'nameSurname' ? order : 'asc'}
                   onClick={() => handleSort('nameSurname')}
+                  hideSortIcon
                 >
                   Ad Soyad
                 </TableSortLabel>
@@ -196,6 +202,7 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
                   active={orderBy === 'amount'}
                   direction={orderBy === 'amount' ? order : 'asc'}
                   onClick={() => handleSort('amount')}
+                  hideSortIcon
                 >
                   Tutar
                 </TableSortLabel>
@@ -206,6 +213,7 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
                   active={orderBy === 'unit'}
                   direction={orderBy === 'unit' ? order : 'asc'}
                   onClick={() => handleSort('unit')}
+                  hideSortIcon
                 >
                   Birim
                 </TableSortLabel>
@@ -216,6 +224,7 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
                   active={orderBy === 'receivedAt'}
                   direction={orderBy === 'receivedAt' ? order : 'asc'}
                   onClick={() => handleSort('receivedAt')}
+                  hideSortIcon
                 >
                   Alınma Zamanı
                 </TableSortLabel>
@@ -226,6 +235,7 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
                   active={orderBy === 'status'}
                   direction={orderBy === 'status' ? order : 'asc'}
                   onClick={() => handleSort('status')}
+                  hideSortIcon
                 >
                   Durum
                 </TableSortLabel>
@@ -236,6 +246,7 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
                   active={orderBy === 'response'}
                   direction={orderBy === 'response' ? order : 'asc'}
                   onClick={() => handleSort('response')}
+                  hideSortIcon
                 >
                   Yanıt
                 </TableSortLabel>
@@ -246,6 +257,7 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
                   active={orderBy === 'envelopeStatus'}
                   direction={orderBy === 'envelopeStatus' ? order : 'asc'}
                   onClick={() => handleSort('envelopeStatus')}
+                  hideSortIcon
                 >
                   Fatura Zarf Durumu
                 </TableSortLabel>
