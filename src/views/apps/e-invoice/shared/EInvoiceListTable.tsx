@@ -13,7 +13,8 @@ import TablePagination from '@mui/material/TablePagination'
 
 import Pagination from '@mui/material/Pagination'
 import Checkbox from '@mui/material/Checkbox'
-import Chip from '@mui/material/Chip'
+
+import StatusLabel from './StatusLabel'
 
 type Invoice = {
   id: string // Fatura No
@@ -292,48 +293,19 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
                 </TableCell>
                 {/* Durum */}
                 <TableCell className='p-4 text-center align-center justify-center min-w-[200px]'>
-                  {(() => {
-                    const val = row.status
-
-                    if (val === 'Kabul' || val === 'Alındı') return <Chip label={val} color='success' size='small' />
-                    if (val.startsWith('Ret')) return <Chip label={val} color='error' size='small' />
-                    if (val === 'Yanıt bekliyor') return <Chip label={val} color='warning' size='small' />
-
-                    return <Chip label={val} size='small' />
-                  })()}
+                  <StatusLabel value={row.status} type='status' />
                 </TableCell>
                 {/* Yanıt */}
                 <TableCell className='p-4 text-center align-center justify-center min-w-[200px]'>
-                  {(() => {
-                    const val = row.response
-
-                    if (val === 'Ulaştırıldı') return <Chip label={val} color='success' size='small' />
-                    if (val === 'Yanıt Bekliyor') return <Chip label={val} color='warning' size='small' />
-                    if (val === 'Yanıt Gerekmiyor') return <Chip label={val} color='default' size='small' />
-                    if (val === 'Teyit Ediniz') return <Chip label={val} color='primary' size='small' />
-
-                    return null
-                  })()}
+                  {row.response ? <StatusLabel value={row.response} type='response' /> : null}
                 </TableCell>
                 {/* Fatura Zarf Durumu */}
                 <TableCell className='p-4 text-center align-center justify-center min-w-[200px]'>
-                  {(() => {
-                    const val = row.envelopeStatus
-
-                    if (val === 'Başarılı') return <Chip label={val} color='success' size='small' />
-                    if (val === 'Hatalı') return <Chip label={val} color='error' size='small' />
-                    if (val === 'Beklemede') return <Chip label={val} color='warning' size='small' />
-
-                    return <Chip label={val} size='small' />
-                  })()}
+                  <StatusLabel value={row.envelopeStatus} type='envelopeStatus' />
                 </TableCell>
                 {/* Okundu */}
                 <TableCell className='p-4 text-center align-center justify-center min-w-[150px]'>
-                  {row.read ? (
-                    <Chip label='Okundu' color='success' size='small' />
-                  ) : (
-                    <Chip label='Okunmadı' color='error' size='small' />
-                  )}
+                  <StatusLabel value={row.read ? 'Okundu' : 'Okunmadı'} type='read' />
                 </TableCell>
               </TableRow>
             ))}
