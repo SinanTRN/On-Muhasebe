@@ -1,55 +1,75 @@
 import React from 'react'
 
+import type { Theme } from '@mui/material'
+import { useTheme } from '@mui/material'
+
 interface StatusLabelProps {
   value: string
   type: 'status' | 'response' | 'envelopeStatus' | 'read'
 }
 
-const statusColors: Record<string, string> = {
-  Kabul: '#22c55e', // yeşil
-  Alındı: '#22c55e',
-  Ret: '#ef4444',
-  'Ret - Başarısız': '#ef4444',
-  'Kabul Başarısız': '#ef4444',
-  'Yanıt bekliyor': '#f59e42',
-  'Beklenen sürede tamamlanmadı': '#f59e42'
+const getStatusColor = (theme: Theme, value: string): string => {
+  const map: Record<string, string> = {
+    Kabul: theme.palette.success.main,
+    Alındı: theme.palette.success.main,
+    Ret: theme.palette.error.main,
+    'Ret - Başarısız': theme.palette.error.main,
+    'Kabul Başarısız': theme.palette.error.main,
+    'Yanıt bekliyor': theme.palette.warning.main,
+    'Beklenen sürede tamamlanmadı': theme.palette.warning.main
+  }
+
+  return map[value] || theme.palette.grey[500]
 }
 
-const responseColors: Record<string, string> = {
-  Ulaştırıldı: '#22c55e',
-  'Yanıt Bekliyor': '#f59e42',
-  'Yanıt Gerekmiyor': '#64748b',
-  'Teyit Ediniz': '#3b82f6'
+const getResponseColor = (theme: Theme, value: string): string => {
+  const map: Record<string, string> = {
+    Ulaştırıldı: theme.palette.success.main,
+    'Yanıt Bekliyor': theme.palette.warning.main,
+    'Yanıt Gerekmiyor': theme.palette.grey[500],
+    'Teyit Ediniz': theme.palette.info.main
+  }
+
+  return map[value] || theme.palette.grey[500]
 }
 
-const envelopeColors: Record<string, string> = {
-  Başarılı: '#22c55e',
-  Hatalı: '#ef4444',
-  Beklemede: '#f59e42'
+const getEnvelopeColor = (theme: Theme, value: string): string => {
+  const map: Record<string, string> = {
+    Başarılı: theme.palette.success.main,
+    Hatalı: theme.palette.error.main,
+    Beklemede: theme.palette.warning.main
+  }
+
+  return map[value] || theme.palette.grey[500]
 }
 
-const readColors: Record<string, string> = {
-  Okundu: '#22c55e',
-  Okunmadı: '#ef4444'
+const getReadColor = (theme: Theme, value: string): string => {
+  const map: Record<string, string> = {
+    Okundu: theme.palette.success.main,
+    Okunmadı: theme.palette.error.main
+  }
+
+  return map[value] || theme.palette.grey[500]
 }
 
 const StatusLabel: React.FC<StatusLabelProps> = ({ value, type }) => {
-  let color = '#64748b' // default nötr
+  const theme = useTheme()
+  let color = theme.palette.grey[500] // default
 
   if (type === 'status') {
-    color = statusColors[value] || '#64748b'
+    color = getStatusColor(theme, value)
   } else if (type === 'response') {
-    color = responseColors[value] || '#64748b'
+    color = getResponseColor(theme, value)
   } else if (type === 'envelopeStatus') {
-    color = envelopeColors[value] || '#64748b'
+    color = getEnvelopeColor(theme, value)
   } else if (type === 'read') {
-    color = readColors[value] || '#64748b'
+    color = getReadColor(theme, value)
   }
 
   return (
     <span
       style={{
-        background: color + '22',
+        background: color + '22', // transparan arka plan
         color,
         borderRadius: 8,
         padding: '2px 10px',

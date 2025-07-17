@@ -7,7 +7,7 @@ const AddActions = () => {
 
   return (
     <Card className='flex flex-row  rounded-md shadow-md'>
-      <CardContent className='flex flex-row gap-2 sm:w-[50%]'>
+      <CardContent className='flex flex-col gap-2 sm:flex-row'>
         <Button
           fullWidth
           variant='contained'

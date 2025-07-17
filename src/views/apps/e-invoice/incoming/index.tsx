@@ -5,6 +5,7 @@ import { Stack } from '@mui/material'
 
 import EInvoiceListTable from '../shared/EInvoiceListTable'
 import EInvoiceListFilterBar from '../shared/EInvoiceListFilterBar'
+import EInvoiceSummaryBar from '../shared/EInvoiceSummaryBar'
 import { useTableData } from '@/hooks/useTableData'
 
 // Invoice tipini import et
@@ -444,16 +445,63 @@ const EInvoiceIncoming = () => {
   const [startDate, setStartDate] = useState<Date | null>(null)
   const [endDate, setEndDate] = useState<Date | null>(null)
   const [readFilter, setReadFilter] = useState('')
+  const [period, setPeriod] = useState('30')
+  const [summaryStatus, setSummaryStatus] = useState('')
+
+  // Statü kutusuna tıklanınca hem summaryStatus hem statusFilter güncellenir
+  const handleStatusChange = (val: string) => {
+    setSummaryStatus(val)
+    setStatusFilter(val)
+  }
 
   // Filtreleme fonksiyonu
   const filterFn = (inv: Invoice) => {
+    // Dönem filtresi
+    const now = new Date()
+    let periodMatch = true
+
+    if (period === '7') {
+      const d = new Date(now)
+
+      d.setDate(now.getDate() - 7)
+      periodMatch = new Date(inv.receivedAt) >= d
+    } else if (period === '30') {
+      const d = new Date(now)
+
+      d.setDate(now.getDate() - 30)
+      periodMatch = new Date(inv.receivedAt) >= d
+    } else if (period === 'month') {
+      periodMatch = new Date(inv.receivedAt).getMonth() === now.getMonth()
+    }
+
+    // Statü kutusu filtresi
+    let statusMatch = true
+
+    if (summaryStatus) {
+      // EInvoiceSummaryBar'daki statü anahtarına göre eşleştir
+      if (summaryStatus === 'yeni')
+        statusMatch = inv.status === 'Alındı' || inv.status === 'Yeni' || inv.status === 'YENİ GELEN'
+      else if (summaryStatus === 'okundu') statusMatch = inv.status === 'Okundu'
+      else if (summaryStatus === 'kabul') statusMatch = inv.status === 'Kabul' || inv.status === 'Kanunen Kabul'
+      else if (summaryStatus === 'yanit')
+        statusMatch = inv.status === 'Yanıt bekliyor' || inv.status === 'YANIT BEKLEYEN'
+      else if (summaryStatus === 'red')
+        statusMatch =
+          inv.status.startsWith('Ret') ||
+          inv.status === 'Reddedildi' ||
+          inv.status === 'REDDEDİLEN' ||
+          inv.status === 'İptal'
+    } else if (statusFilter) {
+      statusMatch = inv.status === statusFilter
+    }
+
+    // Diğer filtreler
     const searchMatch =
       inv.id.toLowerCase().includes(search.toLowerCase()) ||
       inv.vknTckn.toLowerCase().includes(search.toLowerCase()) ||
       inv.title.toLowerCase().includes(search.toLowerCase()) ||
       inv.nameSurname.toLowerCase().includes(search.toLowerCase())
 
-    const statusMatch = !statusFilter || inv.status === statusFilter
     const invoiceDate = new Date(inv.receivedAt)
     let dateMatch = true
 
@@ -465,7 +513,7 @@ const EInvoiceIncoming = () => {
     if (readFilter === 'okundu') readMatch = inv.read === true
     else if (readFilter === 'okunmadi') readMatch = inv.read === false
 
-    return statusMatch && searchMatch && dateMatch && readMatch
+    return periodMatch && statusMatch && searchMatch && dateMatch && readMatch
   }
 
   // Custom hook ile tablo verisi yönetimi
@@ -480,6 +528,13 @@ const EInvoiceIncoming = () => {
 
   return (
     <Stack spacing={2}>
+      <EInvoiceSummaryBar
+        invoices={invoiceData}
+        selectedPeriod={period}
+        onPeriodChange={setPeriod}
+        selectedStatus={summaryStatus}
+        onStatusChange={handleStatusChange}
+      />
       <EInvoiceListFilterBar
         search={search}
         setSearch={setSearch}
