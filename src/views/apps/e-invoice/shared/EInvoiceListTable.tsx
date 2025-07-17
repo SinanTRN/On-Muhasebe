@@ -115,12 +115,13 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
   }
 
   return (
-    <Card className='p-4  rounded-md shadow-md'>
+    <Card className='p-4 rounded-md shadow-md'>
       <TableContainer>
-        <Table>
+        <Table className='flex-1'>
           <TableHead>
             <TableRow>
-              <TableCell padding='checkbox'>
+              {/*Tüm satırları seçmek için Checkbox */}
+              <TableCell className='p-4 text-center align-center justify-center min-w-[10px]'>
                 <Checkbox
                   indeterminate={selected.length > 0 && selected.length < pagedData.length}
                   checked={pagedData.length > 0 && selected.length === pagedData.length}
@@ -128,52 +129,8 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
                   inputProps={{ 'aria-label': 'Tümünü seç' }}
                 />
               </TableCell>
-              <TableCell>
-                <TableSortLabel
-                  active={orderBy === 'id'}
-                  direction={orderBy === 'id' ? order : 'asc'}
-                  onClick={() => handleSort('id')}
-                >
-                  Fatura No
-                </TableSortLabel>
-              </TableCell>
-              <TableCell>
-                <TableSortLabel
-                  active={orderBy === 'receivedAt'}
-                  direction={orderBy === 'receivedAt' ? order : 'asc'}
-                  onClick={() => handleSort('receivedAt')}
-                >
-                  Tarih
-                </TableSortLabel>
-              </TableCell>
-              <TableCell>
-                <TableSortLabel
-                  active={orderBy === 'vknTckn'}
-                  direction={orderBy === 'vknTckn' ? order : 'asc'}
-                  onClick={() => handleSort('vknTckn')}
-                >
-                  VKN/TCKN
-                </TableSortLabel>
-              </TableCell>
-              <TableCell>
-                <TableSortLabel
-                  active={orderBy === 'title'}
-                  direction={orderBy === 'title' ? order : 'asc'}
-                  onClick={() => handleSort('title')}
-                >
-                  Unvan
-                </TableSortLabel>
-              </TableCell>
-              <TableCell>
-                <TableSortLabel
-                  active={orderBy === 'nameSurname'}
-                  direction={orderBy === 'nameSurname' ? order : 'asc'}
-                  onClick={() => handleSort('nameSurname')}
-                >
-                  Ad Soyad
-                </TableSortLabel>
-              </TableCell>
-              <TableCell>
+              {/* Tip */}
+              <TableCell className='p-4 text-left align-center justify-center min-w-[100px]'>
                 <TableSortLabel
                   active={orderBy === 'type'}
                   direction={orderBy === 'type' ? order : 'asc'}
@@ -182,7 +139,58 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
                   Tip
                 </TableSortLabel>
               </TableCell>
-              <TableCell align='right'>
+              {/* Fatura No */}
+              <TableCell className='p-4 text-left align-center justify-center min-w-[180px]'>
+                <TableSortLabel
+                  active={orderBy === 'id'}
+                  direction={orderBy === 'id' ? order : 'asc'}
+                  onClick={() => handleSort('id')}
+                >
+                  Fatura No
+                </TableSortLabel>
+              </TableCell>
+              {/* Tarih */}
+              <TableCell className='p-4 text-left align-center justify-center min-w-[200px]'>
+                <TableSortLabel
+                  active={orderBy === 'receivedAt'}
+                  direction={orderBy === 'receivedAt' ? order : 'asc'}
+                  onClick={() => handleSort('receivedAt')}
+                >
+                  Tarih
+                </TableSortLabel>
+              </TableCell>
+              {/* VKN/TCKN */}
+              <TableCell className='p-4 text-left align-center justify-center min-w-[200px] '>
+                <TableSortLabel
+                  active={orderBy === 'vknTckn'}
+                  direction={orderBy === 'vknTckn' ? order : 'asc'}
+                  onClick={() => handleSort('vknTckn')}
+                >
+                  VKN/TCKN
+                </TableSortLabel>
+              </TableCell>
+              {/* Unvan */}
+              <TableCell className='p-4 text-left align-center justify-center min-w-[200px] '>
+                <TableSortLabel
+                  active={orderBy === 'title'}
+                  direction={orderBy === 'title' ? order : 'asc'}
+                  onClick={() => handleSort('title')}
+                >
+                  Unvan
+                </TableSortLabel>
+              </TableCell>
+              {/* Ad Soyad */}
+              <TableCell className='p-4 text-left align-center justify-center min-w-[250px] '>
+                <TableSortLabel
+                  active={orderBy === 'nameSurname'}
+                  direction={orderBy === 'nameSurname' ? order : 'asc'}
+                  onClick={() => handleSort('nameSurname')}
+                >
+                  Ad Soyad
+                </TableSortLabel>
+              </TableCell>
+              {/* Tutar */}
+              <TableCell className='p-4 text-right align-center justify-center min-w-[150px] '>
                 <TableSortLabel
                   active={orderBy === 'amount'}
                   direction={orderBy === 'amount' ? order : 'asc'}
@@ -191,7 +199,8 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
                   Tutar
                 </TableSortLabel>
               </TableCell>
-              <TableCell>
+              {/* Birim */}
+              <TableCell className='p-4 text-center align-center justify-center min-w-[100px] '>
                 <TableSortLabel
                   active={orderBy === 'unit'}
                   direction={orderBy === 'unit' ? order : 'asc'}
@@ -200,7 +209,8 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
                   Birim
                 </TableSortLabel>
               </TableCell>
-              <TableCell>
+              {/* Alınma Zamanı */}
+              <TableCell className='p-4 text-left align-center justify-center min-w-[200px] '>
                 <TableSortLabel
                   active={orderBy === 'receivedAt'}
                   direction={orderBy === 'receivedAt' ? order : 'asc'}
@@ -209,7 +219,8 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
                   Alınma Zamanı
                 </TableSortLabel>
               </TableCell>
-              <TableCell>
+              {/* Durum */}
+              <TableCell className='p-4 text-center align-center justify-center min-w-[200px] '>
                 <TableSortLabel
                   active={orderBy === 'status'}
                   direction={orderBy === 'status' ? order : 'asc'}
@@ -218,7 +229,8 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
                   Durum
                 </TableSortLabel>
               </TableCell>
-              <TableCell>
+              {/* Yanıt */}
+              <TableCell className='p-4 text-center align-center justify-center min-w-[200px] '>
                 <TableSortLabel
                   active={orderBy === 'response'}
                   direction={orderBy === 'response' ? order : 'asc'}
@@ -227,7 +239,8 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
                   Yanıt
                 </TableSortLabel>
               </TableCell>
-              <TableCell>
+              {/* Fatura Zarf Durumu */}
+              <TableCell className='p-4 text-center align-center justify-center min-w-[200px] '>
                 <TableSortLabel
                   active={orderBy === 'envelopeStatus'}
                   direction={orderBy === 'envelopeStatus' ? order : 'asc'}
@@ -236,31 +249,49 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
                   Fatura Zarf Durumu
                 </TableSortLabel>
               </TableCell>
-              <TableCell>Okundu</TableCell>
+              {/* Okundu */}
+              <TableCell className='p-4 text-center align-center justify-center min-w-[150px]'>Okundu</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {pagedData.map(row => (
               <TableRow key={row.id} selected={isSelected(row.id)}>
-                <TableCell padding='checkbox'>
+                {/* Satır seçimi için Checkbox */}
+                <TableCell className='p-4 text-center align-center justify-center min-w-[10px]'>
                   <Checkbox
                     checked={isSelected(row.id)}
                     onChange={() => handleClick(row.id)}
                     inputProps={{ 'aria-label': `Seç ${row.id}` }}
                   />
                 </TableCell>
-                <TableCell>{row.id}</TableCell>
-                <TableCell>{new Date(row.receivedAt).toLocaleDateString('tr-TR')}</TableCell>
-                <TableCell>{row.vknTckn}</TableCell>
-                <TableCell>{row.title}</TableCell>
-                <TableCell>{row.nameSurname}</TableCell>
-                <TableCell>{row.type}</TableCell>
-                <TableCell align='right'>
+                {/* Tip */}
+                <TableCell className='p-4 text-left align-center justify-center min-w-[100px]'>{row.type}</TableCell>
+                {/* Fatura No */}
+                <TableCell className='p-4 text-left align-center justify-center min-w-[180px]'>{row.id}</TableCell>
+                {/* Tarih */}
+                <TableCell className='p-4 text-left align-center justify-center min-w-[200px]'>
+                  {new Date(row.receivedAt).toLocaleDateString('tr-TR')}
+                </TableCell>
+                {/* VKN/TCKN */}
+                <TableCell className='p-4 text-left align-center justify-center min-w-[200px]'>{row.vknTckn}</TableCell>
+                {/* Unvan */}
+                <TableCell className='p-4 text-left align-center justify-center min-w-[200px]'>{row.title}</TableCell>
+                {/* Ad Soyad */}
+                <TableCell className='p-4 text-left align-center justify-center min-w-[250px]'>
+                  {row.nameSurname}
+                </TableCell>
+                {/* Tutar */}
+                <TableCell className='p-4 text-right align-center justify-center min-w-[150px]'>
                   {row.amount.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' })}
                 </TableCell>
-                <TableCell>{row.unit}</TableCell>
-                <TableCell>{new Date(row.receivedAt).toLocaleString('tr-TR')}</TableCell>
-                <TableCell>
+                {/* Birim */}
+                <TableCell className='p-4 text-center align-center justify-center min-w-[100px] '>{row.unit}</TableCell>
+                {/* Alınma Zamanı */}
+                <TableCell className='p-4 text-left align-center justify-center min-w-[200px]'>
+                  {new Date(row.receivedAt).toLocaleString('tr-TR')}
+                </TableCell>
+                {/* Durum */}
+                <TableCell className='p-4 text-center align-center justify-center min-w-[200px]'>
                   {(() => {
                     const val = row.status
 
@@ -271,7 +302,8 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
                     return <Chip label={val} size='small' />
                   })()}
                 </TableCell>
-                <TableCell>
+                {/* Yanıt */}
+                <TableCell className='p-4 text-center align-center justify-center min-w-[200px]'>
                   {(() => {
                     const val = row.response
 
@@ -283,7 +315,8 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
                     return null
                   })()}
                 </TableCell>
-                <TableCell>
+                {/* Fatura Zarf Durumu */}
+                <TableCell className='p-4 text-center align-center justify-center min-w-[200px]'>
                   {(() => {
                     const val = row.envelopeStatus
 
@@ -294,7 +327,8 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
                     return <Chip label={val} size='small' />
                   })()}
                 </TableCell>
-                <TableCell>
+                {/* Okundu */}
+                <TableCell className='p-4 text-center align-center justify-center min-w-[150px]'>
                   {row.read ? (
                     <Chip label='Okundu' color='success' size='small' />
                   ) : (
