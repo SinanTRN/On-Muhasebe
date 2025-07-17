@@ -1,5 +1,5 @@
 'use client'
-import { useState, useMemo, useEffect } from 'react'
+import { useState } from 'react'
 
 import Card from '@mui/material/Card'
 import Table from '@mui/material/Table'
@@ -16,7 +16,7 @@ import Checkbox from '@mui/material/Checkbox'
 
 import StatusLabel from './StatusLabel'
 
-type Invoice = {
+export type Invoice = {
   id: string // Fatura No
   status: string // Durum
   vknTckn: string
@@ -32,57 +32,31 @@ type Invoice = {
 }
 
 type Props = {
-  invoiceData: Invoice[]
+  data: Invoice[]
+  order: 'asc' | 'desc'
+  orderBy: keyof Invoice
+  onSort: (property: keyof Invoice) => void
+  page: number
+  setPage: (page: number) => void
+  rowsPerPage: number
+  setRowsPerPage: (n: number) => void
+  totalCount: number
 }
 
-const EInvoiceListTable = ({ invoiceData }: Props) => {
-  const [orderBy, setOrderBy] = useState<keyof Invoice>('receivedAt')
-  const [order, setOrder] = useState<'asc' | 'desc'>('desc')
-  const [page, setPage] = useState(0)
-  const [rowsPerPage, setRowsPerPage] = useState(10)
+const EInvoiceListTable = ({
+  data,
+  order,
+  orderBy,
+  onSort,
+  page,
+  setPage,
+  rowsPerPage,
+  setRowsPerPage,
+  totalCount
+}: Props) => {
   const [selected, setSelected] = useState<string[]>([])
 
-  const handleSort = (property: keyof Invoice) => {
-    const isAsc = orderBy === property && order === 'asc'
-
-    setOrder(isAsc ? 'desc' : 'asc')
-    setOrderBy(property)
-    setPage(0)
-  }
-
-  // Sadece sıralama
-  const sortedData = useMemo(() => {
-    return [...invoiceData].sort((a, b) => {
-      if (orderBy === 'amount') {
-        return order === 'asc' ? a.amount - b.amount : b.amount - a.amount
-      } else if (orderBy === 'receivedAt') {
-        return order === 'asc'
-          ? (a.receivedAt || '').localeCompare(b.receivedAt || '')
-          : (b.receivedAt || '').localeCompare(a.receivedAt || '')
-      } else if (orderBy === 'status') {
-        return order === 'asc'
-          ? (a.status || '').localeCompare(b.status || '')
-          : (b.status || '').localeCompare(a.status || '')
-      } else {
-        return order === 'asc'
-          ? String(a[orderBy] || '').localeCompare(String(b[orderBy] || ''))
-          : String(b[orderBy] || '').localeCompare(String(a[orderBy] || ''))
-      }
-    })
-  }, [invoiceData, order, orderBy])
-
-  // Sayfalama
-  const pagedData = useMemo(() => {
-    return sortedData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-  }, [sortedData, page, rowsPerPage])
-
-  useEffect(() => {
-    const maxPage = Math.max(0, Math.ceil(sortedData.length / rowsPerPage) - 1)
-
-    if (page > maxPage) {
-      setPage(maxPage)
-    }
-  }, [sortedData.length, rowsPerPage, page])
+  const pagedData = data
 
   const isSelected = (id: string) => selected.indexOf(id) !== -1
 
@@ -135,7 +109,7 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
                 <TableSortLabel
                   active={orderBy === 'type'}
                   direction={orderBy === 'type' ? order : 'asc'}
-                  onClick={() => handleSort('type')}
+                  onClick={() => onSort('type')}
                   hideSortIcon
                 >
                   Tip
@@ -146,7 +120,7 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
                 <TableSortLabel
                   active={orderBy === 'id'}
                   direction={orderBy === 'id' ? order : 'asc'}
-                  onClick={() => handleSort('id')}
+                  onClick={() => onSort('id')}
                   hideSortIcon
                 >
                   Fatura No
@@ -157,7 +131,7 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
                 <TableSortLabel
                   active={orderBy === 'receivedAt'}
                   direction={orderBy === 'receivedAt' ? order : 'asc'}
-                  onClick={() => handleSort('receivedAt')}
+                  onClick={() => onSort('receivedAt')}
                   hideSortIcon
                 >
                   Tarih
@@ -168,7 +142,7 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
                 <TableSortLabel
                   active={orderBy === 'vknTckn'}
                   direction={orderBy === 'vknTckn' ? order : 'asc'}
-                  onClick={() => handleSort('vknTckn')}
+                  onClick={() => onSort('vknTckn')}
                   hideSortIcon
                 >
                   VKN/TCKN
@@ -179,7 +153,7 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
                 <TableSortLabel
                   active={orderBy === 'title'}
                   direction={orderBy === 'title' ? order : 'asc'}
-                  onClick={() => handleSort('title')}
+                  onClick={() => onSort('title')}
                   hideSortIcon
                 >
                   Unvan
@@ -190,7 +164,7 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
                 <TableSortLabel
                   active={orderBy === 'nameSurname'}
                   direction={orderBy === 'nameSurname' ? order : 'asc'}
-                  onClick={() => handleSort('nameSurname')}
+                  onClick={() => onSort('nameSurname')}
                   hideSortIcon
                 >
                   Ad Soyad
@@ -201,7 +175,7 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
                 <TableSortLabel
                   active={orderBy === 'amount'}
                   direction={orderBy === 'amount' ? order : 'asc'}
-                  onClick={() => handleSort('amount')}
+                  onClick={() => onSort('amount')}
                   hideSortIcon
                 >
                   Tutar
@@ -212,7 +186,7 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
                 <TableSortLabel
                   active={orderBy === 'unit'}
                   direction={orderBy === 'unit' ? order : 'asc'}
-                  onClick={() => handleSort('unit')}
+                  onClick={() => onSort('unit')}
                   hideSortIcon
                 >
                   Birim
@@ -223,7 +197,7 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
                 <TableSortLabel
                   active={orderBy === 'receivedAt'}
                   direction={orderBy === 'receivedAt' ? order : 'asc'}
-                  onClick={() => handleSort('receivedAt')}
+                  onClick={() => onSort('receivedAt')}
                   hideSortIcon
                 >
                   Alınma Zamanı
@@ -234,7 +208,7 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
                 <TableSortLabel
                   active={orderBy === 'status'}
                   direction={orderBy === 'status' ? order : 'asc'}
-                  onClick={() => handleSort('status')}
+                  onClick={() => onSort('status')}
                   hideSortIcon
                 >
                   Durum
@@ -245,7 +219,7 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
                 <TableSortLabel
                   active={orderBy === 'response'}
                   direction={orderBy === 'response' ? order : 'asc'}
-                  onClick={() => handleSort('response')}
+                  onClick={() => onSort('response')}
                   hideSortIcon
                 >
                   Yanıt
@@ -256,7 +230,7 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
                 <TableSortLabel
                   active={orderBy === 'envelopeStatus'}
                   direction={orderBy === 'envelopeStatus' ? order : 'asc'}
-                  onClick={() => handleSort('envelopeStatus')}
+                  onClick={() => onSort('envelopeStatus')}
                   hideSortIcon
                 >
                   Fatura Zarf Durumu
@@ -334,9 +308,9 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
       <div className='flex flex-wrap items-center justify-end mt-2 gap-2'>
         <TablePagination
           component='div'
-          count={sortedData.length}
+          count={totalCount}
           page={page}
-          onPageChange={() => {}}
+          onPageChange={(_, value) => setPage(value)}
           rowsPerPage={rowsPerPage}
           rowsPerPageOptions={[10, 25]}
           labelRowsPerPage='Satır / Sayfa'
@@ -351,7 +325,7 @@ const EInvoiceListTable = ({ invoiceData }: Props) => {
           }}
         />
         <Pagination
-          count={Math.ceil(sortedData.length / rowsPerPage)}
+          count={Math.ceil(totalCount / rowsPerPage)}
           page={page + 1}
           onChange={(_, value) => setPage(value - 1)}
           color='primary'
