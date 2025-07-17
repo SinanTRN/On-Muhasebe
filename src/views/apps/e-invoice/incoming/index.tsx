@@ -450,8 +450,20 @@ const EInvoiceIncoming = () => {
 
   // Statü kutusuna tıklanınca hem summaryStatus hem statusFilter güncellenir
   const handleStatusChange = (val: string) => {
-    setSummaryStatus(val)
-    setStatusFilter(val)
+    if (summaryStatus === val) {
+      setSummaryStatus('')
+      setStatusFilter('')
+    } else {
+      setSummaryStatus(val)
+      setStatusFilter(val)
+    }
+  }
+
+  // Dönem değiştiğinde summaryStatus (veya seçili statü) de sıfırlansın. Böylece tablo ve özet kutuları aynı döneme göre güncellenir.
+  const handlePeriodChange = (val: string) => {
+    setPeriod(val)
+    setSummaryStatus('')
+    setStatusFilter('')
   }
 
   // Filtreleme fonksiyonu
@@ -460,7 +472,12 @@ const EInvoiceIncoming = () => {
     const now = new Date()
     let periodMatch = true
 
-    if (period === '7') {
+    if (period === '1') {
+      const d = new Date(now)
+
+      d.setDate(now.getDate() - 1)
+      periodMatch = new Date(inv.receivedAt) >= d
+    } else if (period === '7') {
       const d = new Date(now)
 
       d.setDate(now.getDate() - 7)
@@ -478,10 +495,9 @@ const EInvoiceIncoming = () => {
     let statusMatch = true
 
     if (summaryStatus) {
-      // EInvoiceSummaryBar'daki statü anahtarına göre eşleştir
       if (summaryStatus === 'yeni')
         statusMatch = inv.status === 'Alındı' || inv.status === 'Yeni' || inv.status === 'YENİ GELEN'
-      else if (summaryStatus === 'okundu') statusMatch = inv.status === 'Okundu'
+      else if (summaryStatus === 'okundu') statusMatch = inv.read === true
       else if (summaryStatus === 'kabul') statusMatch = inv.status === 'Kabul' || inv.status === 'Kanunen Kabul'
       else if (summaryStatus === 'yanit')
         statusMatch = inv.status === 'Yanıt bekliyor' || inv.status === 'YANIT BEKLEYEN'
@@ -531,7 +547,7 @@ const EInvoiceIncoming = () => {
       <EInvoiceSummaryBar
         invoices={invoiceData}
         selectedPeriod={period}
-        onPeriodChange={setPeriod}
+        onPeriodChange={handlePeriodChange}
         selectedStatus={summaryStatus}
         onStatusChange={handleStatusChange}
       />
