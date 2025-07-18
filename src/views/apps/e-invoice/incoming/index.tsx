@@ -1,7 +1,7 @@
 'use client'
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 
-import { Stack, useTheme, TextField } from '@mui/material'
+import { Stack } from '@mui/material'
 
 import EInvoiceListTable from '../shared/tables/EInvoiceListTable'
 import EInvoiceListFilterBar from '../shared/components/EInvoiceListFilterBar'
@@ -470,8 +470,6 @@ const EInvoiceIncoming = () => {
     []
   )
 
-  const theme = useTheme()
-
   // Filtre hook'u
   const {
     search,
@@ -518,7 +516,7 @@ const EInvoiceIncoming = () => {
     handleStatusFilterChange(val)
     table.setPage(0)
   }
-  console.log('Tabloya gelen veri adedi:', table.sortedData.length)
+
   return (
     <Stack spacing={2}>
       {/* Tabloya özel arama alanı tablo componentine taşındı */}

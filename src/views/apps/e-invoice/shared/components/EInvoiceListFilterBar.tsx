@@ -47,6 +47,19 @@ const EInvoiceListFilterBar = ({
 }: Props) => {
   const isMobile = useMediaQuery(theme => theme.breakpoints.down('sm'))
   const theme = useTheme()
+  const today = new Date()
+
+  // 1 yıl öncesi ve sonrası için yardımcı fonksiyonlar
+  const addDays = (date: Date, days: number) => {
+    const result = new Date(date)
+    result.setDate(result.getDate() + days)
+    return result
+  }
+  const addYears = (date: Date, years: number) => {
+    const result = new Date(date)
+    result.setFullYear(result.getFullYear() + years)
+    return result
+  }
 
   return (
     <div
@@ -92,7 +105,21 @@ const EInvoiceListFilterBar = ({
         dateFormat='dd.MM.yyyy'
         customInput={<TextField size='small' label='Başlangıç Tarihi' placeholder='Başlangıç Tarihi' />}
         showPopperArrow={false}
-        maxDate={endDate || undefined}
+        maxDate={(() => {
+          if (endDate) {
+            // Başlangıç tarihi, bitiş tarihinden en fazla 1 yıl önce olabilir
+            const oneYearBeforeEnd = addYears(endDate, -1)
+            return today < endDate ? today : endDate < today ? endDate : today
+          }
+          return today
+        })()}
+        minDate={(() => {
+          if (endDate) {
+            // Başlangıç tarihi, bitiş tarihinden en fazla 1 yıl önce olabilir
+            return addYears(endDate, -1)
+          }
+          return undefined
+        })()}
         selectsStart
         startDate={startDate || undefined}
         endDate={endDate || undefined}
@@ -103,7 +130,21 @@ const EInvoiceListFilterBar = ({
         dateFormat='dd.MM.yyyy'
         customInput={<TextField size='small' label='Bitiş Tarihi' placeholder='Bitiş Tarihi' />}
         showPopperArrow={false}
-        minDate={startDate || undefined}
+        minDate={(() => {
+          if (startDate) {
+            // Bitiş tarihi, başlangıç tarihinden en fazla 1 yıl sonra olabilir
+            return startDate
+          }
+          return undefined
+        })()}
+        maxDate={(() => {
+          if (startDate) {
+            // Bitiş tarihi, başlangıç tarihinden en fazla 1 yıl sonra olabilir
+            const oneYearAfterStart = addYears(startDate, 1)
+            return oneYearAfterStart < today ? oneYearAfterStart : today
+          }
+          return today
+        })()}
         selectsEnd
         startDate={startDate || undefined}
         endDate={endDate || undefined}

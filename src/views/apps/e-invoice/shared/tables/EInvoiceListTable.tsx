@@ -47,17 +47,7 @@ type Props = {
   totalCount: number
 }
 
-const EInvoiceListTable = ({
-  data,
-  order,
-  orderBy,
-  onSort,
-  page,
-  setPage,
-  rowsPerPage,
-  setRowsPerPage,
-  totalCount
-}: Props) => {
+const EInvoiceListTable = ({ data, order, orderBy, onSort, page, setPage, rowsPerPage, setRowsPerPage }: Props) => {
   const [selected, setSelected] = useState<string[]>([])
   const [search, setSearch] = useState('')
   const theme = useTheme()
@@ -66,14 +56,16 @@ const EInvoiceListTable = ({
   const filteredData = data.filter(row => {
     if (!search) return true
     const s = search.toLowerCase()
+
     return (
       row.id.toLowerCase().includes(s) ||
       row.title.toLowerCase().includes(s) ||
       row.nameSurname.toLowerCase().includes(s) ||
-      row.vknTckn.toLowerCase().includes(s)||
+      row.vknTckn.toLowerCase().includes(s) ||
       (row.ettn ? row.ettn.toLowerCase().includes(s) : false)
     )
   })
+
   const pagedData = filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
 
   const isSelected = (id: string) => selected.indexOf(id) !== -1
@@ -302,10 +294,19 @@ const EInvoiceListTable = ({
                 </TableCell>
                 {/* Tarih */}
                 <TableCell className='p-4 text-left align-center justify-center min-w-[120px]'>
-                  <Tooltip title={new Date(row.receivedAt).toLocaleString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' })} arrow placement='top'>
-                    <span>
-                      {new Date(row.receivedAt).toLocaleDateString('tr-TR')}
-                    </span>
+                  <Tooltip
+                    title={new Date(row.receivedAt).toLocaleString('tr-TR', {
+                      day: '2-digit',
+                      month: '2-digit',
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      second: '2-digit'
+                    })}
+                    arrow
+                    placement='top'
+                  >
+                    <span>{new Date(row.receivedAt).toLocaleDateString('tr-TR')}</span>
                   </Tooltip>
                 </TableCell>
                 {/* VKN/TCKN */}
@@ -324,10 +325,19 @@ const EInvoiceListTable = ({
                 <TableCell className='p-4 text-center align-center justify-center min-w-[100px] '>{row.unit}</TableCell>
                 {/* Alınma Zamanı */}
                 <TableCell className='p-4 text-left align-center justify-center min-w-[120px]'>
-                  <Tooltip title={new Date(row.receivedAt).toLocaleString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' })} arrow placement='top'>
-                    <span>
-                      {new Date(row.receivedAt).toLocaleDateString('tr-TR')}
-                    </span>
+                  <Tooltip
+                    title={new Date(row.receivedAt).toLocaleString('tr-TR', {
+                      day: '2-digit',
+                      month: '2-digit',
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      second: '2-digit'
+                    })}
+                    arrow
+                    placement='top'
+                  >
+                    <span>{new Date(row.receivedAt).toLocaleDateString('tr-TR')}</span>
                   </Tooltip>
                 </TableCell>
                 {/* Durum */}
