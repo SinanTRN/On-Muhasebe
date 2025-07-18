@@ -164,7 +164,7 @@ const EInvoiceOutgoing = () => {
         setReadFilter={setReadFilter}
       />
       <EInvoiceListTable
-        data={table.pagedData}
+        data={table.sortedData}
         order={table.order}
         orderBy={table.orderBy}
         onSort={table.handleSort}
@@ -172,7 +172,7 @@ const EInvoiceOutgoing = () => {
         setPage={table.setPage}
         rowsPerPage={table.rowsPerPage}
         setRowsPerPage={table.setRowsPerPage}
-        totalCount={table.sortedData.length}
+        totalCount={table.totalCount}
       />
     </Stack>
   )

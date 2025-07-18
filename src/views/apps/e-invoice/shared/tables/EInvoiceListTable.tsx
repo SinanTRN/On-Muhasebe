@@ -70,6 +70,7 @@ const EInvoiceListTable = ({
       row.id.toLowerCase().includes(s) ||
       row.title.toLowerCase().includes(s) ||
       row.nameSurname.toLowerCase().includes(s) ||
+      row.vknTckn.toLowerCase().includes(s)||
       (row.ettn ? row.ettn.toLowerCase().includes(s) : false)
     )
   })
