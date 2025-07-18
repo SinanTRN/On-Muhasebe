@@ -1,5 +1,7 @@
 'use client'
-import { useState } from 'react'
+import React, { useState } from 'react'
+
+import { useTheme, TextField } from '@mui/material'
 
 import Card from '@mui/material/Card'
 import Table from '@mui/material/Table'
@@ -57,8 +59,21 @@ const EInvoiceListTable = ({
   totalCount
 }: Props) => {
   const [selected, setSelected] = useState<string[]>([])
+  const [search, setSearch] = useState('')
+  const theme = useTheme()
 
-  const pagedData = data
+  // Sadece tabloya gelen veriler arasında arama uygula
+  const filteredData = data.filter(row => {
+    if (!search) return true
+    const s = search.toLowerCase()
+    return (
+      row.id.toLowerCase().includes(s) ||
+      row.title.toLowerCase().includes(s) ||
+      row.nameSurname.toLowerCase().includes(s) ||
+      (row.ettn ? row.ettn.toLowerCase().includes(s) : false)
+    )
+  })
+  const pagedData = filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
 
   const isSelected = (id: string) => selected.indexOf(id) !== -1
 
@@ -93,6 +108,27 @@ const EInvoiceListTable = ({
 
   return (
     <Card className='p-4 rounded-md shadow-md'>
+      {/* Tabloya özel arama alanı */}
+      <div className='flex justify-end mb-2'>
+        <TextField
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder='Tabloda ara...'
+          size='small'
+          variant='outlined'
+          sx={{
+            minWidth: 200,
+            backgroundColor: theme.palette.background.paper,
+            borderRadius: 1
+          }}
+          InputProps={{
+            style: {
+              backgroundColor: theme.palette.background.paper,
+              borderRadius: 6
+            }
+          }}
+        />
+      </div>
       <TableContainer>
         <Table className='flex-1'>
           <TableHead>
@@ -129,9 +165,7 @@ const EInvoiceListTable = ({
                 </TableSortLabel>
               </TableCell>
               {/* ETTN */}
-              <TableCell className='p-4 text-center align-center justify-center min-w-[120px]'>
-                  ETTN
-              </TableCell>
+              <TableCell className='p-4 text-center align-center justify-center min-w-[120px]'>ETTN</TableCell>
               {/* Tarih */}
               <TableCell className='p-4 text-left align-center justify-center min-w-[200px] '>
                 <TableSortLabel
@@ -318,7 +352,7 @@ const EInvoiceListTable = ({
       <div className='flex flex-wrap items-center justify-end mt-2 gap-2'>
         <TablePagination
           component='div'
-          count={totalCount}
+          count={filteredData.length}
           page={page}
           onPageChange={(_, value) => setPage(value)}
           rowsPerPage={rowsPerPage}
@@ -335,7 +369,7 @@ const EInvoiceListTable = ({
           }}
         />
         <Pagination
-          count={Math.ceil(totalCount / rowsPerPage)}
+          count={Math.ceil(filteredData.length / rowsPerPage)}
           page={page + 1}
           onChange={(_, value) => setPage(value - 1)}
           color='primary'

@@ -73,6 +73,7 @@ export function useTableData<T>({
     order,
     orderBy,
     handleSort,
-    maxPage
+    maxPage,
+    totalCount: filteredData.length
   };
 } 

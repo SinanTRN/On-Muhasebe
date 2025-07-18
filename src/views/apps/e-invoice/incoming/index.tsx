@@ -1,7 +1,7 @@
 'use client'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 
-import { Stack } from '@mui/material'
+import { Stack, useTheme, TextField } from '@mui/material'
 
 import EInvoiceListTable from '../shared/tables/EInvoiceListTable'
 import EInvoiceListFilterBar from '../shared/components/EInvoiceListFilterBar'
@@ -470,6 +470,8 @@ const EInvoiceIncoming = () => {
     []
   )
 
+  const theme = useTheme()
+
   // Filtre hook'u
   const {
     search,
@@ -516,9 +518,10 @@ const EInvoiceIncoming = () => {
     handleStatusFilterChange(val)
     table.setPage(0)
   }
-
+  console.log('Tabloya gelen veri adedi:', table.sortedData.length)
   return (
     <Stack spacing={2}>
+      {/* Tabloya özel arama alanı tablo componentine taşındı */}
       <EInvoiceSummaryBar
         invoices={invoiceData}
         selectedPeriod={period}
@@ -540,7 +543,7 @@ const EInvoiceIncoming = () => {
         setReadFilter={setReadFilter}
       />
       <EInvoiceListTable
-        data={table.pagedData}
+        data={table.sortedData}
         order={table.order}
         orderBy={table.orderBy}
         onSort={table.handleSort}
@@ -548,7 +551,7 @@ const EInvoiceIncoming = () => {
         setPage={table.setPage}
         rowsPerPage={table.rowsPerPage}
         setRowsPerPage={table.setRowsPerPage}
-        totalCount={table.sortedData.length}
+        totalCount={table.totalCount}
       />
     </Stack>
   )
