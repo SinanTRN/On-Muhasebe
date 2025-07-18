@@ -453,9 +453,7 @@ const EInvoiceIncoming = () => {
     readFilter,
     setReadFilter,
     period,
-
     summaryStatus,
-
     handleSummaryStatusChange,
     handleStatusFilterChange,
     handlePeriodChange,
@@ -473,21 +471,36 @@ const EInvoiceIncoming = () => {
     rowsPerPageDefault: 10
   })
 
+  // SummaryBar'a göndereceğimiz fonksiyonlar:
+  const handleSummaryStatusChangeWithPage = (val: string) => {
+    handleSummaryStatusChange(val)
+    table.setPage(0) // ilk sayfa
+  }
+
+  const handlePeriodChangeWithPage = (val: string) => {
+    handlePeriodChange(val)
+    table.setPage(0) // ilk sayfa
+  }
+
+  const handleStatusFilterChangeWithPage = (val: string) => {
+    handleStatusFilterChange(val)
+    table.setPage(0)
+  }
   return (
     <Stack spacing={2}>
       <EInvoiceSummaryBar
         invoices={invoiceData}
         selectedPeriod={period}
-        onPeriodChange={handlePeriodChange}
+        onPeriodChange={handlePeriodChangeWithPage}
         selectedStatus={summaryStatus}
-        onStatusChange={handleSummaryStatusChange}
+        onStatusChange={handleSummaryStatusChangeWithPage}
         hidden={isAnyFilterActive}
       />
       <EInvoiceListFilterBar
         search={search}
         setSearch={setSearch}
         statusFilter={statusFilter}
-        setStatusFilter={handleStatusFilterChange}
+        setStatusFilter={handleStatusFilterChangeWithPage}
         startDate={startDate}
         setStartDate={setStartDate}
         endDate={endDate}
