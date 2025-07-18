@@ -486,6 +486,7 @@ const EInvoiceIncoming = () => {
     handleStatusFilterChange(val)
     table.setPage(0)
   }
+
   return (
     <Stack spacing={2}>
       <EInvoiceSummaryBar
