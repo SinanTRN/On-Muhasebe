@@ -22,6 +22,7 @@ interface Props {
   onPeriodChange: (val: string) => void
   selectedStatus: string
   onStatusChange: (val: string) => void
+  hidden?: boolean // yeni prop
 }
 
 const EInvoiceSummaryBar: React.FC<Props> = ({
@@ -29,8 +30,12 @@ const EInvoiceSummaryBar: React.FC<Props> = ({
   selectedPeriod,
   onPeriodChange,
   selectedStatus,
-  onStatusChange
+  onStatusChange,
+  hidden = false // default değeri false
 }) => {
+  const theme = useTheme()
+
+  if (hidden) return null // Eğer gizli ise hiç render etme
   // Döneme göre filtrele
   const now = new Date()
   let filtered = invoices
@@ -76,8 +81,6 @@ const EInvoiceSummaryBar: React.FC<Props> = ({
       return date.getMonth() === lastMonth.getMonth() && date.getFullYear() === lastMonth.getFullYear()
     })
   }
-
-  const theme = useTheme()
 
   // Her kutunun sayısını doğrudan filtreyle hesapla
   const yeniGelenCount = filtered.filter(inv => inv.status === 'Alındı').length

@@ -445,18 +445,21 @@ const EInvoiceIncoming = () => {
   const [startDate, setStartDate] = useState<Date | null>(null)
   const [endDate, setEndDate] = useState<Date | null>(null)
   const [readFilter, setReadFilter] = useState('')
-  const [period, setPeriod] = useState('30')
+  const [period, setPeriod] = useState('month')
   const [summaryStatus, setSummaryStatus] = useState('')
 
-  // Statü kutusuna tıklanınca hem summaryStatus hem statusFilter güncellenir
-  const handleStatusChange = (val: string) => {
+  // Statü kutusuna tıklanınca sadece summaryStatus güncellenir
+  const handleSummaryStatusChange = (val: string) => {
     if (summaryStatus === val) {
       setSummaryStatus('')
-      setStatusFilter('')
     } else {
       setSummaryStatus(val)
-      setStatusFilter(val)
     }
+  }
+
+  // Üst filtre barındaki statü filtresi değişince sadece statusFilter güncellenir
+  const handleStatusFilterChange = (val: string) => {
+    setStatusFilter(val)
   }
 
   // Dönem değiştiğinde summaryStatus (veya seçili statü) de sıfırlansın. Böylece tablo ve özet kutuları aynı döneme göre güncellenir.
@@ -466,35 +469,43 @@ const EInvoiceIncoming = () => {
     setStatusFilter('')
   }
 
+  // Aktif filtre kontrolü
+  const isAnyFilterActive = !!(search || startDate || endDate || readFilter || statusFilter)
+
   // Filtreleme fonksiyonu
   const filterFn = (inv: Invoice) => {
     // Dönem filtresi
     const now = new Date()
     let periodMatch = true
 
-    if (period === '1') {
-      const d = new Date(now)
+    if (!isAnyFilterActive) {
+      if (period === '1') {
+        const d = new Date(now)
 
-      d.setDate(now.getDate() - 1)
-      periodMatch = new Date(inv.receivedAt) >= d
-    } else if (period === '7') {
-      const d = new Date(now)
+        d.setDate(now.getDate() - 1)
+        periodMatch = new Date(inv.receivedAt) >= d
+      } else if (period === '7') {
+        const d = new Date(now)
 
-      d.setDate(now.getDate() - 7)
-      periodMatch = new Date(inv.receivedAt) >= d
-    } else if (period === '30') {
-      const d = new Date(now)
+        d.setDate(now.getDate() - 7)
+        periodMatch = new Date(inv.receivedAt) >= d
+      } else if (period === '30') {
+        const d = new Date(now)
 
-      d.setDate(now.getDate() - 30)
-      periodMatch = new Date(inv.receivedAt) >= d
-    } else if (period === 'month') {
-      periodMatch = new Date(inv.receivedAt).getMonth() === now.getMonth()
+        d.setDate(now.getDate() - 30)
+        periodMatch = new Date(inv.receivedAt) >= d
+      } else if (period === 'month') {
+        periodMatch = new Date(inv.receivedAt).getMonth() === now.getMonth()
+      }
+    } else {
+      periodMatch = true // Herhangi bir filtre aktifse dönem filtresi uygulanmaz
     }
 
-    // Statü kutusu filtresi
+    // Statü kutusu ve üst filtre barı statü filtresi
     let statusMatch = true
 
-    if (summaryStatus) {
+    if (!isAnyFilterActive && summaryStatus) {
+      // Sadece özet kutusu filtresi aktifse
       if (summaryStatus === 'yeni')
         statusMatch = inv.status === 'Alındı' || inv.status === 'Yeni' || inv.status === 'YENİ GELEN'
       else if (summaryStatus === 'okundu') statusMatch = inv.read === true
@@ -508,6 +519,7 @@ const EInvoiceIncoming = () => {
           inv.status === 'REDDEDİLEN' ||
           inv.status === 'İptal'
     } else if (statusFilter) {
+      // Üst filtre barındaki statü filtresi aktifse
       statusMatch = inv.status === statusFilter
     }
 
@@ -549,13 +561,14 @@ const EInvoiceIncoming = () => {
         selectedPeriod={period}
         onPeriodChange={handlePeriodChange}
         selectedStatus={summaryStatus}
-        onStatusChange={handleStatusChange}
+        onStatusChange={handleSummaryStatusChange}
+        hidden={isAnyFilterActive}
       />
       <EInvoiceListFilterBar
         search={search}
         setSearch={setSearch}
         statusFilter={statusFilter}
-        setStatusFilter={setStatusFilter}
+        setStatusFilter={handleStatusFilterChange}
         startDate={startDate}
         setStartDate={setStartDate}
         endDate={endDate}
