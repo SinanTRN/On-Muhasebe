@@ -1,7 +1,7 @@
 'use client'
 import React, { useState } from 'react'
 
-import { useTheme, TextField } from '@mui/material'
+import { useTheme, TextField, Tooltip } from '@mui/material'
 
 import Card from '@mui/material/Card'
 import Table from '@mui/material/Table'
@@ -168,7 +168,7 @@ const EInvoiceListTable = ({
               {/* ETTN */}
               <TableCell className='p-4 text-center align-center justify-center min-w-[120px]'>ETTN</TableCell>
               {/* Tarih */}
-              <TableCell className='p-4 text-left align-center justify-center min-w-[200px] '>
+              <TableCell className='p-4 text-left align-center justify-center min-w-[120px] '>
                 <TableSortLabel
                   active={orderBy === 'receivedAt'}
                   direction={orderBy === 'receivedAt' ? order : 'asc'}
@@ -234,7 +234,7 @@ const EInvoiceListTable = ({
                 </TableSortLabel>
               </TableCell>
               {/* Alınma Zamanı */}
-              <TableCell className='p-4 text-left align-center justify-center min-w-[200px] '>
+              <TableCell className='p-4 text-left align-center justify-center min-w-[120px] '>
                 <TableSortLabel
                   active={orderBy === 'receivedAt'}
                   direction={orderBy === 'receivedAt' ? order : 'asc'}
@@ -301,8 +301,12 @@ const EInvoiceListTable = ({
                   <ETTNCell ettn={row.ettn} />
                 </TableCell>
                 {/* Tarih */}
-                <TableCell className='p-4 text-left align-center justify-center min-w-[200px]'>
-                  {new Date(row.receivedAt).toLocaleDateString('tr-TR')}
+                <TableCell className='p-4 text-left align-center justify-center min-w-[120px]'>
+                  <Tooltip title={new Date(row.receivedAt).toLocaleString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' })} arrow placement='top'>
+                    <span>
+                      {new Date(row.receivedAt).toLocaleDateString('tr-TR')}
+                    </span>
+                  </Tooltip>
                 </TableCell>
                 {/* VKN/TCKN */}
                 <TableCell className='p-4 text-left align-center justify-center min-w-[200px]'>{row.vknTckn}</TableCell>
@@ -319,8 +323,12 @@ const EInvoiceListTable = ({
                 {/* Birim */}
                 <TableCell className='p-4 text-center align-center justify-center min-w-[100px] '>{row.unit}</TableCell>
                 {/* Alınma Zamanı */}
-                <TableCell className='p-4 text-left align-center justify-center min-w-[200px]'>
-                  {new Date(row.receivedAt).toLocaleString('tr-TR')}
+                <TableCell className='p-4 text-left align-center justify-center min-w-[120px]'>
+                  <Tooltip title={new Date(row.receivedAt).toLocaleString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' })} arrow placement='top'>
+                    <span>
+                      {new Date(row.receivedAt).toLocaleDateString('tr-TR')}
+                    </span>
+                  </Tooltip>
                 </TableCell>
                 {/* Durum */}
                 <TableCell className='p-4 text-center align-center justify-center min-w-[200px]'>
