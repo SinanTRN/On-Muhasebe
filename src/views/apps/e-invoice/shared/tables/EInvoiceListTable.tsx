@@ -15,6 +15,7 @@ import Pagination from '@mui/material/Pagination'
 import Checkbox from '@mui/material/Checkbox'
 
 import StatusLabel from '../components/StatusLabel'
+import ETTNCell from '../components/ETTNCell'
 
 export type Invoice = {
   id: string // Fatura No
@@ -29,6 +30,7 @@ export type Invoice = {
   response: string // Yanıt
   envelopeStatus: string // Fatura Zarf Durumu
   read: boolean // Okundu bilgisi
+  ettn: string // ETTN numarası
 }
 
 type Props = {
@@ -125,6 +127,10 @@ const EInvoiceListTable = ({
                 >
                   Fatura No
                 </TableSortLabel>
+              </TableCell>
+              {/* ETTN */}
+              <TableCell className='p-4 text-center align-center justify-center min-w-[120px]'>
+                  ETTN
               </TableCell>
               {/* Tarih */}
               <TableCell className='p-4 text-left align-center justify-center min-w-[200px] '>
@@ -255,6 +261,10 @@ const EInvoiceListTable = ({
                 <TableCell className='p-4 text-left align-center justify-center min-w-[100px]'>{row.type}</TableCell>
                 {/* Fatura No */}
                 <TableCell className='p-4 text-left align-center justify-center min-w-[180px]'>{row.id}</TableCell>
+                {/* ETTN */}
+                <TableCell className='p-4 text-center align-center justify-center min-w-[120px]'>
+                  <ETTNCell ettn={row.ettn} />
+                </TableCell>
                 {/* Tarih */}
                 <TableCell className='p-4 text-left align-center justify-center min-w-[200px]'>
                   {new Date(row.receivedAt).toLocaleDateString('tr-TR')}

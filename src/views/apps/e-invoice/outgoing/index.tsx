@@ -14,6 +14,7 @@ import { useInvoiceFilters } from '@/hooks/useInvoiceFilters'
 const outgoingInvoices: Invoice[] = [
   {
     id: '20240001',
+    ettn: 'ETTN-1001',
     status: 'Kabul',
     vknTckn: '12345678901',
     title: 'Çıkış Müşterisi',
@@ -28,6 +29,7 @@ const outgoingInvoices: Invoice[] = [
   },
   {
     id: '20240002',
+    ettn: 'ETTN-1002',
     status: 'Ret',
     vknTckn: '23456789012',
     title: 'Beta Ltd. Şti.',
@@ -42,6 +44,7 @@ const outgoingInvoices: Invoice[] = [
   },
   {
     id: '20240003',
+    ettn: 'ETTN-1003',
     status: 'Bekliyor',
     vknTckn: '34567890123',
     title: 'Gamma A.Ş.',
@@ -56,6 +59,7 @@ const outgoingInvoices: Invoice[] = [
   },
   {
     id: '20240004',
+    ettn: 'ETTN-1004',
     status: 'Kabul',
     vknTckn: '45678901234',
     title: 'Delta İnşaat',
@@ -70,6 +74,7 @@ const outgoingInvoices: Invoice[] = [
   },
   {
     id: '20240005',
+    ettn: 'ETTN-1005',
     status: 'İptal',
     vknTckn: '56789012345',
     title: 'Epsilon Tekstil',

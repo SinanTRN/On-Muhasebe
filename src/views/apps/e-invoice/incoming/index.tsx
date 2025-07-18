@@ -18,6 +18,7 @@ const EInvoiceIncoming = () => {
     () => [
       {
         id: 'EFTR-2025001',
+        ettn: 'ETTN-0001',
         vknTckn: '12345678901',
         title: 'ABC Ltd. Şti.',
         nameSurname: 'Ali Veli',
@@ -32,6 +33,7 @@ const EInvoiceIncoming = () => {
       },
       {
         id: 'EFTR-2025002',
+        ettn: 'ETTN-0002',
         vknTckn: '98765432109',
         title: 'MNO Bilişim',
         nameSurname: 'Ayşe Demir',
@@ -46,6 +48,7 @@ const EInvoiceIncoming = () => {
       },
       {
         id: 'EFTR-2025003',
+        ettn: 'ETTN-0003',
         vknTckn: '11122233344',
         title: 'QRS Yazılım',
         nameSurname: 'Mehmet Yılmaz',
@@ -60,6 +63,7 @@ const EInvoiceIncoming = () => {
       },
       {
         id: 'EFTR-2025004',
+        ettn: 'ETTN-0004',
         vknTckn: '55566677788',
         title: 'Beta Teknoloji',
         nameSurname: 'Fatma Kaya',
@@ -74,6 +78,7 @@ const EInvoiceIncoming = () => {
       },
       {
         id: 'EFTR-2025005',
+        ettn: 'ETTN-0005',
         vknTckn: '22233344455',
         title: 'Delta Sistem',
         nameSurname: 'Caner Toprak',
@@ -88,6 +93,7 @@ const EInvoiceIncoming = () => {
       },
       {
         id: 'EFTR-2025006',
+        ettn: 'ETTN-0006',
         vknTckn: '33344455566',
         title: 'Sigma Yazılım',
         nameSurname: 'Zeynep Aksoy',
@@ -102,6 +108,7 @@ const EInvoiceIncoming = () => {
       },
       {
         id: 'EFTR-2025007',
+        ettn: 'ETTN-0007',
         vknTckn: '44455566677',
         title: 'Omicron Bilgisayar',
         nameSurname: 'Burak Şahin',
@@ -116,6 +123,7 @@ const EInvoiceIncoming = () => {
       },
       {
         id: 'EFTR-2025008',
+        ettn: 'ETTN-0008',
         vknTckn: '55566677799',
         title: 'Alfa Teknoloji',
         nameSurname: 'Elif Güneş',
@@ -130,6 +138,7 @@ const EInvoiceIncoming = () => {
       },
       {
         id: 'EFTR-2025009',
+        ettn: 'ETTN-0009',
         vknTckn: '66677788800',
         title: 'Vega Danışmanlık',
         nameSurname: 'Murat Öz',
@@ -144,6 +153,7 @@ const EInvoiceIncoming = () => {
       },
       {
         id: 'EFTR-2025010',
+        ettn: 'ETTN-0010',
         vknTckn: '77788899911',
         title: 'Orion Elektronik',
         nameSurname: 'Seda Korkmaz',
@@ -158,6 +168,7 @@ const EInvoiceIncoming = () => {
       },
       {
         id: 'EFTR-2025011',
+        ettn: 'ETTN-0011',
         vknTckn: '88899900022',
         title: 'Nova Medya',
         nameSurname: 'Yunus Karaca',
@@ -172,6 +183,7 @@ const EInvoiceIncoming = () => {
       },
       {
         id: 'EFTR-2025012',
+        ettn: 'ETTN-0012',
         vknTckn: '99900011133',
         title: 'Penta Yazılım',
         nameSurname: 'Hilal Öztürk',
@@ -186,6 +198,7 @@ const EInvoiceIncoming = () => {
       },
       {
         id: 'EFTR-2025013',
+        ettn: 'ETTN-0013',
         vknTckn: '00011122244',
         title: 'Lambda Mühendislik',
         nameSurname: 'Kerem Aras',
@@ -200,6 +213,7 @@ const EInvoiceIncoming = () => {
       },
       {
         id: 'EFTR-2025014',
+        ettn: 'ETTN-0014',
         vknTckn: '11122233355',
         title: 'Theta Telekom',
         nameSurname: 'Sevgi Tan',
@@ -214,6 +228,7 @@ const EInvoiceIncoming = () => {
       },
       {
         id: 'EFTR-2025015',
+        ettn: 'ETTN-0015',
         vknTckn: '22233344466',
         title: 'Zeta Güvenlik',
         nameSurname: 'İsmail Kurt',
@@ -228,6 +243,7 @@ const EInvoiceIncoming = () => {
       },
       {
         id: 'EFTR-2025016',
+        ettn: 'ETTN-0016',
         vknTckn: '33344455577',
         title: 'Gamma Web',
         nameSurname: 'Selin Yılmaz',
@@ -242,6 +258,7 @@ const EInvoiceIncoming = () => {
       },
       {
         id: 'EFTR-2025017',
+        ettn: 'ETTN-0017',
         vknTckn: '44455566688',
         title: 'Omega Lojistik',
         nameSurname: 'Tuncay Arı',
@@ -256,6 +273,7 @@ const EInvoiceIncoming = () => {
       },
       {
         id: 'EFTR-2025018',
+        ettn: 'ETTN-0018',
         vknTckn: '55566677700',
         title: 'Kappa Teknoloji',
         nameSurname: 'Aslı Bilgin',
@@ -270,6 +288,7 @@ const EInvoiceIncoming = () => {
       },
       {
         id: 'EFTR-2025019',
+        ettn: 'ETTN-0019',
         vknTckn: '66677788899',
         title: 'Iota Yazılım',
         nameSurname: 'Gökhan Uçar',
@@ -284,6 +303,7 @@ const EInvoiceIncoming = () => {
       },
       {
         id: 'EFTR-2025020',
+        ettn: 'ETTN-0020',
         vknTckn: '77788899900',
         title: 'Eta Enerji',
         nameSurname: 'Büşra Demir',
@@ -298,6 +318,7 @@ const EInvoiceIncoming = () => {
       },
       {
         id: 'EFTR-2025021',
+        ettn: 'ETTN-0021',
         vknTckn: '88899900033',
         title: 'Teta Ajans',
         nameSurname: 'Emre Duru',
@@ -312,6 +333,7 @@ const EInvoiceIncoming = () => {
       },
       {
         id: 'EFTR-2025022',
+        ettn: 'ETTN-0022',
         vknTckn: '99900011144',
         title: 'Mu Bilgisayar',
         nameSurname: 'Nazlı Özkan',
@@ -326,6 +348,7 @@ const EInvoiceIncoming = () => {
       },
       {
         id: 'EFTR-2025023',
+        ettn: 'ETTN-0023',
         vknTckn: '00011122255',
         title: 'Nu Yazılım',
         nameSurname: 'Barış Yıldız',
@@ -340,6 +363,7 @@ const EInvoiceIncoming = () => {
       },
       {
         id: 'EFTR-2025024',
+        ettn: 'ETTN-0024',
         vknTckn: '11122233366',
         title: 'Xi Medya',
         nameSurname: 'Derya Gül',
@@ -354,6 +378,7 @@ const EInvoiceIncoming = () => {
       },
       {
         id: 'EFTR-2025025',
+        ettn: 'ETTN-0025',
         vknTckn: '22233344477',
         title: 'Om Yazılım',
         nameSurname: 'Serkan Polat',
@@ -368,6 +393,7 @@ const EInvoiceIncoming = () => {
       },
       {
         id: 'EFTR-2025026',
+        ettn: 'ETTN-0026',
         vknTckn: '33344455588',
         title: 'San Telekom',
         nameSurname: 'Gizem Akın',
@@ -382,6 +408,7 @@ const EInvoiceIncoming = () => {
       },
       {
         id: 'EFTR-2025027',
+        ettn: 'ETTN-0027',
         vknTckn: '44455566699',
         title: 'Pi Çözümleri',
         nameSurname: 'Mert Ekin',
@@ -396,6 +423,7 @@ const EInvoiceIncoming = () => {
       },
       {
         id: 'EFTR-2025028',
+        ettn: 'ETTN-0028',
         vknTckn: '55566677711',
         title: 'Rho Network',
         nameSurname: 'Ece Yıldırım',
@@ -410,6 +438,7 @@ const EInvoiceIncoming = () => {
       },
       {
         id: 'EFTR-2025029',
+        ettn: 'ETTN-0029',
         vknTckn: '66677788822',
         title: 'Psi Yazılım',
         nameSurname: 'Onur Kılıç',
@@ -424,6 +453,7 @@ const EInvoiceIncoming = () => {
       },
       {
         id: 'EFTR-2025030',
+        ettn: 'ETTN-0030',
         vknTckn: '77788899933',
         title: 'Chi Teknoloji',
         nameSurname: 'Melis Şen',
