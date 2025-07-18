@@ -1,5 +1,5 @@
 'use client'
-import { useState, useMemo } from 'react'
+import { useMemo } from 'react'
 
 import { Stack } from '@mui/material'
 
@@ -7,6 +7,7 @@ import EInvoiceListTable from '../shared/tables/EInvoiceListTable'
 import EInvoiceListFilterBar from '../shared/components/EInvoiceListFilterBar'
 import EInvoiceSummaryBar from '../shared/components/EInvoiceSummaryBar'
 import { useTableData } from '@/hooks/useTableData'
+import { useInvoiceFilters } from '@/hooks/useInvoiceFilters'
 
 // Invoice tipini import et
 import type { Invoice } from '../shared/tables/EInvoiceListTable'
@@ -439,115 +440,33 @@ const EInvoiceIncoming = () => {
     []
   )
 
-  // Filtre state'leri
-  const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState('')
-  const [startDate, setStartDate] = useState<Date | null>(null)
-  const [endDate, setEndDate] = useState<Date | null>(null)
-  const [readFilter, setReadFilter] = useState('')
-  const [period, setPeriod] = useState('month')
-  const [summaryStatus, setSummaryStatus] = useState('')
+  // Filtre hook'u
+  const {
+    search,
+    setSearch,
+    statusFilter,
 
-  // Statü kutusuna tıklanınca sadece summaryStatus güncellenir
-  const handleSummaryStatusChange = (val: string) => {
-    if (summaryStatus === val) {
-      setSummaryStatus('')
-    } else {
-      setSummaryStatus(val)
-    }
-  }
+    startDate,
+    setStartDate,
+    endDate,
+    setEndDate,
+    readFilter,
+    setReadFilter,
+    period,
 
-  // Üst filtre barındaki statü filtresi değişince sadece statusFilter güncellenir
-  const handleStatusFilterChange = (val: string) => {
-    setStatusFilter(val)
-  }
+    summaryStatus,
 
-  // Dönem değiştiğinde summaryStatus (veya seçili statü) de sıfırlansın. Böylece tablo ve özet kutuları aynı döneme göre güncellenir.
-  const handlePeriodChange = (val: string) => {
-    setPeriod(val)
-    setSummaryStatus('')
-    setStatusFilter('')
-  }
-
-  // Aktif filtre kontrolü
-  const isAnyFilterActive = !!(search || startDate || endDate || readFilter || statusFilter)
-
-  // Filtreleme fonksiyonu
-  const filterFn = (inv: Invoice) => {
-    // Dönem filtresi
-    const now = new Date()
-    let periodMatch = true
-
-    if (!isAnyFilterActive) {
-      if (period === '1') {
-        const d = new Date(now)
-
-        d.setDate(now.getDate() - 1)
-        periodMatch = new Date(inv.receivedAt) >= d
-      } else if (period === '7') {
-        const d = new Date(now)
-
-        d.setDate(now.getDate() - 7)
-        periodMatch = new Date(inv.receivedAt) >= d
-      } else if (period === '30') {
-        const d = new Date(now)
-
-        d.setDate(now.getDate() - 30)
-        periodMatch = new Date(inv.receivedAt) >= d
-      } else if (period === 'month') {
-        periodMatch = new Date(inv.receivedAt).getMonth() === now.getMonth()
-      }
-    } else {
-      periodMatch = true // Herhangi bir filtre aktifse dönem filtresi uygulanmaz
-    }
-
-    // Statü kutusu ve üst filtre barı statü filtresi
-    let statusMatch = true
-
-    if (!isAnyFilterActive && summaryStatus) {
-      // Sadece özet kutusu filtresi aktifse
-      if (summaryStatus === 'yeni')
-        statusMatch = inv.status === 'Alındı' || inv.status === 'Yeni' || inv.status === 'YENİ GELEN'
-      else if (summaryStatus === 'okundu') statusMatch = inv.read === true
-      else if (summaryStatus === 'kabul') statusMatch = inv.status === 'Kabul' || inv.status === 'Kanunen Kabul'
-      else if (summaryStatus === 'yanit')
-        statusMatch = inv.status === 'Yanıt bekliyor' || inv.status === 'YANIT BEKLEYEN'
-      else if (summaryStatus === 'red')
-        statusMatch =
-          inv.status.startsWith('Ret') ||
-          inv.status === 'Reddedildi' ||
-          inv.status === 'REDDEDİLEN' ||
-          inv.status === 'İptal'
-    } else if (statusFilter) {
-      // Üst filtre barındaki statü filtresi aktifse
-      statusMatch = inv.status === statusFilter
-    }
-
-    // Diğer filtreler
-    const searchMatch =
-      inv.id.toLowerCase().includes(search.toLowerCase()) ||
-      inv.vknTckn.toLowerCase().includes(search.toLowerCase()) ||
-      inv.title.toLowerCase().includes(search.toLowerCase()) ||
-      inv.nameSurname.toLowerCase().includes(search.toLowerCase())
-
-    const invoiceDate = new Date(inv.receivedAt)
-    let dateMatch = true
-
-    if (startDate && endDate) dateMatch = invoiceDate >= startDate && invoiceDate <= endDate
-    else if (startDate) dateMatch = invoiceDate >= startDate
-    else if (endDate) dateMatch = invoiceDate <= endDate
-    let readMatch = true
-
-    if (readFilter === 'okundu') readMatch = inv.read === true
-    else if (readFilter === 'okunmadi') readMatch = inv.read === false
-
-    return periodMatch && statusMatch && searchMatch && dateMatch && readMatch
-  }
+    handleSummaryStatusChange,
+    handleStatusFilterChange,
+    handlePeriodChange,
+    isAnyFilterActive,
+    getFilterFn
+  } = useInvoiceFilters({ defaultPeriod: 'month' })
 
   // Custom hook ile tablo verisi yönetimi
   const table = useTableData<Invoice>({
     data: invoiceData,
-    filterFn,
+    filterFn: getFilterFn(),
     orderByDefault: 'receivedAt',
     orderDefault: 'desc',
     pageDefault: 0,

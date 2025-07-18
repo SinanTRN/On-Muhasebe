@@ -89,7 +89,7 @@ const EInvoiceSummaryBar: React.FC<Props> = ({
   const yanitBekleyenCount = filtered.filter(inv => inv.status === 'Yanıt bekliyor').length
 
   const reddedilenCount = filtered.filter(
-    inv => inv.status.startsWith('Ret') || inv.status === 'Reddedildi' || inv.status === 'İptal'
+    inv => inv.status.startsWith('Ret') || inv.status === 'Reddedildi' || inv.status === 'Kabul Başarısız'
   ).length
 
   const statusBoxes = [
