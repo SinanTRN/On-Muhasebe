@@ -5,6 +5,7 @@ import { Stack } from '@mui/material'
 
 import EInvoiceListTable from '../shared/tables/EInvoiceListTable'
 import EInvoiceListFilterBar from '../shared/components/EInvoiceListFilterBar'
+import EInvoiceSummaryBar from '../shared/components/EInvoiceSummaryBar'
 import { useTableData } from '@/hooks/useTableData'
 import type { Invoice } from '../shared/tables/EInvoiceListTable'
 
@@ -91,16 +92,107 @@ const EInvoiceOutgoing = () => {
   const [startDate, setStartDate] = useState<Date | null>(null)
   const [endDate, setEndDate] = useState<Date | null>(null)
   const [readFilter, setReadFilter] = useState('')
+  const [period, setPeriod] = useState('month')
+  const [summaryStatus, setSummaryStatus] = useState('')
+
+  // Statü kutusuna tıklanınca sadece summaryStatus güncellenir
+  const handleSummaryStatusChange = (val: string) => {
+    if (summaryStatus === val) {
+      setSummaryStatus('')
+    } else {
+      setSummaryStatus(val)
+    }
+  }
+
+  // Üst filtre barındaki statü filtresi değişince sadece statusFilter güncellenir
+  const handleStatusFilterChange = (val: string) => {
+    setStatusFilter(val)
+  }
+
+  // Dönem değiştiğinde summaryStatus (veya seçili statü) de sıfırlansın. Böylece tablo ve özet kutuları aynı döneme göre güncellenir.
+  const handlePeriodChange = (val: string) => {
+    setPeriod(val)
+    setSummaryStatus('')
+    setStatusFilter('')
+  }
+
+  // Aktif filtre kontrolü
+  const isAnyFilterActive = !!(search || startDate || endDate || readFilter || statusFilter)
 
   // Filtreleme fonksiyonu
   const filterFn = (inv: Invoice) => {
+    // Dönem filtresi
+    const now = new Date()
+    let periodMatch = true
+
+    if (!isAnyFilterActive) {
+      if (period === '1') {
+        const d = new Date(now)
+
+        d.setDate(now.getDate() - 1)
+        periodMatch = new Date(inv.receivedAt) >= d
+      } else if (period === '7') {
+        const d = new Date(now)
+
+        d.setDate(now.getDate() - 7)
+        periodMatch = new Date(inv.receivedAt) >= d
+      } else if (period === '30') {
+        const d = new Date(now)
+
+        d.setDate(now.getDate() - 30)
+        periodMatch = new Date(inv.receivedAt) >= d
+      } else if (period === 'month') {
+        periodMatch = new Date(inv.receivedAt).getMonth() === now.getMonth()
+      } else if (period === 'lastMonth') {
+        const date = new Date(inv.receivedAt)
+        const lastMonth = new Date(now)
+
+        lastMonth.setMonth(now.getMonth() - 1)
+        periodMatch = date.getMonth() === lastMonth.getMonth() && date.getFullYear() === lastMonth.getFullYear()
+      } else if (period === '60') {
+        const d = new Date(now)
+
+        d.setDate(now.getDate() - 60)
+        periodMatch = new Date(inv.receivedAt) >= d
+      } else if (period === '90') {
+        const d = new Date(now)
+
+        d.setDate(now.getDate() - 90)
+        periodMatch = new Date(inv.receivedAt) >= d
+      }
+    } else {
+      periodMatch = true // Herhangi bir filtre aktifse dönem filtresi uygulanmaz
+    }
+
+    // Statü kutusu ve üst filtre barı statü filtresi
+    let statusMatch = true
+
+    if (!isAnyFilterActive && summaryStatus) {
+      // Sadece özet kutusu filtresi aktifse
+      if (summaryStatus === 'yeni')
+        statusMatch = inv.status === 'Alındı' || inv.status === 'Yeni' || inv.status === 'YENİ GELEN'
+      else if (summaryStatus === 'okundu') statusMatch = inv.read === true
+      else if (summaryStatus === 'kabul') statusMatch = inv.status === 'Kabul' || inv.status === 'Kanunen Kabul'
+      else if (summaryStatus === 'yanit')
+        statusMatch = inv.status === 'Yanıt bekliyor' || inv.status === 'YANIT BEKLEYEN'
+      else if (summaryStatus === 'red')
+        statusMatch =
+          inv.status.startsWith('Ret') ||
+          inv.status === 'Reddedildi' ||
+          inv.status === 'REDDEDİLEN' ||
+          inv.status === 'İptal'
+    } else if (statusFilter) {
+      // Üst filtre barındaki statü filtresi aktifse
+      statusMatch = inv.status === statusFilter
+    }
+
+    // Diğer filtreler
     const searchMatch =
       inv.id.toLowerCase().includes(search.toLowerCase()) ||
       inv.vknTckn.toLowerCase().includes(search.toLowerCase()) ||
       inv.title.toLowerCase().includes(search.toLowerCase()) ||
       inv.nameSurname.toLowerCase().includes(search.toLowerCase())
 
-    const statusMatch = !statusFilter || inv.status === statusFilter
     const invoiceDate = new Date(inv.receivedAt)
     let dateMatch = true
 
@@ -112,7 +204,7 @@ const EInvoiceOutgoing = () => {
     if (readFilter === 'okundu') readMatch = inv.read === true
     else if (readFilter === 'okunmadi') readMatch = inv.read === false
 
-    return statusMatch && searchMatch && dateMatch && readMatch
+    return periodMatch && statusMatch && searchMatch && dateMatch && readMatch
   }
 
   // Custom hook ile tablo verisi yönetimi
@@ -127,11 +219,19 @@ const EInvoiceOutgoing = () => {
 
   return (
     <Stack spacing={2}>
+      <EInvoiceSummaryBar
+        invoices={invoiceData}
+        selectedPeriod={period}
+        onPeriodChange={handlePeriodChange}
+        selectedStatus={summaryStatus}
+        onStatusChange={handleSummaryStatusChange}
+        hidden={isAnyFilterActive}
+      />
       <EInvoiceListFilterBar
         search={search}
         setSearch={setSearch}
         statusFilter={statusFilter}
-        setStatusFilter={setStatusFilter}
+        setStatusFilter={handleStatusFilterChange}
         startDate={startDate}
         setStartDate={setStartDate}
         endDate={endDate}
