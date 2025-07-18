@@ -2,7 +2,7 @@ import React from 'react'
 
 import { useTheme } from '@mui/material'
 
-import type { Invoice } from './EInvoiceListTable'
+import type { Invoice } from '../tables/EInvoiceListTable'
 
 const periods = [
   { label: '1 Gün', value: '1' },

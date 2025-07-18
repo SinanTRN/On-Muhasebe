@@ -14,7 +14,7 @@ import TablePagination from '@mui/material/TablePagination'
 import Pagination from '@mui/material/Pagination'
 import Checkbox from '@mui/material/Checkbox'
 
-import StatusLabel from './StatusLabel'
+import StatusLabel from '../components/StatusLabel'
 
 export type Invoice = {
   id: string // Fatura No

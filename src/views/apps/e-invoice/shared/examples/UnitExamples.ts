@@ -1,4 +1,4 @@
-import type { UnitType } from './../../../../types/apps/UnitTypes'
+import type { UnitType } from '../../../../../types/apps/UnitTypes'
 
 export const unitOptions: UnitType[] = [
   { value: 1, label: 'Adet' },

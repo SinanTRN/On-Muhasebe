@@ -30,14 +30,14 @@ import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
 
 import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
-import CustomInput from '@/views/apps/e-invoice/shared/PickersCustomInput'
-import CustomerSelector from '@/views/apps/e-invoice/shared/CustomerSelector'
+import CustomInput from '@/views/apps/e-invoice/shared/components/PickersCustomInput'
+import CustomerSelector from '@/views/apps/e-invoice/shared/components/CustomerSelector'
 import AddCustomerDrawer from './AddCustomerDrawer'
 import { sampleCustomers } from '../../../../data/sampleCustomers'
 import type { Tbl } from '../../../../types/apps/cariTypes'
 import { fetchTCMBRate } from '@/utils/fetchTCMBRate'
 import { isTCMBRateCurrent } from '@/utils/isTCMBRateCurrent'
-import { kdvTevkifatOrnekleri } from '../shared/kdvWithholdingExamples'
+import { kdvTevkifatOrnekleri } from '../shared/examples/kdvWithholdingExamples'
 
 interface EInvoiceCardProps {
   includesVAT: boolean

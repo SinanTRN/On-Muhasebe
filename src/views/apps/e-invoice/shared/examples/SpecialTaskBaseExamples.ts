@@ -1,4 +1,4 @@
-import type { OzelMatrahType } from '../../../../types/apps/SpecialTaskTypes'
+import type { OzelMatrahType } from '../../../../../types/apps/SpecialTaskTypes'
 
 export const ozelMatrahOptions: OzelMatrahType[] = [
   { value: '801', label: '801 - Milli Piyango, Spor Toto vb. Oyunlar' },

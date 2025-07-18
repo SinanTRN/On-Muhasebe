@@ -3,13 +3,13 @@ import { useState, useMemo } from 'react'
 
 import { Stack } from '@mui/material'
 
-import EInvoiceListTable from '../shared/EInvoiceListTable'
-import EInvoiceListFilterBar from '../shared/EInvoiceListFilterBar'
-import EInvoiceSummaryBar from '../shared/EInvoiceSummaryBar'
+import EInvoiceListTable from '../shared/tables/EInvoiceListTable'
+import EInvoiceListFilterBar from '../shared/components/EInvoiceListFilterBar'
+import EInvoiceSummaryBar from '../shared/components/EInvoiceSummaryBar'
 import { useTableData } from '@/hooks/useTableData'
 
 // Invoice tipini import et
-import type { Invoice } from '../shared/EInvoiceListTable'
+import type { Invoice } from '../shared/tables/EInvoiceListTable'
 
 const EInvoiceIncoming = () => {
   // Örnek veri

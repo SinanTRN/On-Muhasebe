@@ -1,4 +1,4 @@
-import type { VatType } from '../../../../types/apps/VatTypes'
+import type { VatType } from '../../../../../types/apps/VatTypes'
 
 export const vatOptions: VatType[] = [
   { value: 0, label: '0' },

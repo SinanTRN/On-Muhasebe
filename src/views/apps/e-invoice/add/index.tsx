@@ -1,4 +1,4 @@
-import AddForm from '../shared/AddForm'
+import AddForm from '../shared/components/AddForm'
 
 const AddInvoicePage = () => {
   return (

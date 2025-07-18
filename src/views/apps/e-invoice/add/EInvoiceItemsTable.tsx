@@ -22,12 +22,12 @@ import {
 } from '@mui/material'
 import { Icon } from '@iconify/react'
 
-import { kdvTevkifatOrnekleri } from '../shared/kdvWithholdingExamples'
-import { ozelMatrahOptions } from '../shared/SpecialTaskBaseExamples'
-import { unitOptions } from '../shared/UnitExamples'
+import { kdvTevkifatOrnekleri } from '../shared/examples/kdvWithholdingExamples'
+import { ozelMatrahOptions } from '../shared/examples/SpecialTaskBaseExamples'
+import { unitOptions } from '../shared/examples/UnitExamples'
 
-import { vatOptions } from '../shared/VatExamples'
-import CustomSelectCell from '../shared/CustomSelectCell'
+import { vatOptions } from '../shared/examples/VatExamples'
+import CustomSelectCell from '../shared/components/CustomSelectCell'
 
 const unitOptionsForSelect = unitOptions.map(opt => ({ value: opt.value.toString(), label: opt.label }))
 const vatOptionsForSelect = vatOptions.map(opt => ({ value: opt.value.toString(), label: opt.label }))

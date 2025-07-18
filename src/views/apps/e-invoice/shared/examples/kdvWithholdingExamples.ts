@@ -1,4 +1,4 @@
-import type { KdvTevkifat } from '../../../../types/apps/kdvWithholdingTypes'
+import type { KdvTevkifat } from '../../../../../types/apps/kdvWithholdingTypes'
 
 export const kdvTevkifatOrnekleri: KdvTevkifat[] = [
   {
