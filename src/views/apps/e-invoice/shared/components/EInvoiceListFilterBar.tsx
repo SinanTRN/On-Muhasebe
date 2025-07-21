@@ -40,7 +40,7 @@ const EInvoiceListFilterBar = ({ filters, setFilters, onSearch, onReset }: Props
     >
       {/* Fatura Numarası */}
       <Box className='flex flex-row sm:flex-col max-w-[70%]'>
-        <div className='flex flex-col sm:flex-col md:flex-row gap-2'>
+        <div className='flex flex-col sm:flex-col md:flex-row gap-3'>
           <TextField
             label='Fatura Numarası'
             value={filters.invoiceNo}
@@ -57,7 +57,7 @@ const EInvoiceListFilterBar = ({ filters, setFilters, onSearch, onReset }: Props
       </Box>
       {/* Fatura Tarihi */}
       <Box className='flex flex-row max-w-[70%]'>
-        <div className='flex flex-col sm:flex-col md:flex-row gap-2'>
+        <div className='flex flex-col sm:flex-col md:flex-row gap-3'>
           <AppReactDatepicker
             selected={filters.invoiceStart || undefined}
             onChange={date => setFilters({ ...filters, invoiceStart: date })}
@@ -93,7 +93,7 @@ const EInvoiceListFilterBar = ({ filters, setFilters, onSearch, onReset }: Props
       </Box>
       {/* Alınma Tarihi */}
       <Box className='flex flex-row max-w-[70%]'>
-        <div className='flex flex-col sm:flex-col md:flex-row gap-2'>
+        <div className='flex flex-col sm:flex-col md:flex-row gap-3'>
           <AppReactDatepicker
             selected={filters.receivedStart || undefined}
             onChange={date => setFilters({ ...filters, receivedStart: date })}
