@@ -12,6 +12,10 @@ export function useInvoiceFilters({ defaultPeriod = 'month' }: UseInvoiceFilters
   const [readFilter, setReadFilter] = useState('')
   const [period, setPeriod] = useState(defaultPeriod)
   const [summaryStatus, setSummaryStatus] = useState('')
+  const [customer, setCustomer] = useState('')
+  const [referenceNo, setReferenceNo] = useState('')
+  const [receivedStart, setReceivedStart] = useState<Date | null>(null)
+  const [receivedEnd, setReceivedEnd] = useState<Date | null>(null)
 
   const handleSummaryStatusChange = useCallback((val: string) => {
     setSummaryStatus(prev => (prev === val ? '' : val))
@@ -27,7 +31,17 @@ export function useInvoiceFilters({ defaultPeriod = 'month' }: UseInvoiceFilters
     setStatusFilter('')
   }, [])
 
-  const isAnyFilterActive = !!(search || startDate || endDate || readFilter || statusFilter)
+  const isAnyFilterActive = !!(
+    search ||
+    startDate ||
+    endDate ||
+    readFilter ||
+    statusFilter ||
+    customer ||
+    referenceNo ||
+    receivedStart ||
+    receivedEnd
+  )
 
   // filterFn fonksiyonu dışarıdan Invoice tipine göre parametre olarak alınmalı
   const getFilterFn = useCallback(
@@ -99,20 +113,45 @@ export function useInvoiceFilters({ defaultPeriod = 'month' }: UseInvoiceFilters
         inv.title.toLowerCase().includes(search.toLowerCase()) ||
         inv.nameSurname.toLowerCase().includes(search.toLowerCase())
 
+      // customer ve referenceNo için ek filtre
+      const customerMatch = customer
+        ? inv.title.toLowerCase().includes(customer.toLowerCase()) ||
+          inv.vknTckn.toLowerCase().includes(customer.toLowerCase())
+        : true
+      const referenceNoMatch = referenceNo
+        ? inv.ettn && inv.ettn.toLowerCase().includes(referenceNo.toLowerCase())
+        : true
+
       const invoiceDate = new Date(inv.receivedAt)
       let dateMatch = true
 
       if (startDate && endDate) dateMatch = invoiceDate >= startDate && invoiceDate <= endDate
       else if (startDate) dateMatch = invoiceDate >= startDate
       else if (endDate) dateMatch = invoiceDate <= endDate
+
+      // Alınma tarihi için ek filtre
+      let receivedDateMatch = true
+      if (receivedStart && receivedEnd) receivedDateMatch = invoiceDate >= receivedStart && invoiceDate <= receivedEnd
+      else if (receivedStart) receivedDateMatch = invoiceDate >= receivedStart
+      else if (receivedEnd) receivedDateMatch = invoiceDate <= receivedEnd
+
       let readMatch = true
 
       if (readFilter === 'okundu') readMatch = inv.read === true
       else if (readFilter === 'okunmadi') readMatch = inv.read === false
 
-      return periodMatch && statusMatch && searchMatch && dateMatch && readMatch
+      return (
+        periodMatch &&
+        statusMatch &&
+        searchMatch &&
+        customerMatch &&
+        referenceNoMatch &&
+        dateMatch &&
+        receivedDateMatch &&
+        readMatch
+      )
     },
-    [search, startDate, endDate, readFilter, statusFilter]
+    [search, startDate, endDate, readFilter, statusFilter, customer, referenceNo, receivedStart, receivedEnd]
   )
 
   return {
@@ -130,6 +169,14 @@ export function useInvoiceFilters({ defaultPeriod = 'month' }: UseInvoiceFilters
     setPeriod: handlePeriodChange,
     summaryStatus,
     setSummaryStatus: handleSummaryStatusChange,
+    customer,
+    setCustomer,
+    referenceNo,
+    setReferenceNo,
+    receivedStart,
+    setReceivedStart,
+    receivedEnd,
+    setReceivedEnd,
     handleSummaryStatusChange,
     handleStatusFilterChange,
     handlePeriodChange,

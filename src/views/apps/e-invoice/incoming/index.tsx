@@ -1,5 +1,5 @@
 'use client'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 
 import { Stack } from '@mui/material'
 
@@ -11,6 +11,16 @@ import { useInvoiceFilters } from '@/hooks/useInvoiceFilters'
 
 // Invoice tipini import et
 import type { Invoice } from '../shared/tables/EInvoiceListTable'
+
+type Filters = {
+  invoiceNo: string
+  customer: string
+  referenceNo: string
+  invoiceStart: Date | null
+  invoiceEnd: Date | null
+  receivedStart: Date | null
+  receivedEnd: Date | null
+}
 
 const EInvoiceIncoming = () => {
   // Örnek veri
@@ -470,78 +480,144 @@ const EInvoiceIncoming = () => {
     []
   )
 
-  // Filtre hook'u
-  const {
-    search,
-    setSearch,
-    statusFilter,
+  // Filtreler için state
+  const initialFilters: Filters = {
+    invoiceNo: '',
+    customer: '',
+    referenceNo: '',
+    invoiceStart: null,
+    invoiceEnd: null,
+    receivedStart: null,
+    receivedEnd: null
+  }
 
-    startDate,
-    setStartDate,
-    endDate,
-    setEndDate,
-    readFilter,
-    setReadFilter,
-    period,
-    summaryStatus,
-    handleSummaryStatusChange,
-    handleStatusFilterChange,
-    handlePeriodChange,
-    isAnyFilterActive,
-    getFilterFn
-  } = useInvoiceFilters({ defaultPeriod: 'month' })
+  const [draftFilters, setDraftFilters] = useState<Filters>(initialFilters)
+  const [appliedFilters, setAppliedFilters] = useState<Filters>(initialFilters)
+  const [period, setPeriod] = useState('month')
+  const [summaryStatus, setSummaryStatus] = useState('')
 
-  // Custom hook ile tablo verisi yönetimi
+  // Ara ve Temizle butonları
+  const handleSearch = () => {
+    setAppliedFilters(draftFilters)
+  }
+
+  const handleReset = () => {
+    setDraftFilters(initialFilters)
+    setAppliedFilters(initialFilters)
+    setPeriod('month')
+    setSummaryStatus('')
+    table.setPage(0)
+  }
+
+  // isAnyFilterActive: Sadece appliedFilters'a göre hesaplanır (sadece Ara'ya basınca aktif olur)
+  const isAnyFilterActive =
+    !!appliedFilters.invoiceNo ||
+    !!appliedFilters.customer ||
+    !!appliedFilters.referenceNo ||
+    !!appliedFilters.invoiceStart ||
+    !!appliedFilters.invoiceEnd ||
+    !!appliedFilters.receivedStart ||
+    !!appliedFilters.receivedEnd
+
+  // Filtreleme fonksiyonu
+  const filterFn = (inv: Invoice) => {
+    // Eğer hiç Ara'ya basılmadıysa (appliedFilters ilk değerinde), sadece period filtresi uygula
+    const isInitial =
+      !appliedFilters.invoiceNo &&
+      !appliedFilters.customer &&
+      !appliedFilters.referenceNo &&
+      !appliedFilters.invoiceStart &&
+      !appliedFilters.invoiceEnd &&
+      !appliedFilters.receivedStart &&
+      !appliedFilters.receivedEnd
+
+    if (isInitial) {
+      // Sadece period filtresi uygula
+      const now = new Date()
+
+      if (period === 'month') {
+        const date = new Date(inv.receivedAt)
+
+        return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear()
+      }
+
+      // Diğer dönemler eklenebilir
+      return true
+    }
+
+    // Ara'ya basıldıysa, sadece appliedFilters ile filtrele
+    if (appliedFilters.invoiceNo && !inv.id.includes(appliedFilters.invoiceNo)) return false
+    if (
+      appliedFilters.customer &&
+      !(inv.title.includes(appliedFilters.customer) || inv.vknTckn.includes(appliedFilters.customer))
+    )
+      return false
+    if (appliedFilters.referenceNo && !(inv.ettn && inv.ettn.includes(appliedFilters.referenceNo))) return false
+    if (appliedFilters.invoiceStart && new Date(inv.receivedAt) < appliedFilters.invoiceStart) return false
+    if (appliedFilters.invoiceEnd && new Date(inv.receivedAt) > appliedFilters.invoiceEnd) return false
+    if (appliedFilters.receivedStart && new Date(inv.receivedAt) < appliedFilters.receivedStart) return false
+    if (appliedFilters.receivedEnd && new Date(inv.receivedAt) > appliedFilters.receivedEnd) return false
+
+    return true
+  }
+
+  // Tabloya ve summaryBar'a gönderilecek veri
   const table = useTableData<Invoice>({
     data: invoiceData,
-    filterFn: getFilterFn(),
+    filterFn,
     orderByDefault: 'receivedAt',
     orderDefault: 'desc',
     pageDefault: 0,
     rowsPerPageDefault: 10
   })
 
-  // SummaryBar'a göndereceğimiz fonksiyonlar:
+  // Tabloya özel arama state'i (sadece tabloya gelen veri üzerinde arama yapar)
+  const [tableSearch, setTableSearch] = useState('')
+
+  const filteredTableData = useMemo(() => {
+    if (!tableSearch) return table.sortedData
+    const s = tableSearch.toLowerCase()
+
+    return table.sortedData.filter(
+      row =>
+        row.id.toLowerCase().includes(s) ||
+        row.title.toLowerCase().includes(s) ||
+        row.nameSurname.toLowerCase().includes(s) ||
+        row.vknTckn.toLowerCase().includes(s) ||
+        (row.ettn ? row.ettn.toLowerCase().includes(s) : false)
+    )
+  }, [table.sortedData, tableSearch])
+
+  // SummaryBar'a göndereceğimiz fonksiyonlar
   const handleSummaryStatusChangeWithPage = (val: string) => {
-    handleSummaryStatusChange(val)
-    table.setPage(0) // ilk sayfa
+    setSummaryStatus(val)
+    table.setPage(0)
   }
 
   const handlePeriodChangeWithPage = (val: string) => {
-    handlePeriodChange(val)
-    table.setPage(0) // ilk sayfa
-  }
-
-  const handleStatusFilterChangeWithPage = (val: string) => {
-    handleStatusFilterChange(val)
+    setPeriod(val)
     table.setPage(0)
   }
 
   return (
     <Stack spacing={2}>
-      {/* Tabloya özel arama alanı tablo componentine taşındı */}
       <EInvoiceSummaryBar
-        invoices={invoiceData}
+        invoices={table.sortedData}
         selectedPeriod={period}
         onPeriodChange={handlePeriodChangeWithPage}
         selectedStatus={summaryStatus}
         onStatusChange={handleSummaryStatusChangeWithPage}
-        hidden={isAnyFilterActive}
+        hidden={isAnyFilterActive} // summaryBar sadece filtre aktif değilse görünür
       />
       <EInvoiceListFilterBar
-        search={search}
-        setSearch={setSearch}
-        statusFilter={statusFilter}
-        setStatusFilter={handleStatusFilterChangeWithPage}
-        startDate={startDate}
-        setStartDate={setStartDate}
-        endDate={endDate}
-        setEndDate={setEndDate}
-        readFilter={readFilter}
-        setReadFilter={setReadFilter}
+        filters={draftFilters}
+        setFilters={setDraftFilters}
+        onSearch={handleSearch}
+        onReset={handleReset}
       />
+
       <EInvoiceListTable
-        data={table.sortedData}
+        data={filteredTableData}
         order={table.order}
         orderBy={table.orderBy}
         onSort={table.handleSort}
@@ -549,7 +625,7 @@ const EInvoiceIncoming = () => {
         setPage={table.setPage}
         rowsPerPage={table.rowsPerPage}
         setRowsPerPage={table.setRowsPerPage}
-        totalCount={table.totalCount}
+        totalCount={filteredTableData.length}
       />
     </Stack>
   )

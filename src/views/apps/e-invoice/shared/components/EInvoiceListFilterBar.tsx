@@ -1,184 +1,161 @@
 import React from 'react'
 
-import TextField from '@mui/material/TextField'
-import Select from '@mui/material/Select'
-import MenuItem from '@mui/material/MenuItem'
-import InputLabel from '@mui/material/InputLabel'
-import FormControl from '@mui/material/FormControl'
-
-import { useMediaQuery, useTheme } from '@mui/material'
+import { TextField, Button, useTheme, Box } from '@mui/material'
 
 import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
 
-const statusOptions = [
-  'Alındı',
-  'Yanıt bekliyor',
-  'Kabul',
-  'Kabul Başarısız',
-  'Beklenen sürede tamamlanmadı',
-  'Ret',
-  'Ret - Başarısız'
-]
-
-type Props = {
-  search: string
-  setSearch: (val: string) => void
-  statusFilter: string
-  setStatusFilter: (val: string) => void
-  startDate: Date | null
-  setStartDate: (val: Date | null) => void
-  endDate: Date | null
-  setEndDate: (val: Date | null) => void
-  readFilter: string
-  setReadFilter: (val: string) => void
+type Filters = {
+  invoiceNo: string
+  customer: string
+  referenceNo: string
+  invoiceStart: Date | null
+  invoiceEnd: Date | null
+  receivedStart: Date | null
+  receivedEnd: Date | null
 }
 
-const EInvoiceListFilterBar = ({
-  search,
-  setSearch,
-  statusFilter,
-  setStatusFilter,
-  startDate,
-  setStartDate,
-  endDate,
-  setEndDate,
-  readFilter,
-  setReadFilter
-}: Props) => {
-  const isMobile = useMediaQuery(theme => theme.breakpoints.down('sm'))
+type Props = {
+  filters: Filters
+  setFilters: (f: Filters) => void
+  onSearch: () => void
+  onReset: () => void
+}
+
+const EInvoiceListFilterBar = ({ filters, setFilters, onSearch, onReset }: Props) => {
   const theme = useTheme()
   const today = new Date()
 
-  // 1 yıl öncesi ve sonrası için yardımcı fonksiyonlar
-  const addDays = (date: Date, days: number) => {
-    const result = new Date(date)
-    result.setDate(result.getDate() + days)
-    return result
-  }
   const addYears = (date: Date, years: number) => {
     const result = new Date(date)
+
     result.setFullYear(result.getFullYear() + years)
+
     return result
   }
 
   return (
-    <div
-      className=' flex flex-col gap-4 sm:flex-row sm:gap-6 p-4 rounded-md shadow-md'
+    <Box
+      className='flex flex-col gap-2 p-4 rounded-md shadow-md'
       style={{ background: theme.palette.background.paper }}
     >
-      <TextField label='Ara (Fatura No, Unvan)' value={search} onChange={e => setSearch(e.target.value)} size='small' />
-      <FormControl size='small' style={{ minWidth: 160 }}>
-        <InputLabel>Durum</InputLabel>
-        <Select
-          value={statusFilter}
-          label='Durum'
-          onChange={e => setStatusFilter(e.target.value)}
-          MenuProps={{
-            PaperProps: {
-              style: {
-                maxHeight: 150,
-                maxWidth: isMobile ? 250 : 400,
-                overflow: 'auto'
-              }
-            },
-            anchorOrigin: {
-              vertical: 'bottom',
-              horizontal: 'center'
-            },
-            transformOrigin: {
-              vertical: 'top',
-              horizontal: 'center'
+      {/* Fatura Numarası */}
+      <Box className='flex flex-row sm:flex-col max-w-[70%]'>
+        <div className='flex flex-col sm:flex-col md:flex-row gap-2'>
+          <TextField
+            label='Fatura Numarası'
+            value={filters.invoiceNo}
+            onChange={e => setFilters({ ...filters, invoiceNo: e.target.value })}
+            size='small'
+          />
+          <TextField
+            label='Müşteri Adı'
+            value={filters.customer}
+            onChange={e => setFilters({ ...filters, customer: e.target.value })}
+            size='small'
+          />
+        </div>
+      </Box>
+      {/* Fatura Tarihi */}
+      <Box className='flex flex-row max-w-[70%]'>
+        <div className='flex flex-col sm:flex-col md:flex-row gap-2'>
+          <AppReactDatepicker
+            selected={filters.invoiceStart || undefined}
+            onChange={date => setFilters({ ...filters, invoiceStart: date })}
+            dateFormat='dd.MM.yyyy'
+            customInput={<TextField size='small' label='Fatura Tarihi Başlangıç' fullWidth />}
+            showPopperArrow={false}
+            maxDate={filters.invoiceEnd || today}
+            minDate={filters.invoiceEnd ? addYears(filters.invoiceEnd, -1) : undefined}
+            selectsStart
+            startDate={filters.invoiceStart || undefined}
+            endDate={filters.invoiceEnd || undefined}
+          />
+
+          <AppReactDatepicker
+            selected={filters.invoiceEnd || undefined}
+            onChange={date => setFilters({ ...filters, invoiceEnd: date })}
+            dateFormat='dd.MM.yyyy'
+            customInput={<TextField size='small' label='Fatura Tarihi Bitiş' fullWidth />}
+            showPopperArrow={false}
+            minDate={filters.invoiceStart || undefined}
+            maxDate={
+              filters.invoiceStart
+                ? addYears(filters.invoiceStart, 1) < today
+                  ? addYears(filters.invoiceStart, 1)
+                  : today
+                : today
             }
-          }}
-        >
-          <MenuItem value=''>Tümü</MenuItem>
-          {statusOptions.map(opt => (
-            <MenuItem key={opt} value={opt}>
-              {opt}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-      <AppReactDatepicker
-        selected={startDate || undefined}
-        onChange={date => setStartDate(date)}
-        dateFormat='dd.MM.yyyy'
-        customInput={<TextField size='small' label='Başlangıç Tarihi' placeholder='Başlangıç Tarihi' />}
-        showPopperArrow={false}
-        maxDate={(() => {
-          if (endDate) {
-            // Başlangıç tarihi, bitiş tarihinden en fazla 1 yıl önce olabilir
-            const oneYearBeforeEnd = addYears(endDate, -1)
-            return today < endDate ? today : endDate < today ? endDate : today
-          }
-          return today
-        })()}
-        minDate={(() => {
-          if (endDate) {
-            // Başlangıç tarihi, bitiş tarihinden en fazla 1 yıl önce olabilir
-            return addYears(endDate, -1)
-          }
-          return undefined
-        })()}
-        selectsStart
-        startDate={startDate || undefined}
-        endDate={endDate || undefined}
-      />
-      <AppReactDatepicker
-        selected={endDate || undefined}
-        onChange={date => setEndDate(date)}
-        dateFormat='dd.MM.yyyy'
-        customInput={<TextField size='small' label='Bitiş Tarihi' placeholder='Bitiş Tarihi' />}
-        showPopperArrow={false}
-        minDate={(() => {
-          if (startDate) {
-            // Bitiş tarihi, başlangıç tarihinden en fazla 1 yıl sonra olabilir
-            return startDate
-          }
-          return undefined
-        })()}
-        maxDate={(() => {
-          if (startDate) {
-            // Bitiş tarihi, başlangıç tarihinden en fazla 1 yıl sonra olabilir
-            const oneYearAfterStart = addYears(startDate, 1)
-            return oneYearAfterStart < today ? oneYearAfterStart : today
-          }
-          return today
-        })()}
-        selectsEnd
-        startDate={startDate || undefined}
-        endDate={endDate || undefined}
-      />
-      <FormControl size='small' style={{ minWidth: 150 }}>
-        <InputLabel>Okundu Bilgisi</InputLabel>
-        <Select
-          value={readFilter}
-          label='Okundu Bilgisi'
-          onChange={e => setReadFilter(e.target.value)}
-          MenuProps={{
-            PaperProps: {
-              style: {
-                maxHeight: 150,
-                maxWidth: isMobile ? 250 : 400,
-                overflow: 'auto'
-              }
-            },
-            anchorOrigin: {
-              vertical: 'bottom',
-              horizontal: 'center'
-            },
-            transformOrigin: {
-              vertical: 'top',
-              horizontal: 'center'
+            selectsEnd
+            startDate={filters.invoiceStart || undefined}
+            endDate={filters.invoiceEnd || undefined}
+          />
+        </div>
+      </Box>
+      {/* Alınma Tarihi */}
+      <Box className='flex flex-row max-w-[70%]'>
+        <div className='flex flex-col sm:flex-col md:flex-row gap-2'>
+          <AppReactDatepicker
+            selected={filters.receivedStart || undefined}
+            onChange={date => setFilters({ ...filters, receivedStart: date })}
+            dateFormat='dd.MM.yyyy'
+            customInput={<TextField size='small' label='Alınma Tarihi Başlangıç' fullWidth />}
+            showPopperArrow={false}
+            maxDate={filters.receivedEnd || today}
+            minDate={filters.receivedEnd ? addYears(filters.receivedEnd, -1) : undefined}
+            selectsStart
+            startDate={filters.receivedStart || undefined}
+            endDate={filters.receivedEnd || undefined}
+          />
+
+          <AppReactDatepicker
+            selected={filters.receivedEnd || undefined}
+            onChange={date => setFilters({ ...filters, receivedEnd: date })}
+            dateFormat='dd.MM.yyyy'
+            customInput={<TextField size='small' label='Alınma Tarihi Bitiş' fullWidth />}
+            showPopperArrow={false}
+            minDate={filters.receivedStart || undefined}
+            maxDate={
+              filters.receivedStart
+                ? addYears(filters.receivedStart, 1) < today
+                  ? addYears(filters.receivedStart, 1)
+                  : today
+                : today
             }
-          }}
-        >
-          <MenuItem value=''>Tümü</MenuItem>
-          <MenuItem value='okundu'>Okundu</MenuItem>
-          <MenuItem value='okunmadi'>Okunmadı</MenuItem>
-        </Select>
-      </FormControl>
-    </div>
+            selectsEnd
+            startDate={filters.receivedStart || undefined}
+            endDate={filters.receivedEnd || undefined}
+          />
+        </div>
+      </Box>
+      {/* Fatura Referans Numarası */}
+      <Box className='flex flex-row max-w-[70%] '>
+        <div className='flex flex-col sm:flex-col md:flex-row gap-2'>
+          <TextField
+            label='Fatura referans numarası'
+            value={filters.referenceNo}
+            onChange={e => setFilters({ ...filters, referenceNo: e.target.value })}
+            size='small'
+          />
+        </div>
+      </Box>
+      {/* Butonlar */}
+      <Box className='flex gap-2 justify-start  pt-2'>
+        <div className='flex flex-row gap-2'>
+          <div className='flex-1 max-w-full'>
+            <Button variant='contained' color='success' onClick={onSearch} disableRipple>
+              <i className='ri-search-line mr-1' />
+              Ara
+            </Button>
+          </div>
+          <div className='flex-1 max-w-full'>
+            <Button variant='contained' color='primary' onClick={onReset} disableRipple>
+              <i className='ri-eraser-line mr-1' />
+              Temizle
+            </Button>
+          </div>
+        </div>
+      </Box>
+    </Box>
   )
 }
 
