@@ -4,7 +4,7 @@ import { TextField, Button, useTheme, Box } from '@mui/material'
 
 import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
 
-type Filters = {
+export type Filters = {
   invoiceNo: string
   customer: string
   referenceNo: string
@@ -16,7 +16,7 @@ type Filters = {
 
 type Props = {
   filters: Filters
-  setFilters: (f: Filters) => void
+  setFilters: React.Dispatch<React.SetStateAction<Filters>>
   onSearch: () => void
   onReset: () => void
 }

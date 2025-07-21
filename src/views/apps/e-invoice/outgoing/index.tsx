@@ -1,5 +1,5 @@
 'use client'
-import { useMemo } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 
 import { Stack } from '@mui/material'
 
@@ -9,6 +9,7 @@ import EInvoiceSummaryBar from '../shared/components/EInvoiceSummaryBar'
 import { useTableData } from '@/hooks/useTableData'
 import type { Invoice } from '../shared/tables/EInvoiceListTable'
 import { useInvoiceFilters } from '@/hooks/useInvoiceFilters'
+import type { Filters } from '../shared/components/EInvoiceListFilterBar'
 
 // Örnek outgoing veri
 const outgoingInvoices: Invoice[] = [
@@ -89,33 +90,61 @@ const outgoingInvoices: Invoice[] = [
   }
 ]
 
+const initialFilters: Filters = {
+  invoiceNo: '',
+  customer: '',
+  referenceNo: '',
+  invoiceStart: null,
+  invoiceEnd: null,
+  receivedStart: null,
+  receivedEnd: null
+}
+
 const EInvoiceOutgoing = () => {
   const invoiceData = useMemo(() => outgoingInvoices, [])
 
-  // Filtre hook'u
+  const [draftFilters, setDraftFilters] = useState<Filters>(initialFilters)
+  const [appliedFilters, setAppliedFilters] = useState<Filters>(initialFilters)
+
+  // Sadece appliedFilters değişince useInvoiceFilters'ı güncelle
   const {
-    search,
-    setSearch,
-    statusFilter,
-
-    startDate,
-    setStartDate,
-    endDate,
-    setEndDate,
-    readFilter,
-    setReadFilter,
+    setCustomer,
+    setReferenceNo,
+    setStartDate: setInvoiceStart,
+    setEndDate: setInvoiceEnd,
+    setReceivedStart,
+    setReceivedEnd,
     period,
-
+    setPeriod,
     summaryStatus,
-
+    setSummaryStatus,
     handleSummaryStatusChange,
-    handleStatusFilterChange,
     handlePeriodChange,
     isAnyFilterActive,
     getFilterFn
   } = useInvoiceFilters({ defaultPeriod: 'month' })
 
-  // Custom hook ile tablo verisi yönetimi
+  useEffect(() => {
+    setCustomer(appliedFilters.customer)
+    setReferenceNo(appliedFilters.referenceNo)
+    setInvoiceStart(appliedFilters.invoiceStart)
+    setInvoiceEnd(appliedFilters.invoiceEnd)
+    setReceivedStart(appliedFilters.receivedStart)
+    setReceivedEnd(appliedFilters.receivedEnd)
+  }, [appliedFilters, setCustomer, setReferenceNo, setInvoiceStart, setInvoiceEnd, setReceivedStart, setReceivedEnd])
+
+  const handleSearch = () => {
+    setAppliedFilters(draftFilters)
+  }
+
+  const handleReset = () => {
+    setDraftFilters(initialFilters)
+    setAppliedFilters(initialFilters)
+    setPeriod('month')
+    setSummaryStatus('')
+    table.setPage(0)
+  }
+
   const table = useTableData<Invoice>({
     data: invoiceData,
     filterFn: getFilterFn(),
@@ -125,26 +154,20 @@ const EInvoiceOutgoing = () => {
     rowsPerPageDefault: 10
   })
 
-  // SummaryBar'a göndereceğimiz fonksiyonlar:
   const handleSummaryStatusChangeWithPage = (val: string) => {
     handleSummaryStatusChange(val)
-    table.setPage(0) // ilk sayfa
+    table.setPage(0)
   }
 
   const handlePeriodChangeWithPage = (val: string) => {
     handlePeriodChange(val)
-    table.setPage(0) // ilk sayfa
-  }
-
-  const handleStatusFilterChangeWithPage = (val:string) => {
-    handleStatusFilterChange(val)
     table.setPage(0)
   }
 
   return (
     <Stack spacing={2}>
       <EInvoiceSummaryBar
-        invoices={invoiceData}
+        invoices={table.sortedData}
         selectedPeriod={period}
         onPeriodChange={handlePeriodChangeWithPage}
         selectedStatus={summaryStatus}
@@ -152,16 +175,10 @@ const EInvoiceOutgoing = () => {
         hidden={isAnyFilterActive}
       />
       <EInvoiceListFilterBar
-        search={search}
-        setSearch={setSearch}
-        statusFilter={statusFilter}
-        setStatusFilter={handleStatusFilterChangeWithPage}
-        startDate={startDate}
-        setStartDate={setStartDate}
-        endDate={endDate}
-        setEndDate={setEndDate}
-        readFilter={readFilter}
-        setReadFilter={setReadFilter}
+        filters={draftFilters}
+        setFilters={setDraftFilters}
+        onSearch={handleSearch}
+        onReset={handleReset}
       />
       <EInvoiceListTable
         data={table.sortedData}
@@ -172,7 +189,7 @@ const EInvoiceOutgoing = () => {
         setPage={table.setPage}
         rowsPerPage={table.rowsPerPage}
         setRowsPerPage={table.setRowsPerPage}
-        totalCount={table.totalCount}
+        totalCount={table.sortedData.length}
       />
     </Stack>
   )
