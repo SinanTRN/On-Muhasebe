@@ -35,7 +35,7 @@ const EInvoiceListFilterBar = ({ filters, setFilters, onSearch, onReset }: Props
 
   return (
     <Box
-      className='flex flex-col gap-2 p-4 rounded-md shadow-md'
+      className='flex flex-col gap-3 p-4 rounded-md shadow-md'
       style={{ background: theme.palette.background.paper }}
     >
       {/* Fatura Numarası */}
@@ -48,7 +48,7 @@ const EInvoiceListFilterBar = ({ filters, setFilters, onSearch, onReset }: Props
             size='small'
           />
           <TextField
-            label='Müşteri Adı'
+            label='Unvanı veya VKN/TCKN'
             value={filters.customer}
             onChange={e => setFilters({ ...filters, customer: e.target.value })}
             size='small'
