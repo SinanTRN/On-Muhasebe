@@ -1,17 +1,18 @@
-import React from 'react'
+import React, { useState, useRef } from 'react'
 
-import { TextField, Button, useTheme, Box } from '@mui/material'
+import { TextField, Button, useTheme, Box, Grid, Popover, List, ListItem, ListItemButton, ListItemText } from '@mui/material'
 
 import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
 
 export type Filters = {
   invoiceNo: string
   customer: string
-  referenceNo: string
   invoiceStart: Date | null
   invoiceEnd: Date | null
   receivedStart: Date | null
   receivedEnd: Date | null
+  status: string // Fatura durumu eklendi
+  readStatus: string // Okundu bilgisi eklendi
 }
 
 type Props = {
@@ -24,6 +25,57 @@ type Props = {
 const EInvoiceListFilterBar = ({ filters, setFilters, onSearch, onReset }: Props) => {
   const theme = useTheme()
   const today = new Date()
+
+  const statusFieldRef = useRef<HTMLDivElement>(null)
+  const readFieldRef = useRef<HTMLDivElement>(null)
+  const [menuWidth, setMenuWidth] = useState<number | undefined>(undefined)
+  const [statusAnchorEl, setStatusAnchorEl] = useState<null | HTMLElement>(null)
+  const [readAnchorEl, setReadAnchorEl] = useState<null | HTMLElement>(null)
+  const [popoverWidth, setPopoverWidth] = useState<number | undefined>(undefined)
+  const [readPopoverWidth, setReadPopoverWidth] = useState<number | undefined>(undefined)
+
+  const statusOptions = [
+    { value: '', label: 'Tümü' },
+    { value: 'Alındı', label: 'Alındı' },
+    { value: 'Kabul', label: 'Kabul' },
+    { value: 'Yanıt bekliyor', label: 'Yanıt bekliyor' },
+    { value: 'Reddedildi', label: 'Reddedildi' },
+    { value: 'İptal', label: 'İptal' }
+  ]
+  const readOptions = [
+    { value: '', label: 'Tümü' },
+    { value: 'okundu', label: 'Okundu' },
+    { value: 'okunmadi', label: 'Okunmadı' }
+  ]
+
+  const handleStatusButtonClick = (event: React.MouseEvent<HTMLElement>) => {
+    setStatusAnchorEl(event.currentTarget)
+    if (statusFieldRef.current) {
+      setPopoverWidth(statusFieldRef.current.offsetWidth)
+    }
+  }
+  const handleReadButtonClick = (event: React.MouseEvent<HTMLElement>) => {
+    setReadAnchorEl(event.currentTarget)
+    if (readFieldRef.current) {
+      setReadPopoverWidth(readFieldRef.current.offsetWidth)
+    }
+  }
+
+  const handleStatusClose = () => {
+    setStatusAnchorEl(null)
+  }
+  const handleReadClose = () => {
+    setReadAnchorEl(null)
+  }
+
+  const handleStatusSelect = (value: string) => {
+    setFilters({ ...filters, status: value })
+    setStatusAnchorEl(null)
+  }
+  const handleReadSelect = (value: string) => {
+    setFilters({ ...filters, readStatus: value })
+    setReadAnchorEl(null)
+  }
 
   const addYears = (date: Date, years: number) => {
     const result = new Date(date)
@@ -55,6 +107,89 @@ const EInvoiceListFilterBar = ({ filters, setFilters, onSearch, onReset }: Props
           />
         </div>
       </Box>
+      {/* Fatura Referans Numarası */}
+      <Grid container className='flex flex-row max-w-[70%] gap-3'>
+        <Grid item>
+          {/* Fatura Durumu Alanı */}
+          <TextField
+            label='Fatura Durumu'
+            value={statusOptions.find(opt => opt.value === filters.status)?.label || ''}
+            size='small'
+            inputProps={{ readOnly: true }}
+            onClick={handleStatusButtonClick}
+            ref={statusFieldRef}
+            sx={{ minWidth: 160, cursor: 'pointer' }}
+          />
+          <Popover
+            open={Boolean(statusAnchorEl)}
+            anchorEl={statusAnchorEl}
+            onClose={handleStatusClose}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+            transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+            PaperProps={{
+              style: {
+                width: popoverWidth || undefined,
+                maxHeight: 300,
+                overflowY: 'auto',
+                padding: 0
+              }
+            }}
+          >
+            <List disablePadding>
+              {statusOptions.map(option => (
+                <ListItem key={option.value} disablePadding>
+                  <ListItemButton
+                    selected={filters.status === option.value}
+                    onClick={() => handleStatusSelect(option.value)}
+                  >
+                    <ListItemText primary={option.label} />
+                  </ListItemButton>
+                </ListItem>
+              ))}
+            </List>
+          </Popover>
+        </Grid>
+        <Grid item>
+          {/* Okundu Bilgisi Alanı */}
+          <TextField
+            label='Okundu Bilgisi'
+            value={readOptions.find(opt => opt.value === filters.readStatus)?.label || ''}
+            size='small'
+            inputProps={{ readOnly: true }}
+            onClick={handleReadButtonClick}
+            ref={readFieldRef}
+            sx={{ minWidth: 160, cursor: 'pointer' }}
+          />
+          <Popover
+            open={Boolean(readAnchorEl)}
+            anchorEl={readAnchorEl}
+            onClose={handleReadClose}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+            transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+            PaperProps={{
+              style: {
+                width: readPopoverWidth || undefined,
+                maxHeight: 300,
+                overflowY: 'auto',
+                padding: 0
+              }
+            }}
+          >
+            <List disablePadding>
+              {readOptions.map(option => (
+                <ListItem key={option.value} disablePadding>
+                  <ListItemButton
+                    selected={filters.readStatus === option.value}
+                    onClick={() => handleReadSelect(option.value)}
+                  >
+                    <ListItemText primary={option.label} />
+                  </ListItemButton>
+                </ListItem>
+              ))}
+            </List>
+          </Popover>
+        </Grid>
+      </Grid>
       {/* Fatura Tarihi */}
       <Box className='flex flex-row max-w-[70%]'>
         <div className='flex flex-col sm:flex-col md:flex-row gap-3'>
@@ -124,17 +259,6 @@ const EInvoiceListFilterBar = ({ filters, setFilters, onSearch, onReset }: Props
             selectsEnd
             startDate={filters.receivedStart || undefined}
             endDate={filters.receivedEnd || undefined}
-          />
-        </div>
-      </Box>
-      {/* Fatura Referans Numarası */}
-      <Box className='flex flex-row max-w-[70%] '>
-        <div className='flex flex-col sm:flex-col md:flex-row gap-2'>
-          <TextField
-            label='Fatura referans numarası'
-            value={filters.referenceNo}
-            onChange={e => setFilters({ ...filters, referenceNo: e.target.value })}
-            size='small'
           />
         </div>
       </Box>

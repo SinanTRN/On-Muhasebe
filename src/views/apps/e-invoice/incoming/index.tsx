@@ -16,11 +16,12 @@ import type { Invoice } from '../shared/tables/EInvoiceListTable'
 const initialFilters: Filters = {
   invoiceNo: '',
   customer: '',
-  referenceNo: '',
   invoiceStart: null,
   invoiceEnd: null,
   receivedStart: null,
-  receivedEnd: null
+  receivedEnd: null,
+  status: '',
+  readStatus: ''
 }
 
 const EInvoiceIncoming = () => {
@@ -488,7 +489,6 @@ const EInvoiceIncoming = () => {
   // Sadece appliedFilters değişince useInvoiceFilters'ı güncelle
   const {
     setCustomer,
-    setReferenceNo,
     setStartDate: setInvoiceStart,
     setEndDate: setInvoiceEnd,
     setReceivedStart,
@@ -500,17 +500,20 @@ const EInvoiceIncoming = () => {
     handleSummaryStatusChange,
     handlePeriodChange,
     isAnyFilterActive,
-    getFilterFn
+    getFilterFn,
+    setStatusFilterExternal,
+    setReadFilterExternal
   } = useInvoiceFilters({ defaultPeriod: 'month' })
 
   useEffect(() => {
     setCustomer(appliedFilters.customer)
-    setReferenceNo(appliedFilters.referenceNo)
     setInvoiceStart(appliedFilters.invoiceStart)
     setInvoiceEnd(appliedFilters.invoiceEnd)
     setReceivedStart(appliedFilters.receivedStart)
     setReceivedEnd(appliedFilters.receivedEnd)
-  }, [appliedFilters, setCustomer, setReferenceNo, setInvoiceStart, setInvoiceEnd, setReceivedStart, setReceivedEnd])
+    setStatusFilterExternal(appliedFilters.status)
+    setReadFilterExternal(appliedFilters.readStatus)
+  }, [appliedFilters, setCustomer, setInvoiceStart, setInvoiceEnd, setReceivedStart, setReceivedEnd, setStatusFilterExternal, setReadFilterExternal])
 
   const handleSearch = () => {
     setAppliedFilters(draftFilters)

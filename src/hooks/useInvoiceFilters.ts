@@ -31,6 +31,10 @@ export function useInvoiceFilters({ defaultPeriod = 'month' }: UseInvoiceFilters
     setStatusFilter('')
   }, [])
 
+  // Yeni: dışarıdan kontrol için
+  const setStatusFilterExternal = (val: string) => setStatusFilter(val)
+  const setReadFilterExternal = (val: string) => setReadFilter(val)
+
   const isAnyFilterActive = !!(
     search ||
     startDate ||
@@ -159,12 +163,14 @@ export function useInvoiceFilters({ defaultPeriod = 'month' }: UseInvoiceFilters
     setSearch,
     statusFilter,
     setStatusFilter: handleStatusFilterChange,
+    setStatusFilterExternal,
     startDate,
     setStartDate,
     endDate,
     setEndDate,
     readFilter,
     setReadFilter,
+    setReadFilterExternal,
     period,
     setPeriod: handlePeriodChange,
     summaryStatus,
