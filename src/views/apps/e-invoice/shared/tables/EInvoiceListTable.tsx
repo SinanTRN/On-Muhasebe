@@ -160,6 +160,17 @@ const EInvoiceListTable = ({ data, order, orderBy, onSort, page, setPage, rowsPe
               </TableCell>
               {/* ETTN */}
               <TableCell className='p-4 text-center align-center justify-center min-w-[120px]'>ETTN</TableCell>
+              {/* Fatura Senaryosu */}
+              <TableCell className='p-4 text-center align-center justify-center min-w-[120px]'>
+                <TableSortLabel
+                  active={orderBy === 'invoiceScript'}
+                  direction={orderBy === 'invoiceScript' ? order : 'asc'}
+                  onClick={() => onSort('invoiceScript')}
+                  hideSortIcon
+                >
+                  Senaryo
+                </TableSortLabel>
+              </TableCell>
               {/* Tarih */}
               <TableCell className='p-4 text-left align-center justify-center min-w-[120px] '>
                 <TableSortLabel
@@ -292,6 +303,10 @@ const EInvoiceListTable = ({ data, order, orderBy, onSort, page, setPage, rowsPe
                 {/* ETTN */}
                 <TableCell className='p-4 text-center align-center justify-center min-w-[120px]'>
                   <ETTNCell ettn={row.ettn} />
+                </TableCell>
+                {/* Fatura Senaryosu */}
+                <TableCell className='p-4 text-center align-center justify-center min-w-[120px]'>
+                  {row.invoiceScript}
                 </TableCell>
                 {/* Tarih */}
                 <TableCell className='p-4 text-left align-center justify-center min-w-[120px]'>
