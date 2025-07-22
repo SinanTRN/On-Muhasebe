@@ -162,17 +162,24 @@ const EInvoiceListFilterBar = ({ filters, setFilters, onSearch, onReset }: Props
   const getInvoiceStartValue = () => {
     if (!filters.invoiceStart && filters.invoiceEnd) {
       const start = new Date(filters.invoiceEnd)
+
       start.setMonth(start.getMonth() - 1)
+
       return start
     }
+
     return filters.invoiceStart
   }
+
   const getReceivedStartValue = () => {
     if (!filters.receivedStart && filters.receivedEnd) {
       const start = new Date(filters.receivedEnd)
+
       start.setMonth(start.getMonth() - 1)
+
       return start
     }
+
     return filters.receivedStart
   }
 
@@ -182,7 +189,7 @@ const EInvoiceListFilterBar = ({ filters, setFilters, onSearch, onReset }: Props
       style={{ background: theme.palette.background.paper }}
     >
       <Button
-        variant="contained"
+        variant='contained'
         disableRipple
         onClick={() => setFilterOpen(val => !val)}
         sx={{ mb: 2, alignSelf: 'flex-start' }}
@@ -192,334 +199,326 @@ const EInvoiceListFilterBar = ({ filters, setFilters, onSearch, onReset }: Props
       <Collapse in={filterOpen}>
         {/* Filtre alanlarının tamamı buraya taşındı */}
         <div className='flex flex-col gap-3'>
-                {/* Fatura Numarası */}
-                <Box className='flex flex-row sm:flex-col max-w-[70%]'>
-          <div className='flex flex-col sm:flex-col md:flex-row gap-3'>
-            <TextField
-              label='Fatura Numarası'
-              value={filters.invoiceNo}
-              onChange={e => setFilters({ ...filters, invoiceNo: e.target.value })}
-              size='small'
-            />
-            <TextField
-              label='Unvanı veya VKN/TCKN'
-              value={filters.customer}
-              onChange={e => setFilters({ ...filters, customer: e.target.value })}
-              size='small'
-            />
-          </div>
-        </Box>
-        <Grid container className='flex flex-row max-w-[70%] gap-3'>
-          {/* Fatura Durumu */}
-          <Grid item>
-            <TextField
-              label='Fatura Durumu'
-              value={statusLabel}
-              size='small'
-              inputProps={{ readOnly: true }}
-              onClick={handleStatusButtonClick}
-              ref={statusFieldRef}
-              sx={{ minWidth: 160, cursor: 'pointer' }}
-            />
-            <Popover
-              open={Boolean(statusAnchorEl)}
-              anchorEl={statusAnchorEl}
-              onClose={handleStatusClose}
-              anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-              transformOrigin={{ vertical: 'top', horizontal: 'left' }}
-              PaperProps={{
-                style: {
-                  width: popoverWidth || undefined,
-                  maxHeight: 300,
-                  overflowY: 'auto',
-                  padding: 0
-                }
-              }}
-            >
-              <List disablePadding>
-                {/* Tümü seçeneği */}
-                <ListItem disablePadding>
-                  <ListItemButton
-                    selected={noneSelected || allSelected}
-                    onClick={() => {
-                      setFilters({ ...filters, status: [] })
-                    }}
-                  >
-                    <Checkbox
-                      checked={noneSelected || allSelected}
-                      tabIndex={-1}
-                      disableRipple
-                    />
-                    <ListItemText primary='Tümü' />
-                  </ListItemButton>
-                </ListItem>
-                {statusOptions.map(option => (
-                  <ListItem key={option.value} disablePadding>
+          {/* Fatura Numarası */}
+          <Box className='flex flex-row sm:flex-col max-w-[70%]'>
+            <div className='flex flex-col sm:flex-col md:flex-row gap-3'>
+              <TextField
+                label='Fatura Numarası'
+                value={filters.invoiceNo}
+                onChange={e => setFilters({ ...filters, invoiceNo: e.target.value })}
+                size='small'
+              />
+              <TextField
+                label='Unvanı veya VKN/TCKN'
+                value={filters.customer}
+                onChange={e => setFilters({ ...filters, customer: e.target.value })}
+                size='small'
+              />
+            </div>
+          </Box>
+          <Grid container className='flex flex-row max-w-[70%] gap-3'>
+            {/* Fatura Durumu */}
+            <Grid item>
+              <TextField
+                label='Fatura Durumu'
+                value={statusLabel}
+                size='small'
+                inputProps={{ readOnly: true }}
+                onClick={handleStatusButtonClick}
+                ref={statusFieldRef}
+                sx={{ minWidth: 160, cursor: 'pointer' }}
+              />
+              <Popover
+                open={Boolean(statusAnchorEl)}
+                anchorEl={statusAnchorEl}
+                onClose={handleStatusClose}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+                transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+                PaperProps={{
+                  style: {
+                    width: popoverWidth || undefined,
+                    maxHeight: 300,
+                    overflowY: 'auto',
+                    padding: 0
+                  }
+                }}
+              >
+                <List disablePadding>
+                  {/* Tümü seçeneği */}
+                  <ListItem disablePadding>
                     <ListItemButton
-                      selected={filters.status.includes(option.value)}
+                      selected={noneSelected || allSelected}
                       onClick={() => {
-                        let newStatus: string[]
-                        if (filters.status.includes(option.value)) {
-                          newStatus = filters.status.filter(v => v !== option.value)
-                        } else {
-                          newStatus = [...filters.status, option.value]
-                        }
-                        setFilters({ ...filters, status: newStatus })
+                        setFilters({ ...filters, status: [] })
+                      }}
+                    >
+                      <Checkbox checked={noneSelected || allSelected} tabIndex={-1} disableRipple />
+                      <ListItemText primary='Tümü' />
+                    </ListItemButton>
+                  </ListItem>
+                  {statusOptions.map(option => (
+                    <ListItem key={option.value} disablePadding>
+                      <ListItemButton
+                        selected={filters.status.includes(option.value)}
+                        onClick={() => {
+                          let newStatus: string[]
+
+                          if (filters.status.includes(option.value)) {
+                            newStatus = filters.status.filter(v => v !== option.value)
+                          } else {
+                            newStatus = [...filters.status, option.value]
+                          }
+
+                          setFilters({ ...filters, status: newStatus })
+                        }}
+                      >
+                        <Checkbox checked={filters.status.includes(option.value)} tabIndex={-1} disableRipple />
+                        <ListItemText primary={option.label} />
+                      </ListItemButton>
+                    </ListItem>
+                  ))}
+                </List>
+              </Popover>
+            </Grid>
+            <Grid item>
+              <TextField
+                label='Fatura Senaryosu'
+                value={invoiceScriptLabel}
+                size='small'
+                inputProps={{ readOnly: true }}
+                onClick={handleInvoiceScriptButtonClick}
+                ref={invoiceScriptFieldRef}
+                sx={{ minWidth: 160, cursor: 'pointer' }}
+              />
+              <Popover
+                open={Boolean(invoiceScriptAnchorEl)}
+                anchorEl={invoiceScriptAnchorEl}
+                onClose={handleInvoiceScriptClose}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+                transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+                PaperProps={{
+                  style: {
+                    width: invoiceScriptPopoverWidth || undefined,
+                    maxHeight: 300,
+                    overflowY: 'auto',
+                    padding: 0
+                  }
+                }}
+              >
+                <List disablePadding>
+                  {/* Tümü seçeneği */}
+                  <ListItem disablePadding>
+                    <ListItemButton
+                      selected={noneInvoiceScriptSelected || allInvoiceScriptSelected}
+                      onClick={() => {
+                        setFilters({ ...filters, invoiceScript: [] })
                       }}
                     >
                       <Checkbox
-                        checked={filters.status.includes(option.value)}
+                        checked={noneInvoiceScriptSelected || allInvoiceScriptSelected}
                         tabIndex={-1}
                         disableRipple
                       />
-                      <ListItemText primary={option.label} />
+                      <ListItemText primary='Tümü' />
                     </ListItemButton>
                   </ListItem>
-                ))}
-              </List>
-            </Popover>
+                  {invoiceScriptOptions.map(option => (
+                    <ListItem key={option.value} disablePadding>
+                      <ListItemButton
+                        selected={filters.invoiceScript.includes(option.value)}
+                        onClick={() => {
+                          let newInvoiceScript: string[]
+
+                          if (filters.invoiceScript.includes(option.value)) {
+                            newInvoiceScript = filters.invoiceScript.filter(v => v !== option.value)
+                          } else {
+                            newInvoiceScript = [...filters.invoiceScript, option.value]
+                          }
+
+                          setFilters({ ...filters, invoiceScript: newInvoiceScript })
+                        }}
+                      >
+                        <Checkbox checked={filters.invoiceScript.includes(option.value)} tabIndex={-1} disableRipple />
+                        <ListItemText primary={option.label} />
+                      </ListItemButton>
+                    </ListItem>
+                  ))}
+                </List>
+              </Popover>
+            </Grid>
           </Grid>
-          <Grid item>
-            <TextField
-              label='Fatura Senaryosu'
-              value={invoiceScriptLabel}
-              size='small'
-              inputProps={{ readOnly: true }}
-              onClick={handleInvoiceScriptButtonClick}
-              ref={invoiceScriptFieldRef}
-              sx={{ minWidth: 160, cursor: 'pointer' }}
-            />
-            <Popover
-              open={Boolean(invoiceScriptAnchorEl)}
-              anchorEl={invoiceScriptAnchorEl}
-              onClose={handleInvoiceScriptClose}
-              anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-              transformOrigin={{ vertical: 'top', horizontal: 'left' }}
-              PaperProps={{
-                style: {
-                  width: invoiceScriptPopoverWidth || undefined,
-                  maxHeight: 300,
-                  overflowY: 'auto',
-                  padding: 0
+          <Grid container className='flex flex-row max-w-[70%] gap-3'>
+            {/* Okundu Bilgisi*/}
+            <Grid item>
+              <TextField
+                label='Okundu Bilgisi'
+                value={readOptions.find(opt => opt.value === filters.readStatus)?.label || ''}
+                size='small'
+                inputProps={{ readOnly: true }}
+                onClick={handleReadButtonClick}
+                ref={readFieldRef}
+                sx={{ minWidth: 160, cursor: 'pointer' }}
+              />
+              <Popover
+                open={Boolean(readAnchorEl)}
+                anchorEl={readAnchorEl}
+                onClose={handleReadClose}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+                transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+                PaperProps={{
+                  style: {
+                    width: readPopoverWidth || undefined,
+                    maxHeight: 300,
+                    overflowY: 'auto',
+                    padding: 0
+                  }
+                }}
+              >
+                <List disablePadding>
+                  {readOptions.map(option => (
+                    <ListItem key={option.value} disablePadding>
+                      <ListItemButton
+                        selected={filters.readStatus === option.value}
+                        onClick={() => handleReadSelect(option.value)}
+                      >
+                        <ListItemText primary={option.label} />
+                      </ListItemButton>
+                    </ListItem>
+                  ))}
+                </List>
+              </Popover>
+            </Grid>
+            {/* Fatura Tipi */}
+            <Grid item>
+              <TextField
+                label='Fatura Tipi'
+                value={typeLabel}
+                size='small'
+                inputProps={{ readOnly: true }}
+                onClick={handleTypeButtonClick}
+                ref={typeFieldRef}
+                sx={{ minWidth: 160, cursor: 'pointer' }}
+              />
+              <Popover
+                open={Boolean(typeAnchorEl)}
+                anchorEl={typeAnchorEl}
+                onClose={handleTypeClose}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+                transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+                PaperProps={{
+                  style: {
+                    width: typePopoverWidth || undefined,
+                    maxHeight: 300,
+                    overflowY: 'auto',
+                    padding: 0
+                  }
+                }}
+              >
+                <List disablePadding>
+                  {typeOptions.map(option => (
+                    <ListItem key={option.value} disablePadding>
+                      <ListItemButton
+                        selected={filters.type === option.value}
+                        onClick={() => {
+                          setFilters({ ...filters, type: option.value })
+                          setTypeAnchorEl(null)
+                        }}
+                      >
+                        <ListItemText primary={option.label} />
+                      </ListItemButton>
+                    </ListItem>
+                  ))}
+                </List>
+              </Popover>
+            </Grid>
+          </Grid>
+          {/* Fatura Tarihi */}
+          <Box className='flex flex-row max-w-[70%]'>
+            <div className='flex flex-col sm:flex-col md:flex-row gap-3'>
+              <AppReactDatepicker
+                selected={getInvoiceStartValue() || undefined}
+                onChange={date => setFilters({ ...filters, invoiceStart: date })}
+                dateFormat='dd.MM.yyyy'
+                customInput={<TextField size='small' label='Fatura Tarihi Başlangıç' fullWidth />}
+                showPopperArrow={false}
+                maxDate={filters.invoiceEnd || today}
+                minDate={filters.invoiceEnd ? addYears(filters.invoiceEnd, -1) : undefined}
+                selectsStart
+                startDate={getInvoiceStartValue() || undefined}
+                endDate={filters.invoiceEnd || undefined}
+              />
+              <AppReactDatepicker
+                selected={filters.invoiceEnd || undefined}
+                onChange={date => setFilters({ ...filters, invoiceEnd: date })}
+                dateFormat='dd.MM.yyyy'
+                customInput={<TextField size='small' label='Fatura Tarihi Bitiş' fullWidth />}
+                showPopperArrow={false}
+                minDate={filters.invoiceStart || undefined}
+                maxDate={
+                  filters.invoiceStart
+                    ? addYears(filters.invoiceStart, 1) < today
+                      ? addYears(filters.invoiceStart, 1)
+                      : today
+                    : today
                 }
-              }}
-            >
-              <List disablePadding>
-                {/* Tümü seçeneği */}
-                <ListItem disablePadding>
-                  <ListItemButton
-                    selected={noneInvoiceScriptSelected || allInvoiceScriptSelected}
-                    onClick={() => {
-                      setFilters({ ...filters, invoiceScript: [] })
-                    }}
-                  >
-                    <Checkbox
-                      checked={noneInvoiceScriptSelected || allInvoiceScriptSelected}
-                      tabIndex={-1}
-                      disableRipple
-                    />
-                    <ListItemText primary='Tümü' />
-                  </ListItemButton>
-                </ListItem>
-                {invoiceScriptOptions.map(option => (
-                  <ListItem key={option.value} disablePadding>
-                    <ListItemButton
-                      selected={filters.invoiceScript.includes(option.value)}
-                      onClick={() => {
-                        let newInvoiceScript: string[]
-                        if (filters.invoiceScript.includes(option.value)) {
-                          newInvoiceScript = filters.invoiceScript.filter(v => v !== option.value)
-                        } else {
-                          newInvoiceScript = [...filters.invoiceScript, option.value]
-                        }
-                        setFilters({ ...filters, invoiceScript: newInvoiceScript })
-                      }}
-                    >
-                      <Checkbox
-                        checked={filters.invoiceScript.includes(option.value)}
-                        tabIndex={-1}
-                        disableRipple
-                      />
-                      <ListItemText primary={option.label} />
-                    </ListItemButton>
-                  </ListItem>
-                ))}
-              </List>
-            </Popover>
-          </Grid>
-        </Grid>
-        <Grid container className='flex flex-row max-w-[70%] gap-3'>
-        {/* Okundu Bilgisi*/}
-        <Grid item>
-          <TextField
-            label='Okundu Bilgisi'
-            value={readOptions.find(opt => opt.value === filters.readStatus)?.label || ''}
-            size='small'
-            inputProps={{ readOnly: true }}
-            onClick={handleReadButtonClick}
-            ref={readFieldRef}
-            sx={{ minWidth: 160, cursor: 'pointer' }}
-          />
-          <Popover
-            open={Boolean(readAnchorEl)}
-            anchorEl={readAnchorEl}
-            onClose={handleReadClose}
-            anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-            transformOrigin={{ vertical: 'top', horizontal: 'left' }}
-            PaperProps={{
-              style: {
-                width: readPopoverWidth || undefined,
-                maxHeight: 300,
-                overflowY: 'auto',
-                padding: 0
-              }
-            }}
-          >
-            <List disablePadding>
-              {readOptions.map(option => (
-                <ListItem key={option.value} disablePadding>
-                  <ListItemButton
-                    selected={filters.readStatus === option.value}
-                    onClick={() => handleReadSelect(option.value)}
-                  >
-                    <ListItemText primary={option.label} />
-                  </ListItemButton>
-                </ListItem>
-              ))}
-            </List>
-          </Popover>
-        </Grid>
-        {/* Fatura Tipi */}
-        <Grid item>
-          <TextField
-            label='Fatura Tipi'
-            value={typeLabel}
-            size='small'
-            inputProps={{ readOnly: true }}
-            onClick={handleTypeButtonClick}
-            ref={typeFieldRef}
-            sx={{ minWidth: 160, cursor: 'pointer' }}
-          />
-          <Popover
-            open={Boolean(typeAnchorEl)}
-            anchorEl={typeAnchorEl}
-            onClose={handleTypeClose}
-            anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-            transformOrigin={{ vertical: 'top', horizontal: 'left' }}
-            PaperProps={{
-              style: {
-                width: typePopoverWidth || undefined,
-                maxHeight: 300,
-                overflowY: 'auto',
-                padding: 0
-              }
-            }}
-          >
-            <List disablePadding>
-              {typeOptions.map(option => (
-                <ListItem key={option.value} disablePadding>
-                  <ListItemButton
-                    selected={filters.type === option.value}
-                    onClick={() => {
-                      setFilters({ ...filters, type: option.value })
-                      setTypeAnchorEl(null)
-                    }}
-                  >
-                    <ListItemText primary={option.label} />
-                  </ListItemButton>
-                </ListItem>
-              ))}
-            </List>
-          </Popover>
-        </Grid>
-      </Grid>
-        {/* Fatura Tarihi */}
-        <Box className='flex flex-row max-w-[70%]'>
-          <div className='flex flex-col sm:flex-col md:flex-row gap-3'>
-            <AppReactDatepicker
-              selected={getInvoiceStartValue() || undefined}
-              onChange={date => setFilters({ ...filters, invoiceStart: date })}
-              dateFormat='dd.MM.yyyy'
-              customInput={<TextField size='small' label='Fatura Tarihi Başlangıç' fullWidth />}
-              showPopperArrow={false}
-              maxDate={filters.invoiceEnd || today}
-              minDate={filters.invoiceEnd ? addYears(filters.invoiceEnd, -1) : undefined}
-              selectsStart
-              startDate={getInvoiceStartValue() || undefined}
-              endDate={filters.invoiceEnd || undefined}
-            />
-            <AppReactDatepicker
-              selected={filters.invoiceEnd || undefined}
-              onChange={date => setFilters({ ...filters, invoiceEnd: date })}
-              dateFormat='dd.MM.yyyy'
-              customInput={<TextField size='small' label='Fatura Tarihi Bitiş' fullWidth />}
-              showPopperArrow={false}
-              minDate={filters.invoiceStart || undefined}
-              maxDate={
-                filters.invoiceStart
-                  ? addYears(filters.invoiceStart, 1) < today
-                    ? addYears(filters.invoiceStart, 1)
-                    : today
-                  : today
-              }
-              selectsEnd
-              startDate={filters.invoiceStart || undefined}
-              endDate={filters.invoiceEnd || undefined}
-            />
-          </div>
-        </Box>
-        {/* Alınma Tarihi */}
-        <Box className='flex flex-row max-w-[70%]'>
-          <div className='flex flex-col sm:flex-col md:flex-row gap-3'>
-            <AppReactDatepicker
-              selected={getReceivedStartValue() || undefined}
-              onChange={date => setFilters({ ...filters, receivedStart: date })}
-              dateFormat='dd.MM.yyyy'
-              customInput={<TextField size='small' label='Alınma Tarihi Başlangıç' fullWidth />}
-              showPopperArrow={false}
-              maxDate={filters.receivedEnd || today}
-              minDate={filters.receivedEnd ? addYears(filters.receivedEnd, -1) : undefined}
-              selectsStart
-              startDate={getReceivedStartValue() || undefined}
-              endDate={filters.receivedEnd || undefined}
-            />
-            <AppReactDatepicker
-              selected={filters.receivedEnd || undefined}
-              onChange={date => setFilters({ ...filters, receivedEnd: date })}
-              dateFormat='dd.MM.yyyy'
-              customInput={<TextField size='small' label='Alınma Tarihi Bitiş' fullWidth />}
-              showPopperArrow={false}
-              minDate={filters.receivedStart || undefined}
-              maxDate={
-                filters.receivedStart
-                  ? addYears(filters.receivedStart, 1) < today
-                    ? addYears(filters.receivedStart, 1)
-                    : today
-                  : today
-              }
-              selectsEnd
-              startDate={filters.receivedStart || undefined}
-              endDate={filters.receivedEnd || undefined}
-            />
-          </div>
-        </Box>
-        {/* Butonlar */}
-        <Box className='flex gap-2 justify-start  pt-2'>
-          <div className='flex flex-row gap-2'>
-            <div className='flex-1 max-w-full'>
-              <Button variant='contained' color='success' onClick={onSearch} disableRipple>
-                <i className='ri-search-line mr-1' />
-                Ara
-              </Button>
+                selectsEnd
+                startDate={filters.invoiceStart || undefined}
+                endDate={filters.invoiceEnd || undefined}
+              />
             </div>
-            <div className='flex-1 max-w-full'>
-              <Button variant='contained' color='primary' onClick={onReset} disableRipple>
-                <i className='ri-eraser-line mr-1' />
-                Temizle
-              </Button>
+          </Box>
+          {/* Alınma Tarihi */}
+          <Box className='flex flex-row max-w-[70%]'>
+            <div className='flex flex-col sm:flex-col md:flex-row gap-3'>
+              <AppReactDatepicker
+                selected={getReceivedStartValue() || undefined}
+                onChange={date => setFilters({ ...filters, receivedStart: date })}
+                dateFormat='dd.MM.yyyy'
+                customInput={<TextField size='small' label='Alınma Tarihi Başlangıç' fullWidth />}
+                showPopperArrow={false}
+                maxDate={filters.receivedEnd || today}
+                minDate={filters.receivedEnd ? addYears(filters.receivedEnd, -1) : undefined}
+                selectsStart
+                startDate={getReceivedStartValue() || undefined}
+                endDate={filters.receivedEnd || undefined}
+              />
+              <AppReactDatepicker
+                selected={filters.receivedEnd || undefined}
+                onChange={date => setFilters({ ...filters, receivedEnd: date })}
+                dateFormat='dd.MM.yyyy'
+                customInput={<TextField size='small' label='Alınma Tarihi Bitiş' fullWidth />}
+                showPopperArrow={false}
+                minDate={filters.receivedStart || undefined}
+                maxDate={
+                  filters.receivedStart
+                    ? addYears(filters.receivedStart, 1) < today
+                      ? addYears(filters.receivedStart, 1)
+                      : today
+                    : today
+                }
+                selectsEnd
+                startDate={filters.receivedStart || undefined}
+                endDate={filters.receivedEnd || undefined}
+              />
             </div>
-          </div>
-        </Box>
+          </Box>
+          {/* Butonlar */}
+          <Box className='flex gap-2 justify-start  pt-2'>
+            <div className='flex flex-row gap-2'>
+              <div className='flex-1 max-w-full'>
+                <Button variant='contained' color='success' onClick={onSearch} disableRipple>
+                  <i className='ri-search-line mr-1' />
+                  Ara
+                </Button>
+              </div>
+              <div className='flex-1 max-w-full'>
+                <Button variant='contained' color='primary' onClick={onReset} disableRipple>
+                  <i className='ri-eraser-line mr-1' />
+                  Temizle
+                </Button>
+              </div>
+            </div>
+          </Box>
         </div>
       </Collapse>
     </Box>
