@@ -25,6 +25,7 @@ export type Filters = {
   receivedEnd: Date | null
   status: string[] // Çoklu seçim için güncellendi
   readStatus: string
+  type: string // Fatura Tipi için tekli seçim
 }
 
 type Props = {
@@ -40,11 +41,14 @@ const EInvoiceListFilterBar = ({ filters, setFilters, onSearch, onReset }: Props
 
   const statusFieldRef = useRef<HTMLDivElement>(null)
   const readFieldRef = useRef<HTMLDivElement>(null)
+  const typeFieldRef = useRef<HTMLDivElement>(null)
 
   const [statusAnchorEl, setStatusAnchorEl] = useState<null | HTMLElement>(null)
   const [readAnchorEl, setReadAnchorEl] = useState<null | HTMLElement>(null)
+  const [typeAnchorEl, setTypeAnchorEl] = useState<null | HTMLElement>(null)
   const [popoverWidth, setPopoverWidth] = useState<number | undefined>(undefined)
   const [readPopoverWidth, setReadPopoverWidth] = useState<number | undefined>(undefined)
+  const [typePopoverWidth, setTypePopoverWidth] = useState<number | undefined>(undefined)
 
   const statusOptions = [
     { value: 'Alındı', label: 'Alındı' },
@@ -58,6 +62,12 @@ const EInvoiceListFilterBar = ({ filters, setFilters, onSearch, onReset }: Props
     { value: '', label: 'Tümü' },
     { value: 'okundu', label: 'Okundu' },
     { value: 'okunmadi', label: 'Okunmadı' }
+  ]
+
+  const typeOptions = [
+    { value: '', label: 'Tümü' },
+    { value: 'E-Arşiv', label: 'E-Arşiv' },
+    { value: 'E-Fatura', label: 'E-Fatura' }
   ]
 
   const handleStatusButtonClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -89,6 +99,24 @@ const EInvoiceListFilterBar = ({ filters, setFilters, onSearch, onReset }: Props
     setReadAnchorEl(null)
   }
 
+  const handleTypeButtonClick = (event: React.MouseEvent<HTMLElement>) => {
+    setTypeAnchorEl(event.currentTarget)
+    if (typeFieldRef.current) {
+      setTypePopoverWidth(typeFieldRef.current.offsetWidth)
+    }
+  }
+  const handleTypeClose = () => {
+    setTypeAnchorEl(null)
+  }
+
+  const allSelected = filters.status.length === statusOptions.length
+  const noneSelected = filters.status.length === 0
+  const statusLabel = noneSelected || allSelected
+    ? 'Tümü'
+    : `Seçildi (${filters.status.length})`
+
+  const typeLabel = typeOptions.find(opt => opt.value === filters.type)?.label || 'Tümü'
+
   const addYears = (date: Date, years: number) => {
     const result = new Date(date)
 
@@ -96,13 +124,6 @@ const EInvoiceListFilterBar = ({ filters, setFilters, onSearch, onReset }: Props
 
     return result
   }
-
-  // Status alanı için label mantığı
-  const allSelected = filters.status.length === statusOptions.length
-  const noneSelected = filters.status.length === 0
-  const statusLabel = noneSelected || allSelected
-    ? 'Tümü'
-    : `Seçildi (${filters.status.length})`
 
   return (
     <Box
@@ -198,8 +219,49 @@ const EInvoiceListFilterBar = ({ filters, setFilters, onSearch, onReset }: Props
             </List>
           </Popover>
         </Grid>
-        {/* Fatura Tipi */}
-        <Grid></Grid>
+        {/* Fatura Tipi Alanı */}
+        <Grid item>
+          <TextField
+            label='Fatura Tipi'
+            value={typeLabel}
+            size='small'
+            inputProps={{ readOnly: true }}
+            onClick={handleTypeButtonClick}
+            ref={typeFieldRef}
+            sx={{ minWidth: 160, cursor: 'pointer' }}
+          />
+          <Popover
+            open={Boolean(typeAnchorEl)}
+            anchorEl={typeAnchorEl}
+            onClose={handleTypeClose}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+            transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+            PaperProps={{
+              style: {
+                width: typePopoverWidth || undefined,
+                maxHeight: 300,
+                overflowY: 'auto',
+                padding: 0
+              }
+            }}
+          >
+            <List disablePadding>
+              {typeOptions.map(option => (
+                <ListItem key={option.value} disablePadding>
+                  <ListItemButton
+                    selected={filters.type === option.value}
+                    onClick={() => {
+                      setFilters({ ...filters, type: option.value })
+                      setTypeAnchorEl(null)
+                    }}
+                  >
+                    <ListItemText primary={option.label} />
+                  </ListItemButton>
+                </ListItem>
+              ))}
+            </List>
+          </Popover>
+        </Grid>
       </Grid>
       <Grid container className='flex flex-row max-w-[70%] gap-3'>
         {/* Okundu Bilgisi*/}

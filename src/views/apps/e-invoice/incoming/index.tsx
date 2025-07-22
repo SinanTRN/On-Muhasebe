@@ -21,7 +21,8 @@ const initialFilters: Filters = {
   receivedStart: null,
   receivedEnd: null,
   status: [],
-  readStatus: ''
+  readStatus: '',
+  type: ''
 }
 
 const EInvoiceIncoming = () => {
@@ -502,7 +503,8 @@ const EInvoiceIncoming = () => {
     isAnyFilterActive,
     getFilterFn,
     setStatusFilterExternal,
-    setReadFilterExternal
+    setReadFilterExternal,
+    setTypeFilterExternal
   } = useInvoiceFilters({ defaultPeriod: 'month' })
 
   useEffect(() => {
@@ -513,7 +515,18 @@ const EInvoiceIncoming = () => {
     setReceivedEnd(appliedFilters.receivedEnd)
     setStatusFilterExternal(appliedFilters.status)
     setReadFilterExternal(appliedFilters.readStatus)
-  }, [appliedFilters, setCustomer, setInvoiceStart, setInvoiceEnd, setReceivedStart, setReceivedEnd, setStatusFilterExternal, setReadFilterExternal])
+    setTypeFilterExternal(appliedFilters.type)
+  }, [
+    appliedFilters,
+    setCustomer,
+    setInvoiceStart,
+    setInvoiceEnd,
+    setReceivedStart,
+    setReceivedEnd,
+    setStatusFilterExternal,
+    setReadFilterExternal,
+    setTypeFilterExternal
+  ])
 
   const handleSearch = () => {
     setAppliedFilters(draftFilters)

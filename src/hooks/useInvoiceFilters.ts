@@ -16,6 +16,7 @@ export function useInvoiceFilters({ defaultPeriod = 'month' }: UseInvoiceFilters
   const [referenceNo, setReferenceNo] = useState('')
   const [receivedStart, setReceivedStart] = useState<Date | null>(null)
   const [receivedEnd, setReceivedEnd] = useState<Date | null>(null)
+  const [typeFilter, setTypeFilter] = useState('')
 
   const handleSummaryStatusChange = useCallback((val: string) => {
     setSummaryStatus(prev => (prev === val ? '' : val))
@@ -38,6 +39,7 @@ export function useInvoiceFilters({ defaultPeriod = 'month' }: UseInvoiceFilters
     else if (typeof val === 'string') setStatusFilter([val])
   }
   const setReadFilterExternal = (val: string) => setReadFilter(val)
+  const setTypeFilterExternal = (val: string) => setTypeFilter(val)
 
   const isAnyFilterActive = !!(
     search ||
@@ -48,7 +50,8 @@ export function useInvoiceFilters({ defaultPeriod = 'month' }: UseInvoiceFilters
     customer ||
     referenceNo ||
     receivedStart ||
-    receivedEnd
+    receivedEnd ||
+    typeFilter
   )
 
   // Tüm statü seçenekleri burada tanımlı olmalı (gerekirse dışarıdan alınabilir)
@@ -124,6 +127,8 @@ export function useInvoiceFilters({ defaultPeriod = 'month' }: UseInvoiceFilters
         statusMatch = statusFilter.includes(inv.status)
       } // Hiçbiri seçili değilse veya hepsi seçiliyse tümü
 
+      const typeMatch = typeFilter ? inv.type === typeFilter : true
+
       const searchMatch =
         inv.id.toLowerCase().includes(search.toLowerCase()) ||
         inv.vknTckn.toLowerCase().includes(search.toLowerCase()) ||
@@ -160,6 +165,7 @@ export function useInvoiceFilters({ defaultPeriod = 'month' }: UseInvoiceFilters
       return (
         periodMatch &&
         statusMatch &&
+        typeMatch &&
         searchMatch &&
         customerMatch &&
         referenceNoMatch &&
@@ -168,7 +174,7 @@ export function useInvoiceFilters({ defaultPeriod = 'month' }: UseInvoiceFilters
         readMatch
       )
     },
-    [search, startDate, endDate, readFilter, statusFilter, customer, referenceNo, receivedStart, receivedEnd]
+    [search, startDate, endDate, readFilter, statusFilter, customer, referenceNo, receivedStart, receivedEnd, typeFilter]
   )
 
   return {
@@ -200,6 +206,7 @@ export function useInvoiceFilters({ defaultPeriod = 'month' }: UseInvoiceFilters
     handleStatusFilterChange,
     handlePeriodChange,
     isAnyFilterActive,
-    getFilterFn: () => getFilterFn(summaryStatus, period, isAnyFilterActive)
+    getFilterFn: () => getFilterFn(summaryStatus, period, isAnyFilterActive),
+    setTypeFilterExternal
   }
 }
