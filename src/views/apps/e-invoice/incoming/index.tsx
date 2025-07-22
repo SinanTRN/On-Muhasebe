@@ -42,7 +42,8 @@ const EInvoiceIncoming = () => {
         status: 'Alındı',
         response: 'Ulaştırıldı',
         envelopeStatus: 'Başarılı',
-        read: true
+        read: true,
+        invoiceScript: 'KAMU'
       },
       {
         id: 'EFTR-2025002',
@@ -57,7 +58,8 @@ const EInvoiceIncoming = () => {
         status: 'Yanıt bekliyor',
         response: 'Yanıt Bekliyor',
         envelopeStatus: 'Beklemede',
-        read: false
+        read: false,
+        invoiceScript: 'TİCARİ'
       },
       {
         id: 'EFTR-2025003',
@@ -72,7 +74,8 @@ const EInvoiceIncoming = () => {
         status: 'Kabul',
         response: 'Yanıt Gerekmiyor',
         envelopeStatus: 'Başarılı',
-        read: true
+        read: true,
+        invoiceScript: 'KAMU'
       },
       {
         id: 'EFTR-2025004',
@@ -87,7 +90,8 @@ const EInvoiceIncoming = () => {
         status: 'Kabul Başarısız',
         response: 'Teyit Ediniz',
         envelopeStatus: 'Hatalı',
-        read: false
+        read: false,
+        invoiceScript: 'İHRACAT'
       },
       {
         id: 'EFTR-2025005',
@@ -102,7 +106,8 @@ const EInvoiceIncoming = () => {
         status: 'Beklenen sürede tamamlanmadı',
         response: 'Yanıt Bekliyor',
         envelopeStatus: 'Beklemede',
-        read: true
+        read: true,
+        invoiceScript: 'KAMU'
       },
       {
         id: 'EFTR-2025006',
@@ -117,7 +122,8 @@ const EInvoiceIncoming = () => {
         status: 'Ret',
         response: 'Yanıt Gerekmiyor',
         envelopeStatus: 'Başarılı',
-        read: false
+        read: false,
+        invoiceScript: 'KAMU'
       },
       {
         id: 'EFTR-2025007',
@@ -132,7 +138,8 @@ const EInvoiceIncoming = () => {
         status: 'Ret - Başarısız',
         response: 'Yanıt Gerekmiyor',
         envelopeStatus: 'Hatalı',
-        read: true
+        read: true,
+        invoiceScript: 'İHRACAT'
       },
       {
         id: 'EFTR-2025008',
@@ -147,7 +154,8 @@ const EInvoiceIncoming = () => {
         status: 'Beklenen sürede tamamlanmadı',
         response: 'Ulaştırıldı',
         envelopeStatus: 'Beklemede',
-        read: false
+        read: false,
+        invoiceScript: 'TEMEL'
       },
       {
         id: 'EFTR-2025009',
@@ -162,7 +170,8 @@ const EInvoiceIncoming = () => {
         status: 'Alındı',
         response: 'Yanıt Bekliyor',
         envelopeStatus: 'Başarılı',
-        read: true
+        read: true,
+        invoiceScript: 'TİCARİ'
       },
       {
         id: 'EFTR-2025010',
@@ -177,7 +186,8 @@ const EInvoiceIncoming = () => {
         status: 'Yanıt bekliyor',
         response: 'Yanıt Bekliyor',
         envelopeStatus: 'Beklemede',
-        read: false
+        read: false,
+        invoiceScript: 'KAMU'
       },
       {
         id: 'EFTR-2025011',
@@ -192,7 +202,8 @@ const EInvoiceIncoming = () => {
         status: 'Alındı',
         response: 'Ulaştırıldı',
         envelopeStatus: 'Başarılı',
-        read: true
+        read: true,
+        invoiceScript: 'İHRACAT'
       },
       {
         id: 'EFTR-2025012',
@@ -207,7 +218,8 @@ const EInvoiceIncoming = () => {
         status: 'Yanıt bekliyor',
         response: 'Yanıt Bekliyor',
         envelopeStatus: 'Beklemede',
-        read: false
+        read: false,
+        invoiceScript: 'TEMEL'
       },
       {
         id: 'EFTR-2025013',
@@ -222,7 +234,8 @@ const EInvoiceIncoming = () => {
         status: 'Kabul',
         response: 'Yanıt Gerekmiyor',
         envelopeStatus: 'Hatalı',
-        read: true
+        read: true,
+        invoiceScript: 'KAMU'
       },
       {
         id: 'EFTR-2025014',
@@ -237,7 +250,8 @@ const EInvoiceIncoming = () => {
         status: 'Kabul',
         response: 'Teyit Ediniz',
         envelopeStatus: 'Başarılı',
-        read: false
+        read: false,
+        invoiceScript: 'İHRACAT'
       },
       {
         id: 'EFTR-2025015',
@@ -252,7 +266,8 @@ const EInvoiceIncoming = () => {
         status: 'Alındı',
         response: 'Ulaştırıldı',
         envelopeStatus: 'Beklemede',
-        read: true
+        read: true,
+        invoiceScript: 'TEMEL'
       },
       {
         id: 'EFTR-2025016',
@@ -267,7 +282,8 @@ const EInvoiceIncoming = () => {
         status: 'Alındı',
         response: 'Yanıt Bekliyor',
         envelopeStatus: 'Başarılı',
-        read: false
+        read: false,
+        invoiceScript: 'TİCARİ'
       },
       {
         id: 'EFTR-2025017',
@@ -282,7 +298,8 @@ const EInvoiceIncoming = () => {
         status: 'Alındı',
         response: 'Yanıt Gerekmiyor',
         envelopeStatus: 'Hatalı',
-        read: true
+        read: true,
+        invoiceScript: 'KAMU'
       },
       {
         id: 'EFTR-2025018',
@@ -297,7 +314,8 @@ const EInvoiceIncoming = () => {
         status: 'Alındı',
         response: 'Teyit Ediniz',
         envelopeStatus: 'Beklemede',
-        read: false
+        read: false,
+        invoiceScript: 'İHRACAT'
       },
       {
         id: 'EFTR-2025019',
@@ -312,7 +330,8 @@ const EInvoiceIncoming = () => {
         status: 'Alındı',
         response: 'Ulaştırıldı',
         envelopeStatus: 'Başarılı',
-        read: true
+        read: true,
+        invoiceScript: 'TEMEL'
       },
       {
         id: 'EFTR-2025020',
@@ -327,7 +346,8 @@ const EInvoiceIncoming = () => {
         status: 'Alındı',
         response: 'Yanıt Bekliyor',
         envelopeStatus: 'Beklemede',
-        read: false
+        read: false,
+        invoiceScript: 'TİCARİ'
       },
       {
         id: 'EFTR-2025021',
@@ -342,7 +362,8 @@ const EInvoiceIncoming = () => {
         status: 'Alındı',
         response: 'Yanıt Gerekmiyor',
         envelopeStatus: 'Beklemede',
-        read: true
+        read: true,
+        invoiceScript: 'KAMU'
       },
       {
         id: 'EFTR-2025022',
@@ -357,7 +378,8 @@ const EInvoiceIncoming = () => {
         status: 'Alındı',
         response: 'Teyit Ediniz',
         envelopeStatus: 'Başarılı',
-        read: false
+        read: false,
+        invoiceScript: 'İHRACAT'
       },
       {
         id: 'EFTR-2025023',
@@ -372,7 +394,8 @@ const EInvoiceIncoming = () => {
         status: 'Alındı',
         response: 'Ulaştırıldı',
         envelopeStatus: 'Hatalı',
-        read: true
+        read: true,
+        invoiceScript: 'TEMEL'
       },
       {
         id: 'EFTR-2025024',
@@ -387,7 +410,8 @@ const EInvoiceIncoming = () => {
         status: 'Alındı',
         response: 'Yanıt Bekliyor',
         envelopeStatus: 'Beklemede',
-        read: false
+        read: false,
+        invoiceScript: 'TİCARİ'
       },
       {
         id: 'EFTR-2025025',
@@ -402,7 +426,8 @@ const EInvoiceIncoming = () => {
         status: 'Alındı',
         response: 'Yanıt Gerekmiyor',
         envelopeStatus: 'Başarılı',
-        read: true
+        read: true,
+        invoiceScript: 'KAMU'
       },
       {
         id: 'EFTR-2025026',
@@ -417,7 +442,8 @@ const EInvoiceIncoming = () => {
         status: 'Alındı',
         response: 'Teyit Ediniz',
         envelopeStatus: 'Hatalı',
-        read: false
+        read: false,
+        invoiceScript: 'İHRACAT'
       },
       {
         id: 'EFTR-2025027',
@@ -432,7 +458,8 @@ const EInvoiceIncoming = () => {
         status: 'Alındı',
         response: 'Ulaştırıldı',
         envelopeStatus: 'Beklemede',
-        read: true
+        read: true,
+        invoiceScript: 'TEMEL'
       },
       {
         id: 'EFTR-2025028',
@@ -447,7 +474,8 @@ const EInvoiceIncoming = () => {
         status: 'Alındı',
         response: 'Yanıt Bekliyor',
         envelopeStatus: 'Başarılı',
-        read: false
+        read: false,
+        invoiceScript: 'TİCARİ'
       },
       {
         id: 'EFTR-2025029',
@@ -462,7 +490,8 @@ const EInvoiceIncoming = () => {
         status: 'Alındı',
         response: 'Yanıt Gerekmiyor',
         envelopeStatus: 'Hatalı',
-        read: true
+        read: true,
+        invoiceScript: 'KAMU'
       },
       {
         id: 'EFTR-2025030',
@@ -477,7 +506,8 @@ const EInvoiceIncoming = () => {
         status: 'Alındı',
         response: 'Teyit Ediniz',
         envelopeStatus: 'Beklemede',
-        read: false
+        read: false,
+        invoiceScript: 'İHRACAT'
       }
     ],
     []

@@ -33,6 +33,7 @@ export type Invoice = {
   envelopeStatus: string // Fatura Zarf Durumu
   read: boolean // Okundu bilgisi
   ettn: string // ETTN numarası
+  invoiceScript: string // Fatura invoiceScriptsu (TEMEL, TİCARİ, KAMU, İHRACAT)
 }
 
 type Props = {

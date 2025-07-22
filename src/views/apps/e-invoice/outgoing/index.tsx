@@ -26,7 +26,8 @@ const outgoingInvoices: Invoice[] = [
     receivedAt: new Date().toISOString(),
     response: 'Ulaştırıldı',
     envelopeStatus: 'Başarılı',
-    read: true
+    read: true,
+    invoiceScript: 'TİCARİ'
   },
   {
     id: '20240002',
@@ -41,7 +42,8 @@ const outgoingInvoices: Invoice[] = [
     receivedAt: new Date().toISOString(),
     response: 'Reddedildi',
     envelopeStatus: 'Başarısız',
-    read: false
+    read: false,
+    invoiceScript: 'TEMEL'
   },
   {
     id: '20240003',
@@ -56,7 +58,8 @@ const outgoingInvoices: Invoice[] = [
     receivedAt: new Date().toISOString(),
     response: 'Bekliyor',
     envelopeStatus: 'İşleniyor',
-    read: false
+    read: false,
+    invoiceScript: 'KAMU'
   },
   {
     id: '20240004',
@@ -71,7 +74,8 @@ const outgoingInvoices: Invoice[] = [
     receivedAt: new Date().toISOString(),
     response: 'Ulaştırıldı',
     envelopeStatus: 'Başarılı',
-    read: true
+    read: true,
+    invoiceScript: 'İHRACAT'
   },
   {
     id: '20240005',
@@ -86,7 +90,8 @@ const outgoingInvoices: Invoice[] = [
     receivedAt: new Date().toISOString(),
     response: 'İptal Edildi',
     envelopeStatus: 'Başarısız',
-    read: false
+    read: false,
+    invoiceScript: 'TEMEL'
   }
 ]
 
