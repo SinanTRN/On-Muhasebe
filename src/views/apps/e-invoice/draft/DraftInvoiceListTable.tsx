@@ -10,6 +10,7 @@ import TableRow from '@mui/material/TableRow'
 import TableSortLabel from '@mui/material/TableSortLabel'
 import TablePagination from '@mui/material/TablePagination'
 import Checkbox from '@mui/material/Checkbox'
+import Tooltip from '@mui/material/Tooltip'
 
 export type DraftInvoice = {
   id: string
@@ -222,7 +223,20 @@ const DraftInvoiceListTable = ({ data }: DraftInvoiceListTableProps) => {
                 <TableCell className='p-4 text-center min-w-[120px]'>{row.invoiceNo}</TableCell>
                 {/* Tarih */}
                 <TableCell className='p-4 text-center min-w-[120px]'>
-                  {new Date(row.date).toLocaleDateString('tr-TR')}
+                  <Tooltip
+                    title={new Date(row.date).toLocaleString('tr-TR', {
+                      day: '2-digit',
+                      month: '2-digit',
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      second: '2-digit'
+                    })}
+                    arrow
+                    placement='top'
+                  >
+                    <span>{new Date(row.date).toLocaleDateString('tr-TR')}</span>
+                  </Tooltip>
                 </TableCell>
                 {/* VKN/TCKN */}
                 <TableCell className='p-4 text-center min-w-[120px]'>{row.vknTckn}</TableCell>
