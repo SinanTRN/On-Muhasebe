@@ -1,8 +1,20 @@
 import React, { useState, useRef } from 'react'
 
-import { TextField, Button, useTheme, Box, Grid, Popover, List, ListItem, ListItemButton, ListItemText } from '@mui/material'
+import {
+  TextField,
+  Button,
+  useTheme,
+  Box,
+  Grid,
+  Popover,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemText
+} from '@mui/material'
 
 import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
+import Checkbox from '@mui/material/Checkbox'
 
 export type Filters = {
   invoiceNo: string
@@ -11,8 +23,8 @@ export type Filters = {
   invoiceEnd: Date | null
   receivedStart: Date | null
   receivedEnd: Date | null
-  status: string // Fatura durumu eklendi
-  readStatus: string // Okundu bilgisi eklendi
+  status: string[] // Çoklu seçim için güncellendi
+  readStatus: string
 }
 
 type Props = {
@@ -28,20 +40,20 @@ const EInvoiceListFilterBar = ({ filters, setFilters, onSearch, onReset }: Props
 
   const statusFieldRef = useRef<HTMLDivElement>(null)
   const readFieldRef = useRef<HTMLDivElement>(null)
-  const [menuWidth, setMenuWidth] = useState<number | undefined>(undefined)
+
   const [statusAnchorEl, setStatusAnchorEl] = useState<null | HTMLElement>(null)
   const [readAnchorEl, setReadAnchorEl] = useState<null | HTMLElement>(null)
   const [popoverWidth, setPopoverWidth] = useState<number | undefined>(undefined)
   const [readPopoverWidth, setReadPopoverWidth] = useState<number | undefined>(undefined)
 
   const statusOptions = [
-    { value: '', label: 'Tümü' },
     { value: 'Alındı', label: 'Alındı' },
     { value: 'Kabul', label: 'Kabul' },
     { value: 'Yanıt bekliyor', label: 'Yanıt bekliyor' },
     { value: 'Reddedildi', label: 'Reddedildi' },
     { value: 'İptal', label: 'İptal' }
   ]
+
   const readOptions = [
     { value: '', label: 'Tümü' },
     { value: 'okundu', label: 'Okundu' },
@@ -50,12 +62,15 @@ const EInvoiceListFilterBar = ({ filters, setFilters, onSearch, onReset }: Props
 
   const handleStatusButtonClick = (event: React.MouseEvent<HTMLElement>) => {
     setStatusAnchorEl(event.currentTarget)
+
     if (statusFieldRef.current) {
       setPopoverWidth(statusFieldRef.current.offsetWidth)
     }
   }
+
   const handleReadButtonClick = (event: React.MouseEvent<HTMLElement>) => {
     setReadAnchorEl(event.currentTarget)
+
     if (readFieldRef.current) {
       setReadPopoverWidth(readFieldRef.current.offsetWidth)
     }
@@ -64,14 +79,11 @@ const EInvoiceListFilterBar = ({ filters, setFilters, onSearch, onReset }: Props
   const handleStatusClose = () => {
     setStatusAnchorEl(null)
   }
+
   const handleReadClose = () => {
     setReadAnchorEl(null)
   }
 
-  const handleStatusSelect = (value: string) => {
-    setFilters({ ...filters, status: value })
-    setStatusAnchorEl(null)
-  }
   const handleReadSelect = (value: string) => {
     setFilters({ ...filters, readStatus: value })
     setReadAnchorEl(null)
@@ -84,6 +96,13 @@ const EInvoiceListFilterBar = ({ filters, setFilters, onSearch, onReset }: Props
 
     return result
   }
+
+  // Status alanı için label mantığı
+  const allSelected = filters.status.length === statusOptions.length
+  const noneSelected = filters.status.length === 0
+  const statusLabel = noneSelected || allSelected
+    ? 'Tümü'
+    : `Seçildi (${filters.status.length})`
 
   return (
     <Box
@@ -107,13 +126,14 @@ const EInvoiceListFilterBar = ({ filters, setFilters, onSearch, onReset }: Props
           />
         </div>
       </Box>
-      {/* Fatura Referans Numarası */}
+      
       <Grid container className='flex flex-row max-w-[70%] gap-3'>
+        {/* Fatura Durumu */}
         <Grid item>
           {/* Fatura Durumu Alanı */}
           <TextField
             label='Fatura Durumu'
-            value={statusOptions.find(opt => opt.value === filters.status)?.label || ''}
+            value={statusLabel}
             size='small'
             inputProps={{ readOnly: true }}
             onClick={handleStatusButtonClick}
@@ -136,12 +156,41 @@ const EInvoiceListFilterBar = ({ filters, setFilters, onSearch, onReset }: Props
             }}
           >
             <List disablePadding>
+              {/* Tümü seçeneği */}
+              <ListItem disablePadding>
+                <ListItemButton
+                  selected={noneSelected || allSelected}
+                  onClick={() => {
+                    setFilters({ ...filters, status: [] })
+                  }}
+                >
+                  <Checkbox
+                    checked={noneSelected || allSelected}
+                    tabIndex={-1}
+                    disableRipple
+                  />
+                  <ListItemText primary='Tümü' />
+                </ListItemButton>
+              </ListItem>
               {statusOptions.map(option => (
                 <ListItem key={option.value} disablePadding>
                   <ListItemButton
-                    selected={filters.status === option.value}
-                    onClick={() => handleStatusSelect(option.value)}
+                    selected={filters.status.includes(option.value)}
+                    onClick={() => {
+                      let newStatus: string[]
+                      if (filters.status.includes(option.value)) {
+                        newStatus = filters.status.filter(v => v !== option.value)
+                      } else {
+                        newStatus = [...filters.status, option.value]
+                      }
+                      setFilters({ ...filters, status: newStatus })
+                    }}
                   >
+                    <Checkbox
+                      checked={filters.status.includes(option.value)}
+                      tabIndex={-1}
+                      disableRipple
+                    />
                     <ListItemText primary={option.label} />
                   </ListItemButton>
                 </ListItem>
@@ -149,8 +198,12 @@ const EInvoiceListFilterBar = ({ filters, setFilters, onSearch, onReset }: Props
             </List>
           </Popover>
         </Grid>
+        {/* Fatura Tipi */}
+        <Grid></Grid>
+      </Grid>
+      <Grid container className='flex flex-row max-w-[70%] gap-3'>
+        {/* Okundu Bilgisi*/}
         <Grid item>
-          {/* Okundu Bilgisi Alanı */}
           <TextField
             label='Okundu Bilgisi'
             value={readOptions.find(opt => opt.value === filters.readStatus)?.label || ''}

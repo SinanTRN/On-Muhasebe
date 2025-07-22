@@ -20,7 +20,7 @@ const initialFilters: Filters = {
   invoiceEnd: null,
   receivedStart: null,
   receivedEnd: null,
-  status: '',
+  status: [],
   readStatus: ''
 }
 

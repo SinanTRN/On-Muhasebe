@@ -6,7 +6,7 @@ export interface UseInvoiceFiltersProps {
 
 export function useInvoiceFilters({ defaultPeriod = 'month' }: UseInvoiceFiltersProps = {}) {
   const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState('')
+  const [statusFilter, setStatusFilter] = useState<string[]>([])
   const [startDate, setStartDate] = useState<Date | null>(null)
   const [endDate, setEndDate] = useState<Date | null>(null)
   const [readFilter, setReadFilter] = useState('')
@@ -21,18 +21,22 @@ export function useInvoiceFilters({ defaultPeriod = 'month' }: UseInvoiceFilters
     setSummaryStatus(prev => (prev === val ? '' : val))
   }, [])
 
-  const handleStatusFilterChange = useCallback((val: string) => {
+  const handleStatusFilterChange = useCallback((val: string[]) => {
     setStatusFilter(val)
   }, [])
 
   const handlePeriodChange = useCallback((val: string) => {
     setPeriod(val)
     setSummaryStatus('')
-    setStatusFilter('')
+    setStatusFilter([])
   }, [])
 
-  // Yeni: dışarıdan kontrol için
-  const setStatusFilterExternal = (val: string) => setStatusFilter(val)
+  // Çoklu seçim için dışarıdan kontrol
+  const setStatusFilterExternal = (val: string[] | string) => {
+    if (Array.isArray(val)) setStatusFilter(val)
+    else if (typeof val === 'string' && val === '') setStatusFilter([])
+    else if (typeof val === 'string') setStatusFilter([val])
+  }
   const setReadFilterExternal = (val: string) => setReadFilter(val)
 
   const isAnyFilterActive = !!(
@@ -40,12 +44,21 @@ export function useInvoiceFilters({ defaultPeriod = 'month' }: UseInvoiceFilters
     startDate ||
     endDate ||
     readFilter ||
-    statusFilter ||
+    (statusFilter && statusFilter.length > 0) ||
     customer ||
     referenceNo ||
     receivedStart ||
     receivedEnd
   )
+
+  // Tüm statü seçenekleri burada tanımlı olmalı (gerekirse dışarıdan alınabilir)
+  const allStatusOptions = [
+    'Alındı',
+    'Kabul',
+    'Yanıt bekliyor',
+    'Reddedildi',
+    'İptal'
+  ]
 
   // filterFn fonksiyonu dışarıdan Invoice tipine göre parametre olarak alınmalı
   const getFilterFn = useCallback(
@@ -107,9 +120,9 @@ export function useInvoiceFilters({ defaultPeriod = 'month' }: UseInvoiceFilters
             inv.status === 'Kabul Başarısız' ||
             inv.status === 'Reddedildi' ||
             inv.status === 'REDDEDİLEN'
-      } else if (statusFilter) {
-        statusMatch = inv.status === statusFilter
-      }
+      } else if (statusFilter && statusFilter.length > 0 && statusFilter.length < allStatusOptions.length) {
+        statusMatch = statusFilter.includes(inv.status)
+      } // Hiçbiri seçili değilse veya hepsi seçiliyse tümü
 
       const searchMatch =
         inv.id.toLowerCase().includes(search.toLowerCase()) ||
