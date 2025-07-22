@@ -24,6 +24,7 @@ export type Filters = {
   receivedStart: Date | null
   receivedEnd: Date | null
   status: string[] // Çoklu seçim için güncellendi
+  invoiceScript: string[] // Fatura Senaryosu için çoklu seçim
   readStatus: string
   type: string // Fatura Tipi için tekli seçim
 }
@@ -42,6 +43,7 @@ const EInvoiceListFilterBar = ({ filters, setFilters, onSearch, onReset }: Props
   const statusFieldRef = useRef<HTMLDivElement>(null)
   const readFieldRef = useRef<HTMLDivElement>(null)
   const typeFieldRef = useRef<HTMLDivElement>(null)
+  const invoiceScriptFieldRef = useRef<HTMLDivElement>(null)
 
   const [statusAnchorEl, setStatusAnchorEl] = useState<null | HTMLElement>(null)
   const [readAnchorEl, setReadAnchorEl] = useState<null | HTMLElement>(null)
@@ -49,6 +51,8 @@ const EInvoiceListFilterBar = ({ filters, setFilters, onSearch, onReset }: Props
   const [popoverWidth, setPopoverWidth] = useState<number | undefined>(undefined)
   const [readPopoverWidth, setReadPopoverWidth] = useState<number | undefined>(undefined)
   const [typePopoverWidth, setTypePopoverWidth] = useState<number | undefined>(undefined)
+  const [invoiceScriptAnchorEl, setInvoiceScriptAnchorEl] = useState<null | HTMLElement>(null)
+  const [invoiceScriptPopoverWidth, setInvoiceScriptPopoverWidth] = useState<number | undefined>(undefined)
 
   const statusOptions = [
     { value: 'Alındı', label: 'Alındı' },
@@ -68,6 +72,13 @@ const EInvoiceListFilterBar = ({ filters, setFilters, onSearch, onReset }: Props
     { value: '', label: 'Tümü' },
     { value: 'E-Arşiv', label: 'E-Arşiv' },
     { value: 'E-Fatura', label: 'E-Fatura' }
+  ]
+
+  const invoiceScriptOptions = [
+    { value: 'TEMEL', label: 'TEMEL' },
+    { value: 'TİCARİ', label: 'TİCARİ' },
+    { value: 'KAMU', label: 'KAMU' },
+    { value: 'İHRACAT', label: 'İHRACAT' }
   ]
 
   const handleStatusButtonClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -109,11 +120,27 @@ const EInvoiceListFilterBar = ({ filters, setFilters, onSearch, onReset }: Props
     setTypeAnchorEl(null)
   }
 
+  const handleInvoiceScriptButtonClick = (event: React.MouseEvent<HTMLElement>) => {
+    setInvoiceScriptAnchorEl(event.currentTarget)
+    if (invoiceScriptFieldRef.current) {
+      setInvoiceScriptPopoverWidth(invoiceScriptFieldRef.current.offsetWidth)
+    }
+  }
+  const handleInvoiceScriptClose = () => {
+    setInvoiceScriptAnchorEl(null)
+  }
+
   const allSelected = filters.status.length === statusOptions.length
   const noneSelected = filters.status.length === 0
   const statusLabel = noneSelected || allSelected
     ? 'Tümü'
     : `Seçildi (${filters.status.length})`
+
+  const allInvoiceScriptSelected = filters.invoiceScript.length === invoiceScriptOptions.length
+  const noneInvoiceScriptSelected = filters.invoiceScript.length === 0
+  const invoiceScriptLabel = noneInvoiceScriptSelected || allInvoiceScriptSelected
+    ? 'Tümü'
+    : `Seçildi (${filters.invoiceScript.length})`
 
   const typeLabel = typeOptions.find(opt => opt.value === filters.type)?.label || 'Tümü'
 
@@ -151,7 +178,6 @@ const EInvoiceListFilterBar = ({ filters, setFilters, onSearch, onReset }: Props
       <Grid container className='flex flex-row max-w-[70%] gap-3'>
         {/* Fatura Durumu */}
         <Grid item>
-          {/* Fatura Durumu Alanı */}
           <TextField
             label='Fatura Durumu'
             value={statusLabel}
@@ -219,7 +245,117 @@ const EInvoiceListFilterBar = ({ filters, setFilters, onSearch, onReset }: Props
             </List>
           </Popover>
         </Grid>
-        {/* Fatura Tipi Alanı */}
+        <Grid item>
+          <TextField
+            label='Fatura Senaryosu'
+            value={invoiceScriptLabel}
+            size='small'
+            inputProps={{ readOnly: true }}
+            onClick={handleInvoiceScriptButtonClick}
+            ref={invoiceScriptFieldRef}
+            sx={{ minWidth: 160, cursor: 'pointer' }}
+          />
+          <Popover
+            open={Boolean(invoiceScriptAnchorEl)}
+            anchorEl={invoiceScriptAnchorEl}
+            onClose={handleInvoiceScriptClose}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+            transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+            PaperProps={{
+              style: {
+                width: invoiceScriptPopoverWidth || undefined,
+                maxHeight: 300,
+                overflowY: 'auto',
+                padding: 0
+              }
+            }}
+          >
+            <List disablePadding>
+              {/* Tümü seçeneği */}
+              <ListItem disablePadding>
+                <ListItemButton
+                  selected={noneInvoiceScriptSelected || allInvoiceScriptSelected}
+                  onClick={() => {
+                    setFilters({ ...filters, invoiceScript: [] })
+                  }}
+                >
+                  <Checkbox
+                    checked={noneInvoiceScriptSelected || allInvoiceScriptSelected}
+                    tabIndex={-1}
+                    disableRipple
+                  />
+                  <ListItemText primary='Tümü' />
+                </ListItemButton>
+              </ListItem>
+              {invoiceScriptOptions.map(option => (
+                <ListItem key={option.value} disablePadding>
+                  <ListItemButton
+                    selected={filters.invoiceScript.includes(option.value)}
+                    onClick={() => {
+                      let newInvoiceScript: string[]
+                      if (filters.invoiceScript.includes(option.value)) {
+                        newInvoiceScript = filters.invoiceScript.filter(v => v !== option.value)
+                      } else {
+                        newInvoiceScript = [...filters.invoiceScript, option.value]
+                      }
+                      setFilters({ ...filters, invoiceScript: newInvoiceScript })
+                    }}
+                  >
+                    <Checkbox
+                      checked={filters.invoiceScript.includes(option.value)}
+                      tabIndex={-1}
+                      disableRipple
+                    />
+                    <ListItemText primary={option.label} />
+                  </ListItemButton>
+                </ListItem>
+              ))}
+            </List>
+          </Popover>
+        </Grid>
+      </Grid>
+      <Grid container className='flex flex-row max-w-[70%] gap-3'>
+        {/* Okundu Bilgisi*/}
+        <Grid item>
+          <TextField
+            label='Okundu Bilgisi'
+            value={readOptions.find(opt => opt.value === filters.readStatus)?.label || ''}
+            size='small'
+            inputProps={{ readOnly: true }}
+            onClick={handleReadButtonClick}
+            ref={readFieldRef}
+            sx={{ minWidth: 160, cursor: 'pointer' }}
+          />
+          <Popover
+            open={Boolean(readAnchorEl)}
+            anchorEl={readAnchorEl}
+            onClose={handleReadClose}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+            transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+            PaperProps={{
+              style: {
+                width: readPopoverWidth || undefined,
+                maxHeight: 300,
+                overflowY: 'auto',
+                padding: 0
+              }
+            }}
+          >
+            <List disablePadding>
+              {readOptions.map(option => (
+                <ListItem key={option.value} disablePadding>
+                  <ListItemButton
+                    selected={filters.readStatus === option.value}
+                    onClick={() => handleReadSelect(option.value)}
+                  >
+                    <ListItemText primary={option.label} />
+                  </ListItemButton>
+                </ListItem>
+              ))}
+            </List>
+          </Popover>
+        </Grid>
+        {/* Fatura Tipi */}
         <Grid item>
           <TextField
             label='Fatura Tipi'
@@ -335,48 +471,6 @@ const EInvoiceListFilterBar = ({ filters, setFilters, onSearch, onReset }: Props
           />
         </div>
       </Box>
-      <Grid container className='flex flex-row max-w-[70%] gap-3'>
-        {/* Okundu Bilgisi*/}
-        <Grid item>
-          <TextField
-            label='Okundu Bilgisi'
-            value={readOptions.find(opt => opt.value === filters.readStatus)?.label || ''}
-            size='small'
-            inputProps={{ readOnly: true }}
-            onClick={handleReadButtonClick}
-            ref={readFieldRef}
-            sx={{ minWidth: 160, cursor: 'pointer' }}
-          />
-          <Popover
-            open={Boolean(readAnchorEl)}
-            anchorEl={readAnchorEl}
-            onClose={handleReadClose}
-            anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-            transformOrigin={{ vertical: 'top', horizontal: 'left' }}
-            PaperProps={{
-              style: {
-                width: readPopoverWidth || undefined,
-                maxHeight: 300,
-                overflowY: 'auto',
-                padding: 0
-              }
-            }}
-          >
-            <List disablePadding>
-              {readOptions.map(option => (
-                <ListItem key={option.value} disablePadding>
-                  <ListItemButton
-                    selected={filters.readStatus === option.value}
-                    onClick={() => handleReadSelect(option.value)}
-                  >
-                    <ListItemText primary={option.label} />
-                  </ListItemButton>
-                </ListItem>
-              ))}
-            </List>
-          </Popover>
-        </Grid>
-      </Grid>
       {/* Butonlar */}
       <Box className='flex gap-2 justify-start  pt-2'>
         <div className='flex flex-row gap-2'>

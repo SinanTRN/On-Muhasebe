@@ -7,6 +7,7 @@ export interface UseInvoiceFiltersProps {
 export function useInvoiceFilters({ defaultPeriod = 'month' }: UseInvoiceFiltersProps = {}) {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<string[]>([])
+  const [invoiceScriptFilter, setInvoiceScriptFilter] = useState<string[]>([])
   const [startDate, setStartDate] = useState<Date | null>(null)
   const [endDate, setEndDate] = useState<Date | null>(null)
   const [readFilter, setReadFilter] = useState('')
@@ -40,6 +41,11 @@ export function useInvoiceFilters({ defaultPeriod = 'month' }: UseInvoiceFilters
   }
   const setReadFilterExternal = (val: string) => setReadFilter(val)
   const setTypeFilterExternal = (val: string) => setTypeFilter(val)
+  const setInvoiceScriptFilterExternal = (val: string[] | string) => {
+    if (Array.isArray(val)) setInvoiceScriptFilter(val)
+    else if (typeof val === 'string' && val === '') setInvoiceScriptFilter([])
+    else if (typeof val === 'string') setInvoiceScriptFilter([val])
+  }
 
   const isAnyFilterActive = !!(
     search ||
@@ -47,6 +53,7 @@ export function useInvoiceFilters({ defaultPeriod = 'month' }: UseInvoiceFilters
     endDate ||
     readFilter ||
     (statusFilter && statusFilter.length > 0) ||
+    (invoiceScriptFilter && invoiceScriptFilter.length > 0) ||
     customer ||
     referenceNo ||
     receivedStart ||
@@ -127,6 +134,12 @@ export function useInvoiceFilters({ defaultPeriod = 'month' }: UseInvoiceFilters
         statusMatch = statusFilter.includes(inv.status)
       } // Hiçbiri seçili değilse veya hepsi seçiliyse tümü
 
+      // Fatura Senaryosu filtreleme
+      let invoiceScriptMatch = true
+      if (invoiceScriptFilter && invoiceScriptFilter.length > 0 && invoiceScriptFilter.length < 4) {
+        invoiceScriptMatch = invoiceScriptFilter.includes(inv.invoiceScript)
+      }
+
       const typeMatch = typeFilter ? inv.type === typeFilter : true
 
       const searchMatch =
@@ -165,6 +178,7 @@ export function useInvoiceFilters({ defaultPeriod = 'month' }: UseInvoiceFilters
       return (
         periodMatch &&
         statusMatch &&
+        invoiceScriptMatch &&
         typeMatch &&
         searchMatch &&
         customerMatch &&
@@ -174,7 +188,7 @@ export function useInvoiceFilters({ defaultPeriod = 'month' }: UseInvoiceFilters
         readMatch
       )
     },
-    [search, startDate, endDate, readFilter, statusFilter, customer, referenceNo, receivedStart, receivedEnd, typeFilter]
+    [search, startDate, endDate, readFilter, statusFilter, invoiceScriptFilter, customer, referenceNo, receivedStart, receivedEnd, typeFilter]
   )
 
   return {
@@ -183,6 +197,9 @@ export function useInvoiceFilters({ defaultPeriod = 'month' }: UseInvoiceFilters
     statusFilter,
     setStatusFilter: handleStatusFilterChange,
     setStatusFilterExternal,
+    invoiceScriptFilter,
+    setInvoiceScriptFilter,
+    setInvoiceScriptFilterExternal,
     startDate,
     setStartDate,
     endDate,
