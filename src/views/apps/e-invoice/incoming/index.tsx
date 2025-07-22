@@ -71,7 +71,7 @@ const EInvoiceIncoming = () => {
         type: 'E-Fatura',
         amount: 4500.5,
         unit: 'TRY',
-        receivedAt: '2025-06-03T09:45:00',
+        receivedAt: '2025-04-03T09:45:00',
         status: 'Kabul',
         response: 'Yanıt Gerekmiyor',
         envelopeStatus: 'Başarılı',

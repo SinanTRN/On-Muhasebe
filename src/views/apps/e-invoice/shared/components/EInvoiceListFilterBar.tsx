@@ -158,6 +158,24 @@ const EInvoiceListFilterBar = ({ filters, setFilters, onSearch, onReset }: Props
     return result
   }
 
+  // Tarih alanları için otomatik başlangıç tarihi hesaplama
+  const getInvoiceStartValue = () => {
+    if (!filters.invoiceStart && filters.invoiceEnd) {
+      const start = new Date(filters.invoiceEnd)
+      start.setMonth(start.getMonth() - 1)
+      return start
+    }
+    return filters.invoiceStart
+  }
+  const getReceivedStartValue = () => {
+    if (!filters.receivedStart && filters.receivedEnd) {
+      const start = new Date(filters.receivedEnd)
+      start.setMonth(start.getMonth() - 1)
+      return start
+    }
+    return filters.receivedStart
+  }
+
   return (
     <Box
       className='flex flex-col gap-3 p-4 rounded-md shadow-md'
@@ -419,7 +437,7 @@ const EInvoiceListFilterBar = ({ filters, setFilters, onSearch, onReset }: Props
         <Box className='flex flex-row max-w-[70%]'>
           <div className='flex flex-col sm:flex-col md:flex-row gap-3'>
             <AppReactDatepicker
-              selected={filters.invoiceStart || undefined}
+              selected={getInvoiceStartValue() || undefined}
               onChange={date => setFilters({ ...filters, invoiceStart: date })}
               dateFormat='dd.MM.yyyy'
               customInput={<TextField size='small' label='Fatura Tarihi Başlangıç' fullWidth />}
@@ -427,7 +445,7 @@ const EInvoiceListFilterBar = ({ filters, setFilters, onSearch, onReset }: Props
               maxDate={filters.invoiceEnd || today}
               minDate={filters.invoiceEnd ? addYears(filters.invoiceEnd, -1) : undefined}
               selectsStart
-              startDate={filters.invoiceStart || undefined}
+              startDate={getInvoiceStartValue() || undefined}
               endDate={filters.invoiceEnd || undefined}
             />
             <AppReactDatepicker
@@ -454,7 +472,7 @@ const EInvoiceListFilterBar = ({ filters, setFilters, onSearch, onReset }: Props
         <Box className='flex flex-row max-w-[70%]'>
           <div className='flex flex-col sm:flex-col md:flex-row gap-3'>
             <AppReactDatepicker
-              selected={filters.receivedStart || undefined}
+              selected={getReceivedStartValue() || undefined}
               onChange={date => setFilters({ ...filters, receivedStart: date })}
               dateFormat='dd.MM.yyyy'
               customInput={<TextField size='small' label='Alınma Tarihi Başlangıç' fullWidth />}
@@ -462,7 +480,7 @@ const EInvoiceListFilterBar = ({ filters, setFilters, onSearch, onReset }: Props
               maxDate={filters.receivedEnd || today}
               minDate={filters.receivedEnd ? addYears(filters.receivedEnd, -1) : undefined}
               selectsStart
-              startDate={filters.receivedStart || undefined}
+              startDate={getReceivedStartValue() || undefined}
               endDate={filters.receivedEnd || undefined}
             />
             <AppReactDatepicker

@@ -173,7 +173,13 @@ export function useInvoiceFilters({ defaultPeriod = 'month' }: UseInvoiceFilters
         }
         dateMatch = invoiceDate >= start && invoiceDate <= end
       } else if (startDate) dateMatch = invoiceDate >= startDate
-      else if (endDate) dateMatch = invoiceDate <= endDate
+      else if (endDate) {
+        // Sadece bitiş tarihi seçiliyse, başlangıç tarihi bir ay öncesi olsun
+        const end = new Date(endDate)
+        const start = new Date(endDate)
+        start.setMonth(start.getMonth() - 1)
+        dateMatch = invoiceDate >= start && invoiceDate <= end
+      }
 
       // Alınma tarihi için ek filtre
       let receivedDateMatch = true
@@ -189,7 +195,13 @@ export function useInvoiceFilters({ defaultPeriod = 'month' }: UseInvoiceFilters
         }
         receivedDateMatch = invoiceDate >= start && invoiceDate <= end
       } else if (receivedStart) receivedDateMatch = invoiceDate >= receivedStart
-      else if (receivedEnd) receivedDateMatch = invoiceDate <= receivedEnd
+      else if (receivedEnd) {
+        // Sadece alınma bitiş tarihi seçiliyse, başlangıç tarihi bir ay öncesi olsun
+        const end = new Date(receivedEnd)
+        const start = new Date(receivedEnd)
+        start.setMonth(start.getMonth() - 1)
+        receivedDateMatch = invoiceDate >= start && invoiceDate <= end
+      }
 
       let readMatch = true
 
