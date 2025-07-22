@@ -263,48 +263,6 @@ const EInvoiceListFilterBar = ({ filters, setFilters, onSearch, onReset }: Props
           </Popover>
         </Grid>
       </Grid>
-      <Grid container className='flex flex-row max-w-[70%] gap-3'>
-        {/* Okundu Bilgisi*/}
-        <Grid item>
-          <TextField
-            label='Okundu Bilgisi'
-            value={readOptions.find(opt => opt.value === filters.readStatus)?.label || ''}
-            size='small'
-            inputProps={{ readOnly: true }}
-            onClick={handleReadButtonClick}
-            ref={readFieldRef}
-            sx={{ minWidth: 160, cursor: 'pointer' }}
-          />
-          <Popover
-            open={Boolean(readAnchorEl)}
-            anchorEl={readAnchorEl}
-            onClose={handleReadClose}
-            anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-            transformOrigin={{ vertical: 'top', horizontal: 'left' }}
-            PaperProps={{
-              style: {
-                width: readPopoverWidth || undefined,
-                maxHeight: 300,
-                overflowY: 'auto',
-                padding: 0
-              }
-            }}
-          >
-            <List disablePadding>
-              {readOptions.map(option => (
-                <ListItem key={option.value} disablePadding>
-                  <ListItemButton
-                    selected={filters.readStatus === option.value}
-                    onClick={() => handleReadSelect(option.value)}
-                  >
-                    <ListItemText primary={option.label} />
-                  </ListItemButton>
-                </ListItem>
-              ))}
-            </List>
-          </Popover>
-        </Grid>
-      </Grid>
       {/* Fatura Tarihi */}
       <Box className='flex flex-row max-w-[70%]'>
         <div className='flex flex-col sm:flex-col md:flex-row gap-3'>
@@ -377,6 +335,48 @@ const EInvoiceListFilterBar = ({ filters, setFilters, onSearch, onReset }: Props
           />
         </div>
       </Box>
+      <Grid container className='flex flex-row max-w-[70%] gap-3'>
+        {/* Okundu Bilgisi*/}
+        <Grid item>
+          <TextField
+            label='Okundu Bilgisi'
+            value={readOptions.find(opt => opt.value === filters.readStatus)?.label || ''}
+            size='small'
+            inputProps={{ readOnly: true }}
+            onClick={handleReadButtonClick}
+            ref={readFieldRef}
+            sx={{ minWidth: 160, cursor: 'pointer' }}
+          />
+          <Popover
+            open={Boolean(readAnchorEl)}
+            anchorEl={readAnchorEl}
+            onClose={handleReadClose}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+            transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+            PaperProps={{
+              style: {
+                width: readPopoverWidth || undefined,
+                maxHeight: 300,
+                overflowY: 'auto',
+                padding: 0
+              }
+            }}
+          >
+            <List disablePadding>
+              {readOptions.map(option => (
+                <ListItem key={option.value} disablePadding>
+                  <ListItemButton
+                    selected={filters.readStatus === option.value}
+                    onClick={() => handleReadSelect(option.value)}
+                  >
+                    <ListItemText primary={option.label} />
+                  </ListItemButton>
+                </ListItem>
+              ))}
+            </List>
+          </Popover>
+        </Grid>
+      </Grid>
       {/* Butonlar */}
       <Box className='flex gap-2 justify-start  pt-2'>
         <div className='flex flex-row gap-2'>
