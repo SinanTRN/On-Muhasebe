@@ -160,14 +160,35 @@ export function useInvoiceFilters({ defaultPeriod = 'month' }: UseInvoiceFilters
       const invoiceDate = new Date(inv.receivedAt)
       let dateMatch = true
 
-      if (startDate && endDate) dateMatch = invoiceDate >= startDate && invoiceDate <= endDate
-      else if (startDate) dateMatch = invoiceDate >= startDate
+      if (startDate && endDate) {
+        // Eğer aynı günse, endDate'i gün sonuna çek
+        const start = new Date(startDate)
+        const end = new Date(endDate)
+        if (
+          start.getFullYear() === end.getFullYear() &&
+          start.getMonth() === end.getMonth() &&
+          start.getDate() === end.getDate()
+        ) {
+          end.setHours(23, 59, 59, 999)
+        }
+        dateMatch = invoiceDate >= start && invoiceDate <= end
+      } else if (startDate) dateMatch = invoiceDate >= startDate
       else if (endDate) dateMatch = invoiceDate <= endDate
 
       // Alınma tarihi için ek filtre
       let receivedDateMatch = true
-      if (receivedStart && receivedEnd) receivedDateMatch = invoiceDate >= receivedStart && invoiceDate <= receivedEnd
-      else if (receivedStart) receivedDateMatch = invoiceDate >= receivedStart
+      if (receivedStart && receivedEnd) {
+        const start = new Date(receivedStart)
+        const end = new Date(receivedEnd)
+        if (
+          start.getFullYear() === end.getFullYear() &&
+          start.getMonth() === end.getMonth() &&
+          start.getDate() === end.getDate()
+        ) {
+          end.setHours(23, 59, 59, 999)
+        }
+        receivedDateMatch = invoiceDate >= start && invoiceDate <= end
+      } else if (receivedStart) receivedDateMatch = invoiceDate >= receivedStart
       else if (receivedEnd) receivedDateMatch = invoiceDate <= receivedEnd
 
       let readMatch = true
