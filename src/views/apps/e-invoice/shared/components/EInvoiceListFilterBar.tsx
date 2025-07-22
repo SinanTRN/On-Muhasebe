@@ -13,8 +13,9 @@ import {
   ListItemText
 } from '@mui/material'
 
-import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
 import Checkbox from '@mui/material/Checkbox'
+
+import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
 
 export type Filters = {
   invoiceNo: string
@@ -112,35 +113,38 @@ const EInvoiceListFilterBar = ({ filters, setFilters, onSearch, onReset }: Props
 
   const handleTypeButtonClick = (event: React.MouseEvent<HTMLElement>) => {
     setTypeAnchorEl(event.currentTarget)
+
     if (typeFieldRef.current) {
       setTypePopoverWidth(typeFieldRef.current.offsetWidth)
     }
   }
+
   const handleTypeClose = () => {
     setTypeAnchorEl(null)
   }
 
   const handleInvoiceScriptButtonClick = (event: React.MouseEvent<HTMLElement>) => {
     setInvoiceScriptAnchorEl(event.currentTarget)
+
     if (invoiceScriptFieldRef.current) {
       setInvoiceScriptPopoverWidth(invoiceScriptFieldRef.current.offsetWidth)
     }
   }
+
   const handleInvoiceScriptClose = () => {
     setInvoiceScriptAnchorEl(null)
   }
 
   const allSelected = filters.status.length === statusOptions.length
   const noneSelected = filters.status.length === 0
-  const statusLabel = noneSelected || allSelected
-    ? 'Tümü'
-    : `Seçildi (${filters.status.length})`
+
+  const statusLabel = noneSelected || allSelected ? 'Tümü' : `Seçildi (${filters.status.length})`
 
   const allInvoiceScriptSelected = filters.invoiceScript.length === invoiceScriptOptions.length
   const noneInvoiceScriptSelected = filters.invoiceScript.length === 0
-  const invoiceScriptLabel = noneInvoiceScriptSelected || allInvoiceScriptSelected
-    ? 'Tümü'
-    : `Seçildi (${filters.invoiceScript.length})`
+
+  const invoiceScriptLabel =
+    noneInvoiceScriptSelected || allInvoiceScriptSelected ? 'Tümü' : `Seçildi (${filters.invoiceScript.length})`
 
   const typeLabel = typeOptions.find(opt => opt.value === filters.type)?.label || 'Tümü'
 
@@ -158,23 +162,25 @@ const EInvoiceListFilterBar = ({ filters, setFilters, onSearch, onReset }: Props
       style={{ background: theme.palette.background.paper }}
     >
       {/* Fatura Numarası */}
-      <Box className='flex flex-row sm:flex-col max-w-[70%]'>
-        <div className='flex flex-col sm:flex-col md:flex-row gap-3'>
+      <Grid container className='flex flex-row max-w-[70%] gap-3'>
+        <Grid item>
           <TextField
-            label='Fatura Numarası'
+            label='Fatura No'
             value={filters.invoiceNo}
             onChange={e => setFilters({ ...filters, invoiceNo: e.target.value })}
             size='small'
           />
+        </Grid>
+        <Grid item>
           <TextField
             label='Unvanı veya VKN/TCKN'
             value={filters.customer}
             onChange={e => setFilters({ ...filters, customer: e.target.value })}
             size='small'
           />
-        </div>
-      </Box>
-      
+        </Grid>
+      </Grid>
+
       <Grid container className='flex flex-row max-w-[70%] gap-3'>
         {/* Fatura Durumu */}
         <Grid item>
@@ -211,11 +217,7 @@ const EInvoiceListFilterBar = ({ filters, setFilters, onSearch, onReset }: Props
                     setFilters({ ...filters, status: [] })
                   }}
                 >
-                  <Checkbox
-                    checked={noneSelected || allSelected}
-                    tabIndex={-1}
-                    disableRipple
-                  />
+                  <Checkbox checked={noneSelected || allSelected} tabIndex={-1} disableRipple />
                   <ListItemText primary='Tümü' />
                 </ListItemButton>
               </ListItem>
@@ -225,19 +227,17 @@ const EInvoiceListFilterBar = ({ filters, setFilters, onSearch, onReset }: Props
                     selected={filters.status.includes(option.value)}
                     onClick={() => {
                       let newStatus: string[]
+
                       if (filters.status.includes(option.value)) {
                         newStatus = filters.status.filter(v => v !== option.value)
                       } else {
                         newStatus = [...filters.status, option.value]
                       }
+
                       setFilters({ ...filters, status: newStatus })
                     }}
                   >
-                    <Checkbox
-                      checked={filters.status.includes(option.value)}
-                      tabIndex={-1}
-                      disableRipple
-                    />
+                    <Checkbox checked={filters.status.includes(option.value)} tabIndex={-1} disableRipple />
                     <ListItemText primary={option.label} />
                   </ListItemButton>
                 </ListItem>
@@ -293,19 +293,17 @@ const EInvoiceListFilterBar = ({ filters, setFilters, onSearch, onReset }: Props
                     selected={filters.invoiceScript.includes(option.value)}
                     onClick={() => {
                       let newInvoiceScript: string[]
+
                       if (filters.invoiceScript.includes(option.value)) {
                         newInvoiceScript = filters.invoiceScript.filter(v => v !== option.value)
                       } else {
                         newInvoiceScript = [...filters.invoiceScript, option.value]
                       }
+
                       setFilters({ ...filters, invoiceScript: newInvoiceScript })
                     }}
                   >
-                    <Checkbox
-                      checked={filters.invoiceScript.includes(option.value)}
-                      tabIndex={-1}
-                      disableRipple
-                    />
+                    <Checkbox checked={filters.invoiceScript.includes(option.value)} tabIndex={-1} disableRipple />
                     <ListItemText primary={option.label} />
                   </ListItemButton>
                 </ListItem>
@@ -400,8 +398,8 @@ const EInvoiceListFilterBar = ({ filters, setFilters, onSearch, onReset }: Props
         </Grid>
       </Grid>
       {/* Fatura Tarihi */}
-      <Box className='flex flex-row max-w-[70%]'>
-        <div className='flex flex-col sm:flex-col md:flex-row gap-3'>
+      <Grid container className='flex flex-row max-w-[70%] gap-3'>
+        <Grid item>
           <AppReactDatepicker
             selected={filters.invoiceStart || undefined}
             onChange={date => setFilters({ ...filters, invoiceStart: date })}
@@ -414,7 +412,8 @@ const EInvoiceListFilterBar = ({ filters, setFilters, onSearch, onReset }: Props
             startDate={filters.invoiceStart || undefined}
             endDate={filters.invoiceEnd || undefined}
           />
-
+        </Grid>
+        <Grid item>
           <AppReactDatepicker
             selected={filters.invoiceEnd || undefined}
             onChange={date => setFilters({ ...filters, invoiceEnd: date })}
@@ -433,11 +432,11 @@ const EInvoiceListFilterBar = ({ filters, setFilters, onSearch, onReset }: Props
             startDate={filters.invoiceStart || undefined}
             endDate={filters.invoiceEnd || undefined}
           />
-        </div>
-      </Box>
+        </Grid>
+      </Grid>
       {/* Alınma Tarihi */}
-      <Box className='flex flex-row max-w-[70%]'>
-        <div className='flex flex-col sm:flex-col md:flex-row gap-3'>
+      <Grid container className='flex flex-row max-w-[70%] gap-3'>
+        <Grid item>
           <AppReactDatepicker
             selected={filters.receivedStart || undefined}
             onChange={date => setFilters({ ...filters, receivedStart: date })}
@@ -450,7 +449,8 @@ const EInvoiceListFilterBar = ({ filters, setFilters, onSearch, onReset }: Props
             startDate={filters.receivedStart || undefined}
             endDate={filters.receivedEnd || undefined}
           />
-
+        </Grid>
+        <Grid item>
           <AppReactDatepicker
             selected={filters.receivedEnd || undefined}
             onChange={date => setFilters({ ...filters, receivedEnd: date })}
@@ -469,8 +469,8 @@ const EInvoiceListFilterBar = ({ filters, setFilters, onSearch, onReset }: Props
             startDate={filters.receivedStart || undefined}
             endDate={filters.receivedEnd || undefined}
           />
-        </div>
-      </Box>
+        </Grid>
+      </Grid>
       {/* Butonlar */}
       <Box className='flex gap-2 justify-start  pt-2'>
         <div className='flex flex-row gap-2'>
