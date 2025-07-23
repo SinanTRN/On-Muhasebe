@@ -127,13 +127,6 @@ const EInvoiceListTable = ({ data, order, orderBy, onSort, page, setPage, rowsPe
             onChange={e => setDraftFilters(f => ({ ...f, referenceNo: e.target.value }))}
             size='small'
             sx={{ minWidth: 120, maxWidth: 160 }}
-            InputProps={{
-              endAdornment: (
-                <IconButton size='small' onClick={() => setDraftFilters(f => ({ ...f, referenceNo: '' }))}>
-                  <i className='ri-close-line text-base' />
-                </IconButton>
-              )
-            }}
           />
           <TextField
             label='Unvan/VKN-TCKN'
@@ -141,13 +134,6 @@ const EInvoiceListTable = ({ data, order, orderBy, onSort, page, setPage, rowsPe
             onChange={e => setDraftFilters(f => ({ ...f, customer: e.target.value }))}
             size='small'
             sx={{ minWidth: 140, maxWidth: 180 }}
-            InputProps={{
-              endAdornment: (
-                <IconButton size='small' onClick={() => setDraftFilters(f => ({ ...f, customer: '' }))}>
-                  <i className='ri-close-line text-base' />
-                </IconButton>
-              )
-            }}
           />
           <AppReactDatepicker
             selected={getInvoiceStartValue() || undefined}
@@ -158,13 +144,6 @@ const EInvoiceListTable = ({ data, order, orderBy, onSort, page, setPage, rowsPe
                 size='small'
                 label='Tarih Başlangıç'
                 sx={{ minWidth: 120, maxWidth: 140 }}
-                InputProps={{
-                  endAdornment: draftFilters.startDate && (
-                    <IconButton size='small' onClick={() => setDraftFilters(f => ({ ...f, startDate: null }))}>
-                      <i className='ri-close-line text-base' />
-                    </IconButton>
-                  )
-                }}
               />
             }
             showPopperArrow={false}
@@ -182,13 +161,6 @@ const EInvoiceListTable = ({ data, order, orderBy, onSort, page, setPage, rowsPe
                 size='small'
                 label='Tarih Bitiş'
                 sx={{ minWidth: 120, maxWidth: 140 }}
-                InputProps={{
-                  endAdornment: draftFilters.endDate && (
-                    <IconButton size='small' onClick={() => setDraftFilters(f => ({ ...f, endDate: null }))}>
-                      <i className='ri-close-line text-base' />
-                    </IconButton>
-                  )
-                }}
               />
             }
             showPopperArrow={false}
