@@ -1,5 +1,5 @@
 'use client'
-import { useMemo, useState, useEffect } from 'react'
+import { useMemo, useState } from 'react'
 
 import { Stack } from '@mui/material'
 
@@ -7,27 +7,23 @@ import EInvoiceListTable from '../shared/tables/EInvoiceListTable'
 import EInvoiceListFilterBar from '../shared/components/EInvoiceListFilterBar'
 import EInvoiceSummaryBar from '../shared/components/EInvoiceSummaryBar'
 import { useTableData } from '@/hooks/useTableData'
-import { useInvoiceFilters } from '@/hooks/useInvoiceFilters'
-import type { Filters } from '../shared/components/EInvoiceListFilterBar'
-
-// Invoice tipini import et
 import type { Invoice } from '../shared/tables/EInvoiceListTable'
+
+interface Filters {
+  invoiceNo: string
+  customer: string
+  invoiceStart: Date | null
+  invoiceEnd: Date | null
+}
 
 const initialFilters: Filters = {
   invoiceNo: '',
   customer: '',
   invoiceStart: null,
-  invoiceEnd: null,
-  receivedStart: null,
-  receivedEnd: null,
-  status: [],
-  invoiceScript: [],
-  readStatus: '',
-  type: ''
+  invoiceEnd: null
 }
 
 const EInvoiceIncoming = () => {
-  // Örnek veri
   const invoiceData: Invoice[] = useMemo(
     () => [
       {
@@ -514,53 +510,10 @@ const EInvoiceIncoming = () => {
     []
   )
 
-  // draft ve applied filtreler
   const [draftFilters, setDraftFilters] = useState<Filters>(initialFilters)
   const [appliedFilters, setAppliedFilters] = useState<Filters>(initialFilters)
-
-  // Sadece appliedFilters değişince useInvoiceFilters'ı güncelle
-  const {
-    setCustomer,
-    setStartDate: setInvoiceStart,
-    setEndDate: setInvoiceEnd,
-    setReceivedStart,
-    setReceivedEnd,
-    period,
-    setPeriod,
-    summaryStatus,
-    setSummaryStatus,
-    handleSummaryStatusChange,
-    handlePeriodChange,
-    isAnyFilterActive,
-    getFilterFn,
-    setStatusFilterExternal,
-    setReadFilterExternal,
-    setTypeFilterExternal,
-    setInvoiceScriptFilterExternal
-  } = useInvoiceFilters({ defaultPeriod: 'month' })
-
-  useEffect(() => {
-    setCustomer(appliedFilters.customer)
-    setInvoiceStart(appliedFilters.invoiceStart)
-    setInvoiceEnd(appliedFilters.invoiceEnd)
-    setReceivedStart(appliedFilters.receivedStart)
-    setReceivedEnd(appliedFilters.receivedEnd)
-    setStatusFilterExternal(appliedFilters.status)
-    setReadFilterExternal(appliedFilters.readStatus)
-    setTypeFilterExternal(appliedFilters.type)
-    setInvoiceScriptFilterExternal(appliedFilters.invoiceScript)
-  }, [
-    appliedFilters,
-    setCustomer,
-    setInvoiceStart,
-    setInvoiceEnd,
-    setReceivedStart,
-    setReceivedEnd,
-    setStatusFilterExternal,
-    setReadFilterExternal,
-    setTypeFilterExternal,
-    setInvoiceScriptFilterExternal
-  ])
+  const [selectedPeriod, setSelectedPeriod] = useState<string>('month')
+  const [selectedStatus, setSelectedStatus] = useState<string>('')
 
   const handleSearch = () => {
     setAppliedFilters(draftFilters)
@@ -569,38 +522,66 @@ const EInvoiceIncoming = () => {
   const handleReset = () => {
     setDraftFilters(initialFilters)
     setAppliedFilters(initialFilters)
-    setPeriod('month')
-    setSummaryStatus('')
-    table.setPage(0)
+    setSelectedPeriod('month')
+    setSelectedStatus('')
+  }
+
+  // Filtreleme yapılmış mı kontrolü
+  const isAnyFilterActive =
+    !!(
+      appliedFilters.invoiceNo ||
+      appliedFilters.customer ||
+      appliedFilters.invoiceStart ||
+      appliedFilters.invoiceEnd
+    )
+
+  // Sadece sadeleştirilmiş alanlara göre filtreleme yapan fonksiyon
+  const filterFn = (inv: Invoice) => {
+    const invoiceNoMatch = appliedFilters.invoiceNo === '' || inv.id.toLowerCase().includes(appliedFilters.invoiceNo.toLowerCase())
+    const customerMatch = appliedFilters.customer === '' || inv.title.toLowerCase().includes(appliedFilters.customer.toLowerCase()) || inv.vknTckn.toLowerCase().includes(appliedFilters.customer.toLowerCase())
+    let dateMatch = true
+    if (appliedFilters.invoiceStart && appliedFilters.invoiceEnd) {
+      const start = new Date(appliedFilters.invoiceStart)
+      const end = new Date(appliedFilters.invoiceEnd)
+      const invDate = new Date(inv.receivedAt)
+      dateMatch = invDate >= start && invDate <= end
+    } else if (appliedFilters.invoiceStart) {
+      const start = new Date(appliedFilters.invoiceStart)
+      const invDate = new Date(inv.receivedAt)
+      dateMatch = invDate >= start
+    } else if (appliedFilters.invoiceEnd) {
+      const end = new Date(appliedFilters.invoiceEnd)
+      const invDate = new Date(inv.receivedAt)
+      dateMatch = invDate <= end
+    }
+    return invoiceNoMatch && customerMatch && dateMatch
   }
 
   const table = useTableData<Invoice>({
     data: invoiceData,
-    filterFn: getFilterFn(),
+    filterFn,
     orderByDefault: 'receivedAt',
     orderDefault: 'desc',
     pageDefault: 0,
     rowsPerPageDefault: 10
   })
 
-  const handleSummaryStatusChangeWithPage = (val: string) => {
-    handleSummaryStatusChange(val)
-    table.setPage(0)
+  // SummaryBar event fonksiyonları
+  const handlePeriodChange = (val: string) => {
+    setSelectedPeriod(val)
   }
-
-  const handlePeriodChangeWithPage = (val: string) => {
-    handlePeriodChange(val)
-    table.setPage(0)
+  const handleStatusChange = (val: string) => {
+    setSelectedStatus(val)
   }
 
   return (
     <Stack spacing={2}>
       <EInvoiceSummaryBar
-        invoices={table.sortedData}
-        selectedPeriod={period}
-        onPeriodChange={handlePeriodChangeWithPage}
-        selectedStatus={summaryStatus}
-        onStatusChange={handleSummaryStatusChangeWithPage}
+        invoices={invoiceData}
+        selectedPeriod={selectedPeriod}
+        onPeriodChange={handlePeriodChange}
+        selectedStatus={selectedStatus}
+        onStatusChange={handleStatusChange}
         hidden={isAnyFilterActive}
       />
       <EInvoiceListFilterBar
@@ -610,7 +591,7 @@ const EInvoiceIncoming = () => {
         onReset={handleReset}
       />
       <EInvoiceListTable
-        data={table.sortedData}
+        data={table.pagedData}
         order={table.order}
         orderBy={table.orderBy}
         onSort={table.handleSort}
@@ -618,7 +599,7 @@ const EInvoiceIncoming = () => {
         setPage={table.setPage}
         rowsPerPage={table.rowsPerPage}
         setRowsPerPage={table.setRowsPerPage}
-        totalCount={table.sortedData.length}
+        totalCount={table.totalCount}
       />
     </Stack>
   )
