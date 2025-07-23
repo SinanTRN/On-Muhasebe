@@ -257,6 +257,7 @@ export function useInvoiceFilters({ defaultPeriod = 'month' }: UseInvoiceFilters
     handlePeriodChange,
     isAnyFilterActive,
     getFilterFn: () => getFilterFn(summaryStatus, period, isAnyFilterActive),
+    getFilterFnWithArgs: getFilterFn,
     setTypeFilterExternal
   }
 }

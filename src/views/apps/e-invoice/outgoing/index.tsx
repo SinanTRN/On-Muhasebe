@@ -5,8 +5,8 @@ import { Stack } from '@mui/material'
 
 import EInvoiceListTable from '../shared/tables/EInvoiceListTable'
 import EInvoiceSummaryBar from '../shared/components/EInvoiceSummaryBar'
-import { useTableData } from '@/hooks/useTableData'
 import { useInvoiceFilters } from '@/hooks/useInvoiceFilters'
+import { useTableSortAndPagination } from '@/hooks/useTableSortAndPagination'
 import type { Invoice } from '../shared/tables/EInvoiceListTable'
 
 const EInvoiceOutgoing = () => {
@@ -93,7 +93,7 @@ const EInvoiceOutgoing = () => {
     }
   ], [])
 
-  // useInvoiceFilters hook'unu parentta kullan
+  // useInvoiceFilters hook'unu kullan
   const {
     search,
     setSearch,
@@ -105,10 +105,16 @@ const EInvoiceOutgoing = () => {
     setCustomer,
     referenceNo,
     setReferenceNo,
-    getFilterFn
-  } = useInvoiceFilters()
+    period,
+    setPeriod,
+    summaryStatus,
+    setSummaryStatus,
+    isAnyFilterActive,
+    getFilterFn,
+    getFilterFnWithArgs
+  } = useInvoiceFilters({ defaultPeriod: 'month' })
 
-  // Draft filtre state'i
+  // Sıralama ve sayfalama için custom hook
   const [draftFilters, setDraftFilters] = useState({
     referenceNo: '',
     customer: '',
@@ -134,45 +140,47 @@ const EInvoiceOutgoing = () => {
     setSearch('')
   }
 
-  // Filtre fonksiyonu
-  const filterFn = (inv: Invoice) => getFilterFn()(inv)
+  // Filtrelenmiş veriler
+  const filteredInvoices = invoiceData.filter(getFilterFn());
+  const summaryBarInvoices = invoiceData.filter(getFilterFnWithArgs('', period, isAnyFilterActive));
 
-  const table = useTableData<Invoice>({
-    data: invoiceData,
-    filterFn,
-    orderByDefault: 'receivedAt',
-    orderDefault: 'desc',
-    pageDefault: 0,
-    rowsPerPageDefault: 10
-  })
-
-  // SummaryBar event fonksiyonları
-  const [selectedPeriod, setSelectedPeriod] = useState<string>('month')
-  const [selectedStatus, setSelectedStatus] = useState<string>('')
-  const isAnyFilterActive = !!(referenceNo || customer || startDate || endDate)
-  const handlePeriodChange = (val: string) => setSelectedPeriod(val)
-  const handleStatusChange = (val: string) => setSelectedStatus(val)
+  // Sıralama ve sayfalama
+  const {
+    order,
+    setOrder,
+    orderBy,
+    setOrderBy,
+    page,
+    setPage,
+    rowsPerPage,
+    setRowsPerPage,
+    handleSort,
+    pagedData,
+    totalCount
+  } = useTableSortAndPagination(filteredInvoices, 'receivedAt', 'desc', 10)
 
   return (
     <Stack spacing={2}>
-      <EInvoiceSummaryBar
-        invoices={invoiceData}
-        selectedPeriod={selectedPeriod}
-        onPeriodChange={handlePeriodChange}
-        selectedStatus={selectedStatus}
-        onStatusChange={handleStatusChange}
-        hidden={isAnyFilterActive}
-      />
+      {!isAnyFilterActive && (
+        <EInvoiceSummaryBar
+          invoices={summaryBarInvoices}
+          selectedPeriod={period}
+          onPeriodChange={setPeriod}
+          selectedStatus={summaryStatus}
+          onStatusChange={setSummaryStatus}
+          hidden={false}
+        />
+      )}
       <EInvoiceListTable
-        data={table.pagedData}
-        order={table.order}
-        orderBy={table.orderBy}
-        onSort={table.handleSort}
-        page={table.page}
-        setPage={table.setPage}
-        rowsPerPage={table.rowsPerPage}
-        setRowsPerPage={table.setRowsPerPage}
-        totalCount={table.totalCount}
+        data={pagedData}
+        order={order}
+        orderBy={orderBy}
+        onSort={handleSort}
+        page={page}
+        setPage={setPage}
+        rowsPerPage={rowsPerPage}
+        setRowsPerPage={setRowsPerPage}
+        totalCount={totalCount}
         draftFilters={draftFilters}
         setDraftFilters={setDraftFilters}
         onApplyFilters={handleApplyFilters}

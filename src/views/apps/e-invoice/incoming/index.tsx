@@ -5,7 +5,6 @@ import { Stack } from '@mui/material'
 
 import EInvoiceListTable from '../shared/tables/EInvoiceListTable'
 import EInvoiceSummaryBar from '../shared/components/EInvoiceSummaryBar'
-import { useTableData } from '@/hooks/useTableData'
 import { useInvoiceFilters } from '@/hooks/useInvoiceFilters'
 import type { Invoice } from '../shared/tables/EInvoiceListTable'
 
@@ -496,7 +495,7 @@ const EInvoiceIncoming = () => {
     []
   )
 
-  // useInvoiceFilters hook'unu parentta kullan
+  // useInvoiceFilters hook'unu kullan
   const {
     search,
     setSearch,
@@ -508,8 +507,20 @@ const EInvoiceIncoming = () => {
     setCustomer,
     referenceNo,
     setReferenceNo,
-    getFilterFn
-  } = useInvoiceFilters()
+    period,
+    setPeriod,
+    summaryStatus,
+    setSummaryStatus,
+    isAnyFilterActive,
+    getFilterFn,
+    getFilterFnWithArgs
+  } = useInvoiceFilters({ defaultPeriod: 'month' })
+
+  // Sıralama ve sayfalama state'leri
+  const [order, setOrder] = useState<'asc' | 'desc'>('desc')
+  const [orderBy, setOrderBy] = useState<keyof Invoice>('receivedAt')
+  const [page, setPage] = useState(0)
+  const [rowsPerPage, setRowsPerPage] = useState(10)
 
   // Draft filtre state'i
   const [draftFilters, setDraftFilters] = useState({
@@ -537,45 +548,59 @@ const EInvoiceIncoming = () => {
     setSearch('')
   }
 
-  // Filtre fonksiyonu
-  const filterFn = (inv: Invoice) => getFilterFn()(inv)
+  // Tablo için: summaryStatus dahil tüm filtreler
+  const filteredInvoices = invoiceData.filter(getFilterFn());
+  // SummaryBar için: summaryStatus='' ile filtrele (sadece dönem ve filterbar)
+  const summaryBarInvoices = invoiceData.filter(getFilterFnWithArgs('', period, isAnyFilterActive));
 
-  const table = useTableData<Invoice>({
-    data: invoiceData,
-    filterFn,
-    orderByDefault: 'receivedAt',
-    orderDefault: 'desc',
-    pageDefault: 0,
-    rowsPerPageDefault: 10
+  // Sıralama fonksiyonu
+  const handleSort = (property: keyof Invoice) => {
+    if (orderBy === property) setOrder(order === 'asc' ? 'desc' : 'asc')
+    else {
+      setOrder('asc')
+      setOrderBy(property)
+    }
+  }
+
+  // Sıralama işlemi
+  const sortedInvoices = [...filteredInvoices].sort((a, b) => {
+    const aVal = a[orderBy]
+    const bVal = b[orderBy]
+    if (typeof aVal === 'number' && typeof bVal === 'number') {
+      return order === 'asc' ? aVal - bVal : bVal - aVal
+    }
+    const aStr = (aVal ?? '').toString().toLowerCase()
+    const bStr = (bVal ?? '').toString().toLowerCase()
+    if (aStr < bStr) return order === 'asc' ? -1 : 1
+    if (aStr > bStr) return order === 'asc' ? 1 : -1
+    return 0
   })
 
-  // SummaryBar event fonksiyonları
-  const [selectedPeriod, setSelectedPeriod] = useState<string>('month')
-  const [selectedStatus, setSelectedStatus] = useState<string>('')
-  const isAnyFilterActive = !!(referenceNo || customer || startDate || endDate)
-  const handlePeriodChange = (val: string) => setSelectedPeriod(val)
-  const handleStatusChange = (val: string) => setSelectedStatus(val)
+  // Sayfalama işlemi
+  const pagedInvoices = sortedInvoices.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
 
   return (
     <Stack spacing={2}>
-      <EInvoiceSummaryBar
-        invoices={invoiceData}
-        selectedPeriod={selectedPeriod}
-        onPeriodChange={handlePeriodChange}
-        selectedStatus={selectedStatus}
-        onStatusChange={handleStatusChange}
-        hidden={isAnyFilterActive}
-      />
+      {!isAnyFilterActive && (
+        <EInvoiceSummaryBar
+          invoices={summaryBarInvoices}
+          selectedPeriod={period}
+          onPeriodChange={setPeriod}
+          selectedStatus={summaryStatus}
+          onStatusChange={setSummaryStatus}
+          hidden={false}
+        />
+      )}
       <EInvoiceListTable
-        data={table.pagedData}
-        order={table.order}
-        orderBy={table.orderBy}
-        onSort={table.handleSort}
-        page={table.page}
-        setPage={table.setPage}
-        rowsPerPage={table.rowsPerPage}
-        setRowsPerPage={table.setRowsPerPage}
-        totalCount={table.totalCount}
+        data={pagedInvoices}
+        order={order}
+        orderBy={orderBy}
+        onSort={handleSort}
+        page={page}
+        setPage={setPage}
+        rowsPerPage={rowsPerPage}
+        setRowsPerPage={setRowsPerPage}
+        totalCount={filteredInvoices.length}
         draftFilters={draftFilters}
         setDraftFilters={setDraftFilters}
         onApplyFilters={handleApplyFilters}
