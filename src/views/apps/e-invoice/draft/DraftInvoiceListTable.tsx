@@ -26,6 +26,7 @@ export type DraftInvoice = {
 
 export type DraftInvoiceListTableProps = {
   data: DraftInvoice[]
+  onSelectionChange?: (selected: string[]) => void
 }
 
 const columns = [
@@ -45,7 +46,7 @@ type Order = 'asc' | 'desc'
 
 type ColumnKey = keyof DraftInvoice
 
-const DraftInvoiceListTable = ({ data }: DraftInvoiceListTableProps) => {
+const DraftInvoiceListTable = ({ data, onSelectionChange }: DraftInvoiceListTableProps) => {
   const [order, setOrder] = useState<Order>('asc')
   const [orderBy, setOrderBy] = useState<ColumnKey>('date')
   const [page, setPage] = useState(0)
@@ -79,9 +80,11 @@ const DraftInvoiceListTable = ({ data }: DraftInvoiceListTableProps) => {
     if (event.target.checked) {
       const newSelected = pagedData.map(n => n.id)
       setSelected(newSelected)
+      onSelectionChange?.(newSelected)
       return
     }
     setSelected([])
+    onSelectionChange?.([])
   }
 
   const handleClick = (id: string) => {
@@ -97,6 +100,7 @@ const DraftInvoiceListTable = ({ data }: DraftInvoiceListTableProps) => {
       newSelected = newSelected.concat(selected.slice(0, selectedIndex), selected.slice(selectedIndex + 1))
     }
     setSelected(newSelected)
+    onSelectionChange?.(newSelected)
   }
 
   return (

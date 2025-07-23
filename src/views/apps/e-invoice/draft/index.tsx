@@ -1,5 +1,8 @@
+'use client'
 import { Stack } from '@mui/material'
+import { useState } from 'react'
 import DraftInvoiceListTable, { DraftInvoice } from './DraftInvoiceListTable'
+import DraftInvoiceActions from './DraftInvoiceActions'
 
 const sampleDrafts: DraftInvoice[] = [
   {
@@ -38,9 +41,11 @@ const sampleDrafts: DraftInvoice[] = [
 ]
 
 const DraftPage = () => {
+  const [selected, setSelected] = useState<string[]>([])
   return (
     <Stack spacing={2}>
-      <DraftInvoiceListTable data={sampleDrafts} />
+      <DraftInvoiceActions selected={selected} />
+      <DraftInvoiceListTable data={sampleDrafts} onSelectionChange={setSelected} />
     </Stack>
   )
 }
