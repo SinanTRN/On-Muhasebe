@@ -4,24 +4,10 @@ import { useMemo, useState } from 'react'
 import { Stack } from '@mui/material'
 
 import EInvoiceListTable from '../shared/tables/EInvoiceListTable'
-import EInvoiceListFilterBar from '../shared/components/EInvoiceListFilterBar'
 import EInvoiceSummaryBar from '../shared/components/EInvoiceSummaryBar'
 import { useTableData } from '@/hooks/useTableData'
+import { useInvoiceFilters } from '@/hooks/useInvoiceFilters'
 import type { Invoice } from '../shared/tables/EInvoiceListTable'
-
-interface Filters {
-  invoiceNo: string
-  customer: string
-  invoiceStart: Date | null
-  invoiceEnd: Date | null
-}
-
-const initialFilters: Filters = {
-  invoiceNo: '',
-  customer: '',
-  invoiceStart: null,
-  invoiceEnd: null
-}
 
 const EInvoiceIncoming = () => {
   const invoiceData: Invoice[] = useMemo(
@@ -510,52 +496,49 @@ const EInvoiceIncoming = () => {
     []
   )
 
-  const [draftFilters, setDraftFilters] = useState<Filters>(initialFilters)
-  const [appliedFilters, setAppliedFilters] = useState<Filters>(initialFilters)
-  const [selectedPeriod, setSelectedPeriod] = useState<string>('month')
-  const [selectedStatus, setSelectedStatus] = useState<string>('')
+  // useInvoiceFilters hook'unu parentta kullan
+  const {
+    search,
+    setSearch,
+    startDate,
+    setStartDate,
+    endDate,
+    setEndDate,
+    customer,
+    setCustomer,
+    referenceNo,
+    setReferenceNo,
+    getFilterFn
+  } = useInvoiceFilters()
 
-  const handleSearch = () => {
-    setAppliedFilters(draftFilters)
+  // Draft filtre state'i
+  const [draftFilters, setDraftFilters] = useState({
+    referenceNo: '',
+    customer: '',
+    startDate: null as Date | null,
+    endDate: null as Date | null
+  })
+
+  // Ara butonuna basınca draft'ı hook'a aktar
+  const handleApplyFilters = () => {
+    setReferenceNo(draftFilters.referenceNo)
+    setCustomer(draftFilters.customer)
+    setStartDate(draftFilters.startDate)
+    setEndDate(draftFilters.endDate)
   }
 
+  // Temizle butonu hem draft'ı hem hook'u sıfırlar
   const handleReset = () => {
-    setDraftFilters(initialFilters)
-    setAppliedFilters(initialFilters)
-    setSelectedPeriod('month')
-    setSelectedStatus('')
+    setDraftFilters({ referenceNo: '', customer: '', startDate: null, endDate: null })
+    setReferenceNo('')
+    setCustomer('')
+    setStartDate(null)
+    setEndDate(null)
+    setSearch('')
   }
 
-  // Filtreleme yapılmış mı kontrolü
-  const isAnyFilterActive =
-    !!(
-      appliedFilters.invoiceNo ||
-      appliedFilters.customer ||
-      appliedFilters.invoiceStart ||
-      appliedFilters.invoiceEnd
-    )
-
-  // Sadece sadeleştirilmiş alanlara göre filtreleme yapan fonksiyon
-  const filterFn = (inv: Invoice) => {
-    const invoiceNoMatch = appliedFilters.invoiceNo === '' || inv.id.toLowerCase().includes(appliedFilters.invoiceNo.toLowerCase())
-    const customerMatch = appliedFilters.customer === '' || inv.title.toLowerCase().includes(appliedFilters.customer.toLowerCase()) || inv.vknTckn.toLowerCase().includes(appliedFilters.customer.toLowerCase())
-    let dateMatch = true
-    if (appliedFilters.invoiceStart && appliedFilters.invoiceEnd) {
-      const start = new Date(appliedFilters.invoiceStart)
-      const end = new Date(appliedFilters.invoiceEnd)
-      const invDate = new Date(inv.receivedAt)
-      dateMatch = invDate >= start && invDate <= end
-    } else if (appliedFilters.invoiceStart) {
-      const start = new Date(appliedFilters.invoiceStart)
-      const invDate = new Date(inv.receivedAt)
-      dateMatch = invDate >= start
-    } else if (appliedFilters.invoiceEnd) {
-      const end = new Date(appliedFilters.invoiceEnd)
-      const invDate = new Date(inv.receivedAt)
-      dateMatch = invDate <= end
-    }
-    return invoiceNoMatch && customerMatch && dateMatch
-  }
+  // Filtre fonksiyonu
+  const filterFn = (inv: Invoice) => getFilterFn()(inv)
 
   const table = useTableData<Invoice>({
     data: invoiceData,
@@ -567,12 +550,11 @@ const EInvoiceIncoming = () => {
   })
 
   // SummaryBar event fonksiyonları
-  const handlePeriodChange = (val: string) => {
-    setSelectedPeriod(val)
-  }
-  const handleStatusChange = (val: string) => {
-    setSelectedStatus(val)
-  }
+  const [selectedPeriod, setSelectedPeriod] = useState<string>('month')
+  const [selectedStatus, setSelectedStatus] = useState<string>('')
+  const isAnyFilterActive = !!(referenceNo || customer || startDate || endDate)
+  const handlePeriodChange = (val: string) => setSelectedPeriod(val)
+  const handleStatusChange = (val: string) => setSelectedStatus(val)
 
   return (
     <Stack spacing={2}>
@@ -584,12 +566,6 @@ const EInvoiceIncoming = () => {
         onStatusChange={handleStatusChange}
         hidden={isAnyFilterActive}
       />
-      <EInvoiceListFilterBar
-        filters={draftFilters}
-        setFilters={setDraftFilters}
-        onSearch={handleSearch}
-        onReset={handleReset}
-      />
       <EInvoiceListTable
         data={table.pagedData}
         order={table.order}
@@ -600,6 +576,16 @@ const EInvoiceIncoming = () => {
         rowsPerPage={table.rowsPerPage}
         setRowsPerPage={table.setRowsPerPage}
         totalCount={table.totalCount}
+        draftFilters={draftFilters}
+        setDraftFilters={setDraftFilters}
+        onApplyFilters={handleApplyFilters}
+        onResetFilters={handleReset}
+        search={search}
+        setSearch={setSearch}
+        startDate={startDate}
+        endDate={endDate}
+        customer={customer}
+        referenceNo={referenceNo}
       />
     </Stack>
   )

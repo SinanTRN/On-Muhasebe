@@ -1,7 +1,7 @@
 'use client'
-import React, { useState } from 'react'
+import React from 'react'
 
-import { useTheme, TextField, Tooltip } from '@mui/material'
+import { useTheme, TextField, Tooltip, IconButton } from '@mui/material'
 
 import Card from '@mui/material/Card'
 import Table from '@mui/material/Table'
@@ -18,6 +18,8 @@ import Checkbox from '@mui/material/Checkbox'
 
 import StatusLabel from '../components/StatusLabel'
 import ETTNCell from '../components/ETTNCell'
+import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
+import { useInvoiceFilters } from '@/hooks/useInvoiceFilters'
 
 export type Invoice = {
   id: string // Fatura No
@@ -46,26 +48,34 @@ type Props = {
   rowsPerPage: number
   setRowsPerPage: (n: number) => void
   totalCount: number
+  draftFilters: {
+    referenceNo: string
+    customer: string
+    startDate: Date | null
+    endDate: Date | null
+  }
+  setDraftFilters: React.Dispatch<React.SetStateAction<{
+    referenceNo: string
+    customer: string
+    startDate: Date | null
+    endDate: Date | null
+  }>>
+  onApplyFilters: () => void
+  onResetFilters: () => void
+  search: string
+  setSearch: (val: string) => void
+  startDate: Date | null
+  endDate: Date | null
+  customer: string
+  referenceNo: string
 }
 
-const EInvoiceListTable = ({ data, order, orderBy, onSort, page, setPage, rowsPerPage, setRowsPerPage }: Props) => {
-  const [selected, setSelected] = useState<string[]>([])
-  const [search, setSearch] = useState('')
+const EInvoiceListTable = ({ data, order, orderBy, onSort, page, setPage, rowsPerPage, setRowsPerPage, totalCount, draftFilters, setDraftFilters, onApplyFilters, onResetFilters, search, setSearch }: Props) => {
+  const [selected, setSelected] = React.useState<string[]>([])
   const theme = useTheme()
 
-  // Sadece tabloya gelen veriler arasında arama uygula
-  const filteredData = data.filter(row => {
-    if (!search) return true
-    const s = search.toLowerCase()
-
-    return (
-      row.id.toLowerCase().includes(s) ||
-      row.title.toLowerCase().includes(s) ||
-      row.nameSurname.toLowerCase().includes(s) ||
-      row.vknTckn.toLowerCase().includes(s) ||
-      (row.ettn ? row.ettn.toLowerCase().includes(s) : false)
-    )
-  })
+  // Filtre fonksiyonu parenttan gelmeli, burada sadece search uygulanacak
+  const filteredData = data
 
   const pagedData = filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
 
@@ -74,19 +84,15 @@ const EInvoiceListTable = ({ data, order, orderBy, onSort, page, setPage, rowsPe
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
       const newSelected = pagedData.map(n => n.id)
-
       setSelected(newSelected)
-
       return
     }
-
     setSelected([])
   }
 
   const handleClick = (id: string) => {
     const selectedIndex = selected.indexOf(id)
     let newSelected: string[] = []
-
     if (selectedIndex === -1) {
       newSelected = newSelected.concat(selected, id)
     } else if (selectedIndex === 0) {
@@ -96,32 +102,126 @@ const EInvoiceListTable = ({ data, order, orderBy, onSort, page, setPage, rowsPe
     } else if (selectedIndex > 0) {
       newSelected = newSelected.concat(selected.slice(0, selectedIndex), selected.slice(selectedIndex + 1))
     }
-
     setSelected(newSelected)
+  }
+
+  // Tarih alanları için otomatik başlangıç tarihi hesaplama
+  const getInvoiceStartValue = () => {
+    if (!draftFilters.startDate && draftFilters.endDate) {
+      const start = new Date(draftFilters.endDate)
+      start.setMonth(start.getMonth() - 1)
+      return start
+    }
+    return draftFilters.startDate
   }
 
   return (
     <Card className='p-4 rounded-md shadow-md'>
-      {/* Tabloya özel arama alanı */}
-      <div className='flex justify-end mb-2'>
-        <TextField
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          placeholder='Tabloda ara...'
-          size='small'
-          variant='outlined'
-          sx={{
-            minWidth: 200,
-            backgroundColor: theme.palette.background.paper,
-            borderRadius: 1
-          }}
-          InputProps={{
-            style: {
-              backgroundColor: theme.palette.background.paper,
-              borderRadius: 6
+      {/* Filtre barı ve tabloda ara alanı */}
+      <div className='flex flex-row flex-wrap items-end gap-2 mb-4'>
+        {/* Sola yaslı filtreler */}
+        <div className='flex flex-row flex-wrap items-end gap-2'>
+          <TextField
+            label='Fatura No'
+            value={draftFilters.referenceNo}
+            onChange={e => setDraftFilters(f => ({ ...f, referenceNo: e.target.value }))}
+            size='small'
+            sx={{ minWidth: 120, maxWidth: 160 }}
+            InputProps={{
+              endAdornment: (
+                <IconButton size='small' onClick={() => setDraftFilters(f => ({ ...f, referenceNo: '' }))}>
+                  <i className='ri-close-line text-base' />
+                </IconButton>
+              )
+            }}
+          />
+          <TextField
+            label='Unvan/VKN-TCKN'
+            value={draftFilters.customer}
+            onChange={e => setDraftFilters(f => ({ ...f, customer: e.target.value }))}
+            size='small'
+            sx={{ minWidth: 140, maxWidth: 180 }}
+            InputProps={{
+              endAdornment: (
+                <IconButton size='small' onClick={() => setDraftFilters(f => ({ ...f, customer: '' }))}>
+                  <i className='ri-close-line text-base' />
+                </IconButton>
+              )
+            }}
+          />
+          <AppReactDatepicker
+            selected={getInvoiceStartValue() || undefined}
+            onChange={date => setDraftFilters(f => ({ ...f, startDate: date }))}
+            dateFormat='dd.MM.yyyy'
+            customInput={
+              <TextField
+                size='small'
+                label='Tarih Başlangıç'
+                sx={{ minWidth: 120, maxWidth: 140 }}
+                InputProps={{
+                  endAdornment: draftFilters.startDate && (
+                    <IconButton size='small' onClick={() => setDraftFilters(f => ({ ...f, startDate: null }))}>
+                      <i className='ri-close-line text-base' />
+                    </IconButton>
+                  )
+                }}
+              />
             }
-          }}
-        />
+            showPopperArrow={false}
+            maxDate={draftFilters.endDate || new Date()}
+            selectsStart
+            startDate={getInvoiceStartValue() || undefined}
+            endDate={draftFilters.endDate || undefined}
+          />
+          <AppReactDatepicker
+            selected={draftFilters.endDate || undefined}
+            onChange={date => setDraftFilters(f => ({ ...f, endDate: date }))}
+            dateFormat='dd.MM.yyyy'
+            customInput={
+              <TextField
+                size='small'
+                label='Tarih Bitiş'
+                sx={{ minWidth: 120, maxWidth: 140 }}
+                InputProps={{
+                  endAdornment: draftFilters.endDate && (
+                    <IconButton size='small' onClick={() => setDraftFilters(f => ({ ...f, endDate: null }))}>
+                      <i className='ri-close-line text-base' />
+                    </IconButton>
+                  )
+                }}
+              />
+            }
+            showPopperArrow={false}
+            minDate={draftFilters.startDate || undefined}
+            maxDate={new Date()}
+            selectsEnd
+            startDate={draftFilters.startDate || undefined}
+            endDate={draftFilters.endDate || undefined}
+          />
+          <IconButton color='success' onClick={onApplyFilters} aria-label='Ara'>
+            <i className='ri-search-line text-xl' />
+          </IconButton>
+          <IconButton color='primary' onClick={onResetFilters} aria-label='Temizle'>
+            <i className='ri-eraser-line text-xl' />
+          </IconButton>
+        </div>
+        {/* Sağa yaslı tabloda ara alanı */}
+        <div className='flex flex-1 justify-end'>
+          <TextField
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder='Tabloda ara...'
+            size='small'
+            variant='outlined'
+            sx={{ minWidth: 180, maxWidth: 240, backgroundColor: theme.palette.background.paper, borderRadius: 1 }}
+            InputProps={{
+              style: {
+                backgroundColor: theme.palette.background.paper,
+                borderRadius: 6
+              }
+            }}
+          />
+        </div>
       </div>
       <TableContainer>
         <Table className='flex-1'>

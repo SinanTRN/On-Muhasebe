@@ -154,7 +154,7 @@ export function useInvoiceFilters({ defaultPeriod = 'month' }: UseInvoiceFilters
           inv.vknTckn.toLowerCase().includes(customer.toLowerCase())
         : true
       const referenceNoMatch = referenceNo
-        ? inv.ettn && inv.ettn.toLowerCase().includes(referenceNo.toLowerCase())
+        ? inv.id && inv.id.toLowerCase().includes(referenceNo.toLowerCase())
         : true
 
       const invoiceDate = new Date(inv.receivedAt)
