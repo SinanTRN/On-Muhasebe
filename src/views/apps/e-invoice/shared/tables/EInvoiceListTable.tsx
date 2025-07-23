@@ -1,7 +1,7 @@
 'use client'
 import React from 'react'
 
-import { useTheme, TextField, Tooltip, IconButton } from '@mui/material'
+import { useTheme, TextField, Tooltip, IconButton, Popover, List, ListItem, ListItemButton, ListItemText } from '@mui/material'
 
 import Card from '@mui/material/Card'
 import Table from '@mui/material/Table'
@@ -53,12 +53,14 @@ type Props = {
     customer: string
     startDate: Date | null
     endDate: Date | null
+    invoiceScript: string[]
   }
   setDraftFilters: React.Dispatch<React.SetStateAction<{
     referenceNo: string
     customer: string
     startDate: Date | null
     endDate: Date | null
+    invoiceScript: string[]
   }>>
   onApplyFilters: () => void
   onResetFilters: () => void
@@ -70,9 +72,31 @@ type Props = {
   referenceNo: string
 }
 
-const EInvoiceListTable = ({ data, order, orderBy, onSort, page, setPage, rowsPerPage, setRowsPerPage, totalCount, draftFilters, setDraftFilters, onApplyFilters, onResetFilters, search, setSearch }: Props) => {
+const invoiceScriptOptions = [
+  { value: 'TEMEL', label: 'Temel' },
+  { value: 'TİCARİ', label: 'Ticari' },
+  { value: 'KAMU', label: 'Kamu' },
+  { value: 'İHRACAT', label: 'İhracat' }
+]
+
+const EInvoiceListTable = ({ data, order, orderBy, onSort, page, setPage, rowsPerPage, setRowsPerPage, totalCount, draftFilters, setDraftFilters, onApplyFilters, onResetFilters, search, setSearch, startDate, endDate, customer, referenceNo }: Props) => {
   const [selected, setSelected] = React.useState<string[]>([])
   const theme = useTheme()
+
+  // Popover state
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
+  const handleOpen = (event: React.MouseEvent<HTMLElement>) => setAnchorEl(event.currentTarget)
+  const handleClose = () => setAnchorEl(null)
+  const open = Boolean(anchorEl)
+
+  // Seçili label'ı oluştur
+  const invoiceScriptLabel =
+    draftFilters.invoiceScript && draftFilters.invoiceScript.length === 0
+      ? 'Tümü'
+      : invoiceScriptOptions
+          .filter(opt => draftFilters.invoiceScript && draftFilters.invoiceScript.includes(opt.value))
+          .map(opt => opt.label)
+          .join(', ')
 
   // Filtre fonksiyonu parenttan gelmeli, burada sadece search uygulanacak
   const filteredData = data
@@ -135,6 +159,62 @@ const EInvoiceListTable = ({ data, order, orderBy, onSort, page, setPage, rowsPe
             size='small'
             sx={{ minWidth: 140, maxWidth: 180 }}
           />
+          {/* Fatura Senaryosu Çoklu Seçim Alanı */}
+          <TextField
+            label='Fatura Senaryosu'
+            value={invoiceScriptLabel}
+            size='small'
+            inputProps={{ readOnly: true }}
+            onClick={handleOpen}
+            sx={{ minWidth: 160, cursor: 'pointer' }}
+          />
+          <Popover
+            open={open}
+            anchorEl={anchorEl}
+            onClose={handleClose}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+            transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+            PaperProps={{
+              style: {
+                width: 200,
+                maxHeight: 300,
+                overflowY: 'auto',
+                padding: 0
+              }
+            }}
+          >
+            <List disablePadding>
+              <ListItem disablePadding>
+                <ListItemButton
+                  selected={draftFilters.invoiceScript && draftFilters.invoiceScript.length === 0}
+                  onClick={() => setDraftFilters(f => ({ ...f, invoiceScript: [] }))}
+                >
+                  <Checkbox checked={draftFilters.invoiceScript && draftFilters.invoiceScript.length === 0} tabIndex={-1} disableRipple />
+                  <ListItemText primary='Tümü' />
+                </ListItemButton>
+              </ListItem>
+              {invoiceScriptOptions.map(option => (
+                <ListItem key={option.value} disablePadding>
+                  <ListItemButton
+                    selected={draftFilters.invoiceScript && draftFilters.invoiceScript.includes(option.value)}
+                    onClick={() => {
+                      let newInvoiceScript: string[]
+                      if (draftFilters.invoiceScript && draftFilters.invoiceScript.includes(option.value)) {
+                        newInvoiceScript = draftFilters.invoiceScript.filter(v => v !== option.value)
+                      } else {
+                        newInvoiceScript = [...(draftFilters.invoiceScript || []), option.value]
+                      }
+                      setDraftFilters(f => ({ ...f, invoiceScript: newInvoiceScript }))
+                    }}
+                  >
+                    <Checkbox checked={draftFilters.invoiceScript && draftFilters.invoiceScript.includes(option.value)} tabIndex={-1} disableRipple />
+                    <ListItemText primary={option.label} />
+                  </ListItemButton>
+                </ListItem>
+              ))}
+            </List>
+          </Popover>
+          {/* Başlangıç Tarihi */}
           <AppReactDatepicker
             selected={getInvoiceStartValue() || undefined}
             onChange={date => setDraftFilters(f => ({ ...f, startDate: date }))}

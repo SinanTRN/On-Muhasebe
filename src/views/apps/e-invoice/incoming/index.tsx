@@ -513,7 +513,9 @@ const EInvoiceIncoming = () => {
     setSummaryStatus,
     isAnyFilterActive,
     getFilterFn,
-    getFilterFnWithArgs
+    getFilterFnWithArgs,
+    invoiceScriptFilter,
+    setInvoiceScriptFilter
   } = useInvoiceFilters({ defaultPeriod: 'month' })
 
   // Sıralama ve sayfalama state'leri
@@ -527,7 +529,8 @@ const EInvoiceIncoming = () => {
     referenceNo: '',
     customer: '',
     startDate: null as Date | null,
-    endDate: null as Date | null
+    endDate: null as Date | null,
+    invoiceScript: [] as string[]
   })
 
   // Ara butonuna basınca draft'ı hook'a aktar
@@ -536,15 +539,17 @@ const EInvoiceIncoming = () => {
     setCustomer(draftFilters.customer)
     setStartDate(draftFilters.startDate)
     setEndDate(draftFilters.endDate)
+    setInvoiceScriptFilter(draftFilters.invoiceScript)
   }
 
   // Temizle butonu hem draft'ı hem hook'u sıfırlar
   const handleReset = () => {
-    setDraftFilters({ referenceNo: '', customer: '', startDate: null, endDate: null })
+    setDraftFilters({ referenceNo: '', customer: '', startDate: null, endDate: null, invoiceScript: [] })
     setReferenceNo('')
     setCustomer('')
     setStartDate(null)
     setEndDate(null)
+    setInvoiceScriptFilter([])
     setSearch('')
   }
 
