@@ -581,9 +581,6 @@ const EInvoiceIncoming = () => {
     return 0
   })
 
-  // Sayfalama işlemi
-  const pagedInvoices = sortedInvoices.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-
   return (
     <Stack spacing={2}>
       {!isAnyFilterActive && (
@@ -597,7 +594,7 @@ const EInvoiceIncoming = () => {
         />
       )}
       <EInvoiceListTable
-        data={pagedInvoices}
+        data={sortedInvoices}
         order={order}
         orderBy={orderBy}
         onSort={handleSort}
@@ -605,7 +602,7 @@ const EInvoiceIncoming = () => {
         setPage={setPage}
         rowsPerPage={rowsPerPage}
         setRowsPerPage={setRowsPerPage}
-        totalCount={filteredInvoices.length}
+        totalCount={sortedInvoices.length}
         draftFilters={draftFilters}
         setDraftFilters={setDraftFilters}
         onApplyFilters={handleApplyFilters}

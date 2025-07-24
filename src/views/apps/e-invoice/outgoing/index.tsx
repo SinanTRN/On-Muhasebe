@@ -159,9 +159,7 @@ const EInvoiceOutgoing = () => {
     setPage,
     rowsPerPage,
     setRowsPerPage,
-    handleSort,
-    pagedData,
-    totalCount
+    handleSort
   } = useTableSortAndPagination(filteredInvoices, 'receivedAt', 'desc', 10)
 
   return (
@@ -177,7 +175,7 @@ const EInvoiceOutgoing = () => {
         />
       )}
       <EInvoiceListTable
-        data={pagedData}
+        data={filteredInvoices}
         order={order}
         orderBy={orderBy}
         onSort={handleSort}
@@ -185,7 +183,7 @@ const EInvoiceOutgoing = () => {
         setPage={setPage}
         rowsPerPage={rowsPerPage}
         setRowsPerPage={setRowsPerPage}
-        totalCount={totalCount}
+        totalCount={filteredInvoices.length}
         draftFilters={draftFilters}
         setDraftFilters={setDraftFilters}
         onApplyFilters={handleApplyFilters}
