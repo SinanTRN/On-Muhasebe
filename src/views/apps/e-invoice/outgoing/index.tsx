@@ -114,7 +114,8 @@ const EInvoiceOutgoing = () => {
     isAnyFilterActive,
     getFilterFn,
     getFilterFnWithArgs,
-    setInvoiceScriptFilter
+    setInvoiceScriptFilter,
+    invoiceScriptFilter
   } = useInvoiceFilters({ defaultPeriod: 'month' })
 
   // Sıralama ve sayfalama için custom hook
@@ -192,6 +193,7 @@ const EInvoiceOutgoing = () => {
         referenceNo={referenceNo}
         period={period}
         setPeriod={setPeriod}
+        invoiceScript={invoiceScriptFilter}
       />
     </Stack>
   )

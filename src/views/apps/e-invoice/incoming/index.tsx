@@ -514,6 +514,7 @@ const EInvoiceIncoming = () => {
     isAnyFilterActive,
     getFilterFn,
     getFilterFnWithArgs,
+    invoiceScriptFilter,
     setInvoiceScriptFilter
   } = useInvoiceFilters({ defaultPeriod: 'month' })
 
@@ -619,6 +620,7 @@ const EInvoiceIncoming = () => {
         referenceNo={referenceNo}
         period={period}
         setPeriod={setPeriod}
+        invoiceScript={invoiceScriptFilter}
       />
     </Stack>
   )

@@ -87,6 +87,7 @@ type Props = {
   referenceNo: string
   period: string
   setPeriod: (val: string) => void
+  invoiceScript: string[]
 }
 
 const invoiceScriptOptions = [
@@ -122,10 +123,23 @@ const EInvoiceListTable = ({
   search,
   setSearch,
   period,
-  setPeriod
+  setPeriod,
+  referenceNo,
+  customer,
+  startDate,
+  endDate,
+  invoiceScript
 }: Props) => {
   const [selected, setSelected] = React.useState<string[]>([])
   const theme = useTheme()
+
+  // Herhangi bir filtre aktif mi?
+  const isAnyFilterActive =
+    !!referenceNo ||
+    !!customer ||
+    !!startDate ||
+    !!endDate ||
+    (invoiceScript && invoiceScript.length > 0);
 
   // Popover state
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
@@ -209,20 +223,22 @@ const EInvoiceListTable = ({
         <Grid item xs={12} sm="auto">
           <Grid container spacing={2}>
             {/* Dönem Alanı */}
-            <Grid item>
-              <TextField
-                select
-                label="Dönem"
-                value={period}
-                onChange={e => setPeriod(e.target.value)}
-                size="small"
-                sx={{ minWidth: 120 }}
-              >
-                {periods.map(p => (
-                  <MenuItem key={p.value} value={p.value}>{p.label}</MenuItem>
-                ))}
-              </TextField>
-            </Grid>
+            {!isAnyFilterActive && (
+              <Grid item>
+                <TextField
+                  select
+                  label="Dönem"
+                  value={period}
+                  onChange={e => setPeriod(e.target.value)}
+                  size="small"
+                  sx={{ minWidth: 120 }}
+                >
+                  {periods.map(p => (
+                    <MenuItem key={p.value} value={p.value}>{p.label}</MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
+            )}
             {/* Fatura Numarası */}
             {/* <Grid item>
               <TextField
