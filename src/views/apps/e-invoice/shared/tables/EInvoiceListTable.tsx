@@ -1,7 +1,18 @@
 'use client'
 import React from 'react'
 
-import { useTheme, TextField, Tooltip, IconButton, Popover, List, ListItem, ListItemButton, ListItemText } from '@mui/material'
+import {
+  useTheme,
+  TextField,
+  Tooltip,
+  IconButton,
+  Popover,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+  Grid
+} from '@mui/material'
 
 import Card from '@mui/material/Card'
 import Table from '@mui/material/Table'
@@ -19,7 +30,6 @@ import Checkbox from '@mui/material/Checkbox'
 import StatusLabel from '../components/StatusLabel'
 import ETTNCell from '../components/ETTNCell'
 import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
-import { useInvoiceFilters } from '@/hooks/useInvoiceFilters'
 
 export type Invoice = {
   id: string // Fatura No
@@ -55,13 +65,15 @@ type Props = {
     endDate: Date | null
     invoiceScript: string[]
   }
-  setDraftFilters: React.Dispatch<React.SetStateAction<{
-    referenceNo: string
-    customer: string
-    startDate: Date | null
-    endDate: Date | null
-    invoiceScript: string[]
-  }>>
+  setDraftFilters: React.Dispatch<
+    React.SetStateAction<{
+      referenceNo: string
+      customer: string
+      startDate: Date | null
+      endDate: Date | null
+      invoiceScript: string[]
+    }>
+  >
   onApplyFilters: () => void
   onResetFilters: () => void
   search: string
@@ -79,7 +91,22 @@ const invoiceScriptOptions = [
   { value: 'İHRACAT', label: 'İhracat' }
 ]
 
-const EInvoiceListTable = ({ data, order, orderBy, onSort, page, setPage, rowsPerPage, setRowsPerPage, totalCount, draftFilters, setDraftFilters, onApplyFilters, onResetFilters, search, setSearch, startDate, endDate, customer, referenceNo }: Props) => {
+const EInvoiceListTable = ({
+  data,
+  order,
+  orderBy,
+  onSort,
+  page,
+  setPage,
+  rowsPerPage,
+  setRowsPerPage,
+  draftFilters,
+  setDraftFilters,
+  onApplyFilters,
+  onResetFilters,
+  search,
+  setSearch
+}: Props) => {
   const [selected, setSelected] = React.useState<string[]>([])
   const theme = useTheme()
 
@@ -108,15 +135,19 @@ const EInvoiceListTable = ({ data, order, orderBy, onSort, page, setPage, rowsPe
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
       const newSelected = pagedData.map(n => n.id)
+
       setSelected(newSelected)
+
       return
     }
+
     setSelected([])
   }
 
   const handleClick = (id: string) => {
     const selectedIndex = selected.indexOf(id)
     let newSelected: string[] = []
+
     if (selectedIndex === -1) {
       newSelected = newSelected.concat(selected, id)
     } else if (selectedIndex === 0) {
@@ -126,6 +157,7 @@ const EInvoiceListTable = ({ data, order, orderBy, onSort, page, setPage, rowsPe
     } else if (selectedIndex > 0) {
       newSelected = newSelected.concat(selected.slice(0, selectedIndex), selected.slice(selectedIndex + 1))
     }
+
     setSelected(newSelected)
   }
 
@@ -133,132 +165,155 @@ const EInvoiceListTable = ({ data, order, orderBy, onSort, page, setPage, rowsPe
   const getInvoiceStartValue = () => {
     if (!draftFilters.startDate && draftFilters.endDate) {
       const start = new Date(draftFilters.endDate)
+
       start.setMonth(start.getMonth() - 1)
+
       return start
     }
+
     return draftFilters.startDate
   }
 
   return (
     <Card className='p-4 rounded-md shadow-md'>
       {/* Filtre barı ve tabloda ara alanı */}
-      <div className='flex flex-row flex-wrap items-end gap-2 mb-4'>
+      <Grid
+        container
+        direction={{ xs: 'column', sm: 'row' }}
+        justifyContent="space-between"
+        alignItems="flex-start"
+        spacing={2}
+        className="mb-4"
+      >
         {/* Sola yaslı filtreler */}
-        <div className='flex flex-row flex-wrap items-end gap-2'>
-          <TextField
-            label='Fatura No'
-            value={draftFilters.referenceNo}
-            onChange={e => setDraftFilters(f => ({ ...f, referenceNo: e.target.value }))}
-            size='small'
-            sx={{ minWidth: 120, maxWidth: 160 }}
-          />
-          <TextField
-            label='Unvan/VKN-TCKN'
-            value={draftFilters.customer}
-            onChange={e => setDraftFilters(f => ({ ...f, customer: e.target.value }))}
-            size='small'
-            sx={{ minWidth: 140, maxWidth: 180 }}
-          />
-          {/* Fatura Senaryosu Çoklu Seçim Alanı */}
-          <TextField
-            label='Fatura Senaryosu'
-            value={invoiceScriptLabel}
-            size='small'
-            inputProps={{ readOnly: true }}
-            onClick={handleOpen}
-            sx={{ minWidth: 160, cursor: 'pointer' }}
-          />
-          <Popover
-            open={open}
-            anchorEl={anchorEl}
-            onClose={handleClose}
-            anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-            transformOrigin={{ vertical: 'top', horizontal: 'left' }}
-            PaperProps={{
-              style: {
-                width: 200,
-                maxHeight: 300,
-                overflowY: 'auto',
-                padding: 0
-              }
-            }}
-          >
-            <List disablePadding>
-              <ListItem disablePadding>
-                <ListItemButton
-                  selected={draftFilters.invoiceScript && draftFilters.invoiceScript.length === 0}
-                  onClick={() => setDraftFilters(f => ({ ...f, invoiceScript: [] }))}
-                >
-                  <Checkbox checked={draftFilters.invoiceScript && draftFilters.invoiceScript.length === 0} tabIndex={-1} disableRipple />
-                  <ListItemText primary='Tümü' />
-                </ListItemButton>
-              </ListItem>
-              {invoiceScriptOptions.map(option => (
-                <ListItem key={option.value} disablePadding>
-                  <ListItemButton
-                    selected={draftFilters.invoiceScript && draftFilters.invoiceScript.includes(option.value)}
-                    onClick={() => {
-                      let newInvoiceScript: string[]
-                      if (draftFilters.invoiceScript && draftFilters.invoiceScript.includes(option.value)) {
-                        newInvoiceScript = draftFilters.invoiceScript.filter(v => v !== option.value)
-                      } else {
-                        newInvoiceScript = [...(draftFilters.invoiceScript || []), option.value]
-                      }
-                      setDraftFilters(f => ({ ...f, invoiceScript: newInvoiceScript }))
-                    }}
-                  >
-                    <Checkbox checked={draftFilters.invoiceScript && draftFilters.invoiceScript.includes(option.value)} tabIndex={-1} disableRipple />
-                    <ListItemText primary={option.label} />
-                  </ListItemButton>
-                </ListItem>
-              ))}
-            </List>
-          </Popover>
-          {/* Başlangıç Tarihi */}
-          <AppReactDatepicker
-            selected={getInvoiceStartValue() || undefined}
-            onChange={date => setDraftFilters(f => ({ ...f, startDate: date }))}
-            dateFormat='dd.MM.yyyy'
-            customInput={
+        <Grid item xs={12} sm="auto">
+          <Grid container spacing={2}>
+            {/* Fatura Numarası */}
+            {/* <Grid item>
               <TextField
+                label='Fatura No'
+                value={draftFilters.referenceNo}
+                onChange={e => setDraftFilters(f => ({ ...f, referenceNo: e.target.value }))}
                 size='small'
-                label='Tarih Başlangıç'
-                sx={{ minWidth: 120, maxWidth: 140 }}
               />
-            }
-            showPopperArrow={false}
-            maxDate={draftFilters.endDate || new Date()}
-            selectsStart
-            startDate={getInvoiceStartValue() || undefined}
-            endDate={draftFilters.endDate || undefined}
-          />
-          <AppReactDatepicker
-            selected={draftFilters.endDate || undefined}
-            onChange={date => setDraftFilters(f => ({ ...f, endDate: date }))}
-            dateFormat='dd.MM.yyyy'
-            customInput={
+            </Grid> */}
+            {/* Unvan/VKN-TCKN */}
+            {/* <Grid item>
               <TextField
+                label='Unvan/VKN-TCKN'
+                value={draftFilters.customer}
+                onChange={e => setDraftFilters(f => ({ ...f, customer: e.target.value }))}
                 size='small'
-                label='Tarih Bitiş'
-                sx={{ minWidth: 120, maxWidth: 140 }}
               />
-            }
-            showPopperArrow={false}
-            minDate={draftFilters.startDate || undefined}
-            maxDate={new Date()}
-            selectsEnd
-            startDate={draftFilters.startDate || undefined}
-            endDate={draftFilters.endDate || undefined}
-          />
-          <IconButton color='success' onClick={onApplyFilters} aria-label='Ara'>
-            <i className='ri-search-line text-xl' />
-          </IconButton>
-          <IconButton color='primary' onClick={onResetFilters} aria-label='Temizle'>
-            <i className='ri-eraser-line text-xl' />
-          </IconButton>
-        </div>
+            </Grid> */}
+            {/* Fatura Senaryosu Çoklu Seçim Alanı */}
+            <Grid item>
+              <TextField
+                label='Fatura Senaryosu'
+                value={invoiceScriptLabel}
+                size='small'
+                inputProps={{ readOnly: true }}
+                onClick={handleOpen}
+              />
+              <Popover
+                open={open}
+                anchorEl={anchorEl}
+                onClose={handleClose}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+                transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+                PaperProps={{
+                  style: {
+                    width: 200,
+                    maxHeight: 300,
+                    overflowY: 'auto',
+                    padding: 0
+                  }
+                }}
+              >
+                <List disablePadding>
+                  <ListItem disablePadding>
+                    <ListItemButton
+                      selected={draftFilters.invoiceScript && draftFilters.invoiceScript.length === 0}
+                      onClick={() => setDraftFilters(f => ({ ...f, invoiceScript: [] }))}
+                    >
+                      <Checkbox
+                        checked={draftFilters.invoiceScript && draftFilters.invoiceScript.length === 0}
+                        tabIndex={-1}
+                        disableRipple
+                      />
+                      <ListItemText primary='Tümü' />
+                    </ListItemButton>
+                  </ListItem>
+                  {invoiceScriptOptions.map(option => (
+                    <ListItem key={option.value} disablePadding>
+                      <ListItemButton
+                        selected={draftFilters.invoiceScript && draftFilters.invoiceScript.includes(option.value)}
+                        onClick={() => {
+                          let newInvoiceScript: string[]
+
+                          if (draftFilters.invoiceScript && draftFilters.invoiceScript.includes(option.value)) {
+                            newInvoiceScript = draftFilters.invoiceScript.filter(v => v !== option.value)
+                          } else {
+                            newInvoiceScript = [...(draftFilters.invoiceScript || []), option.value]
+                          }
+
+                          setDraftFilters(f => ({ ...f, invoiceScript: newInvoiceScript }))
+                        }}
+                      >
+                        <Checkbox
+                          checked={draftFilters.invoiceScript && draftFilters.invoiceScript.includes(option.value)}
+                          tabIndex={-1}
+                          disableRipple
+                        />
+                        <ListItemText primary={option.label} />
+                      </ListItemButton>
+                    </ListItem>
+                  ))}
+                </List>
+              </Popover>
+            </Grid>
+            {/* Başlangıç Tarihi */}
+            <Grid item>
+              <AppReactDatepicker
+                selected={getInvoiceStartValue() || undefined}
+                onChange={date => setDraftFilters(f => ({ ...f, startDate: date }))}
+                dateFormat='dd.MM.yyyy'
+                customInput={<TextField size='small' label='Tarih Başlangıç' />}
+                showPopperArrow={false}
+                maxDate={draftFilters.endDate || new Date()}
+                selectsStart
+                startDate={getInvoiceStartValue() || undefined}
+                endDate={draftFilters.endDate || undefined}
+              />
+            </Grid>
+            {/* Bitiş Tarihi */}
+            <Grid item>
+              <AppReactDatepicker
+                selected={draftFilters.endDate || undefined}
+                onChange={date => setDraftFilters(f => ({ ...f, endDate: date }))}
+                dateFormat='dd.MM.yyyy'
+                customInput={<TextField size='small' label='Tarih Bitiş' />}
+                showPopperArrow={false}
+                minDate={draftFilters.startDate || undefined}
+                maxDate={new Date()}
+                selectsEnd
+                startDate={draftFilters.startDate || undefined}
+                endDate={draftFilters.endDate || undefined}
+              />
+            </Grid>
+            {/* Filtre Uygula ve Temizle Butonları */}
+            <Grid item>
+              <IconButton color='success' onClick={onApplyFilters} aria-label='Ara'>
+                <i className='ri-search-line text-xl' />
+              </IconButton>
+              <IconButton color='primary' onClick={onResetFilters} aria-label='Temizle'>
+                <i className='ri-eraser-line text-xl' />
+              </IconButton>
+            </Grid>
+          </Grid>
+        </Grid>
         {/* Sağa yaslı tabloda ara alanı */}
-        <div className='flex flex-1 justify-end'>
+        <Grid item xs={12} sm="auto" style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'flex-end' }}>
           <TextField
             value={search}
             onChange={e => setSearch(e.target.value)}
@@ -273,8 +328,8 @@ const EInvoiceListTable = ({ data, order, orderBy, onSort, page, setPage, rowsPe
               }
             }}
           />
-        </div>
-      </div>
+        </Grid>
+      </Grid>
       <TableContainer>
         <Table className='flex-1'>
           <TableHead>
