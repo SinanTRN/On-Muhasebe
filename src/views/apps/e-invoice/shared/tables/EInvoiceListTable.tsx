@@ -236,6 +236,12 @@ const EInvoiceListTable = ({
     return draftFilters.startDate
   }
 
+  // Sıralama değiştiğinde ilk sayfaya git
+  const handleSortWithPageReset = (property: keyof Invoice) => {
+    onSort(property)
+    setPage(0)
+  }
+
   return (
     <Card className='p-4 rounded-md shadow-md'>
       <Typography variant="h6" sx={{ mb: 4, fontWeight: 600 }}>
@@ -495,7 +501,7 @@ const EInvoiceListTable = ({
                 <TableSortLabel
                   active={orderBy === 'type'}
                   direction={orderBy === 'type' ? order : 'asc'}
-                  onClick={() => onSort('type')}
+                  onClick={() => handleSortWithPageReset('type')}
                   hideSortIcon
                 >
                   Tip
@@ -506,7 +512,7 @@ const EInvoiceListTable = ({
                 <TableSortLabel
                   active={orderBy === 'id'}
                   direction={orderBy === 'id' ? order : 'asc'}
-                  onClick={() => onSort('id')}
+                  onClick={() => handleSortWithPageReset('id')}
                   hideSortIcon
                 >
                   Fatura No
@@ -519,7 +525,7 @@ const EInvoiceListTable = ({
                 <TableSortLabel
                   active={orderBy === 'invoiceScript'}
                   direction={orderBy === 'invoiceScript' ? order : 'asc'}
-                  onClick={() => onSort('invoiceScript')}
+                  onClick={() => handleSortWithPageReset('invoiceScript')}
                   hideSortIcon
                 >
                   Senaryo
@@ -530,7 +536,7 @@ const EInvoiceListTable = ({
                 <TableSortLabel
                   active={orderBy === 'receivedAt'}
                   direction={orderBy === 'receivedAt' ? order : 'asc'}
-                  onClick={() => onSort('receivedAt')}
+                  onClick={() => handleSortWithPageReset('receivedAt')}
                   hideSortIcon
                 >
                   Tarih
@@ -541,7 +547,7 @@ const EInvoiceListTable = ({
                 <TableSortLabel
                   active={orderBy === 'vknTckn'}
                   direction={orderBy === 'vknTckn' ? order : 'asc'}
-                  onClick={() => onSort('vknTckn')}
+                  onClick={() => handleSortWithPageReset('vknTckn')}
                   hideSortIcon
                 >
                   VKN/TCKN
@@ -552,7 +558,7 @@ const EInvoiceListTable = ({
                 <TableSortLabel
                   active={orderBy === 'title'}
                   direction={orderBy === 'title' ? order : 'asc'}
-                  onClick={() => onSort('title')}
+                  onClick={() => handleSortWithPageReset('title')}
                   hideSortIcon
                 >
                   Unvan
@@ -563,7 +569,7 @@ const EInvoiceListTable = ({
                 <TableSortLabel
                   active={orderBy === 'nameSurname'}
                   direction={orderBy === 'nameSurname' ? order : 'asc'}
-                  onClick={() => onSort('nameSurname')}
+                  onClick={() => handleSortWithPageReset('nameSurname')}
                   hideSortIcon
                 >
                   Ad Soyad
@@ -574,7 +580,7 @@ const EInvoiceListTable = ({
                 <TableSortLabel
                   active={orderBy === 'amount'}
                   direction={orderBy === 'amount' ? order : 'asc'}
-                  onClick={() => onSort('amount')}
+                  onClick={() => handleSortWithPageReset('amount')}
                   hideSortIcon
                 >
                   Tutar
@@ -585,7 +591,7 @@ const EInvoiceListTable = ({
                 <TableSortLabel
                   active={orderBy === 'unit'}
                   direction={orderBy === 'unit' ? order : 'asc'}
-                  onClick={() => onSort('unit')}
+                  onClick={() => handleSortWithPageReset('unit')}
                   hideSortIcon
                 >
                   Birim
@@ -596,7 +602,7 @@ const EInvoiceListTable = ({
                 <TableSortLabel
                   active={orderBy === 'receivedAt'}
                   direction={orderBy === 'receivedAt' ? order : 'asc'}
-                  onClick={() => onSort('receivedAt')}
+                  onClick={() => handleSortWithPageReset('receivedAt')}
                   hideSortIcon
                 >
                   Alınma Zamanı
@@ -607,7 +613,7 @@ const EInvoiceListTable = ({
                 <TableSortLabel
                   active={orderBy === 'status'}
                   direction={orderBy === 'status' ? order : 'asc'}
-                  onClick={() => onSort('status')}
+                  onClick={() => handleSortWithPageReset('status')}
                   hideSortIcon
                 >
                   Durum
@@ -618,7 +624,7 @@ const EInvoiceListTable = ({
                 <TableSortLabel
                   active={orderBy === 'response'}
                   direction={orderBy === 'response' ? order : 'asc'}
-                  onClick={() => onSort('response')}
+                  onClick={() => handleSortWithPageReset('response')}
                   hideSortIcon
                 >
                   Yanıt
@@ -629,7 +635,7 @@ const EInvoiceListTable = ({
                 <TableSortLabel
                   active={orderBy === 'envelopeStatus'}
                   direction={orderBy === 'envelopeStatus' ? order : 'asc'}
-                  onClick={() => onSort('envelopeStatus')}
+                  onClick={() => handleSortWithPageReset('envelopeStatus')}
                   hideSortIcon
                 >
                   Fatura Zarf Durumu
