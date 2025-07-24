@@ -12,7 +12,8 @@ import {
   ListItemButton,
   ListItemText,
   Grid,
-  MenuItem
+  MenuItem,
+  Divider
 } from '@mui/material'
 
 import Card from '@mui/material/Card'
@@ -360,6 +361,7 @@ const EInvoiceListTable = ({
           />
         </Grid>
       </Grid>
+      <Divider sx={{ my: 2, mx: -4 }} />
       <TableContainer>
         <Table className='flex-1'>
           <TableHead>
