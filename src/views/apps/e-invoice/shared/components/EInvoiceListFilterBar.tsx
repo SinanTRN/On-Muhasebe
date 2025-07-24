@@ -1,5 +1,19 @@
 import React from 'react'
-import { TextField, Button, useTheme, Box, Collapse, Popover, List, ListItem, ListItemButton, Checkbox, ListItemText, Grid } from '@mui/material'
+
+import {
+  TextField,
+  Button,
+  useTheme,
+  Box,
+  Collapse,
+  Popover,
+  List,
+  ListItem,
+  ListItemButton,
+  Checkbox,
+  ListItemText
+} from '@mui/material'
+
 import AppReactDatepicker from '@/libs/styles/AppReactDatepicker'
 
 type Filters = {
@@ -25,7 +39,14 @@ const invoiceScriptOptions = [
   { value: 'İHRACAT', label: 'İhracat' }
 ]
 
-const EInvoiceListFilterBar = ({ filters, setFilters, onSearch, onReset, invoiceScriptFilter, setInvoiceScriptFilter }: Props) => {
+const EInvoiceListFilterBar = ({
+  filters,
+  setFilters,
+  onSearch,
+  onReset,
+  invoiceScriptFilter,
+  setInvoiceScriptFilter
+}: Props) => {
   const theme = useTheme()
   const today = new Date()
   const [filterOpen, setFilterOpen] = React.useState(true)
@@ -49,9 +70,12 @@ const EInvoiceListFilterBar = ({ filters, setFilters, onSearch, onReset, invoice
   const getInvoiceStartValue = () => {
     if (!filters.invoiceStart && filters.invoiceEnd) {
       const start = new Date(filters.invoiceEnd)
+
       start.setMonth(start.getMonth() - 1)
+
       return start
     }
+
     return filters.invoiceStart
   }
 
@@ -125,11 +149,13 @@ const EInvoiceListFilterBar = ({ filters, setFilters, onSearch, onReset, invoice
                         selected={invoiceScriptFilter.includes(option.value)}
                         onClick={() => {
                           let newInvoiceScript: string[]
+
                           if (invoiceScriptFilter.includes(option.value)) {
                             newInvoiceScript = invoiceScriptFilter.filter(v => v !== option.value)
                           } else {
                             newInvoiceScript = [...invoiceScriptFilter, option.value]
                           }
+
                           setInvoiceScriptFilter(newInvoiceScript)
                         }}
                       >

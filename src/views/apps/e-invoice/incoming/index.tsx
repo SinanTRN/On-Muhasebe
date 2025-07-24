@@ -514,7 +514,6 @@ const EInvoiceIncoming = () => {
     isAnyFilterActive,
     getFilterFn,
     getFilterFnWithArgs,
-    invoiceScriptFilter,
     setInvoiceScriptFilter
   } = useInvoiceFilters({ defaultPeriod: 'month' })
 
@@ -554,9 +553,10 @@ const EInvoiceIncoming = () => {
   }
 
   // Tablo için: summaryStatus dahil tüm filtreler
-  const filteredInvoices = invoiceData.filter(getFilterFn());
+  const filteredInvoices = invoiceData.filter(getFilterFn())
+
   // SummaryBar için: summaryStatus='' ile filtrele (sadece dönem ve filterbar)
-  const summaryBarInvoices = invoiceData.filter(getFilterFnWithArgs('', period, isAnyFilterActive));
+  const summaryBarInvoices = invoiceData.filter(getFilterFnWithArgs('', period, isAnyFilterActive))
 
   // Sıralama fonksiyonu
   const handleSort = (property: keyof Invoice) => {
@@ -571,13 +571,17 @@ const EInvoiceIncoming = () => {
   const sortedInvoices = [...filteredInvoices].sort((a, b) => {
     const aVal = a[orderBy]
     const bVal = b[orderBy]
+
     if (typeof aVal === 'number' && typeof bVal === 'number') {
       return order === 'asc' ? aVal - bVal : bVal - aVal
     }
+
     const aStr = (aVal ?? '').toString().toLowerCase()
     const bStr = (bVal ?? '').toString().toLowerCase()
+
     if (aStr < bStr) return order === 'asc' ? -1 : 1
     if (aStr > bStr) return order === 'asc' ? 1 : -1
+
     return 0
   })
 

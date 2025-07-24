@@ -4,16 +4,6 @@ import { useTheme } from '@mui/material'
 
 import type { Invoice } from '../tables/EInvoiceListTable'
 
-const periods = [
-  { label: '1 Gün', value: '1' },
-  { label: '7 Gün', value: '7' },
-  { label: '30 Gün', value: '30' },
-  { label: '60 Gün', value: '60' },
-  { label: '90 Gün', value: '90' },
-  { label: 'Bu Ay', value: 'month' },
-  { label: 'Geçen Ay', value: 'lastMonth' }
-]
-
 // getStatusKey fonksiyonu kaldırıldı
 
 interface Props {
@@ -28,9 +18,6 @@ interface Props {
 const EInvoiceSummaryBar: React.FC<Props> = ({
   invoices,
   selectedPeriod,
-  onPeriodChange,
-  selectedStatus,
-  onStatusChange,
   hidden = false // default değeri false
 }) => {
   const theme = useTheme()
@@ -102,39 +89,41 @@ const EInvoiceSummaryBar: React.FC<Props> = ({
 
   return (
     <div
-      className="flex flex-col md:flex-row items-center rounded-xl shadow-md p-4 gap-4"
-      style={{ background: theme.palette.background.paper }}
+      className='flex flex-col md:flex-row items-center gap-4'
+
+      //style={{ background: theme.palette.background.paper }}
     >
       {/* Kutular */}
-      <div className="grid grid-cols-1 md:grid-cols-5 w-full">
-        {statusBoxes.map((box, idx) => (
+      <div className='grid grid-cols-1 md:grid-cols-5 gap-4 w-full'>
+        {statusBoxes.map(box => (
           <div
             key={box.key}
-            className={`flex flex-row items-center w-full h-full px-5 py-3 cursor-pointer min-w-0 bg-white rounded-xl ${idx < statusBoxes.length - 1 ? 'md:border-r-2 border-b-2 md:border-b-0' : ''} border-gray-300 ${selectedStatus === box.key ? 'ring-2 ring-primary-500' : ''}`}
+            className='relative flex flex-col justify-between bg-white rounded-xl shadow-md p-5 w-full'
             style={{
               background: theme.palette.background.paper,
-              color: theme.palette.text.primary,
-              minWidth: 180,
-              maxWidth: 260,
-              boxShadow: selectedStatus === box.key ? theme.shadows[2] : 'none'
+              color: theme.palette.text.primary
             }}
-            onClick={() => onStatusChange(box.key)}
           >
-            <div className="flex flex-col items-start min-w-0 flex-1 mr-2">
-              <span className="font-bold text-xl leading-tight truncate">{box.count}</span>
-              <span className="font-semibold text-sm leading-tight whitespace-nowrap truncate">{box.label}</span>
-            </div>
+            {/* Sağ üstte ikon */}
             <div
-              className="flex items-center justify-center flex-shrink-0 ml-auto"
+              className='absolute top-5 right-5 flex items-center justify-center'
               style={{
-                background: theme.palette.mode === 'dark' ? theme.palette.grey[800] : theme.palette.grey[200],
-                borderRadius: '50%',
-                width: 32,
-                height: 32
+                background: box.color,
+                borderRadius: '12px',
+                width: 40,
+                height: 40
               }}
             >
-              <span className="text-lg">{box.icon}</span>
+              <span className='text-xl' style={{ color: '#fff' }}>
+                {box.icon}
+              </span>
             </div>
+            {/* Başlık */}
+            <span className='text-sm text-gray-500 mb-2' style={{ color: theme.palette.text.secondary }}>
+              {box.label}
+            </span>
+            {/* Büyük sayı */}
+            <span className='font-bold text-2xl md:text-3xl leading-tight truncate mt-2'>{box.count}</span>
           </div>
         ))}
       </div>
