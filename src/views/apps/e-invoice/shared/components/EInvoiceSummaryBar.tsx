@@ -126,45 +126,36 @@ const EInvoiceSummaryBar: React.FC<Props> = ({
         </select>
       </div>
       {/* Kutular */}
-      <div className="flex flex-row w-full items-center justify-between">
+      <div className="grid grid-cols-1 md:grid-cols-5 w-full">
         {statusBoxes.map((box, idx) => (
-          <React.Fragment key={box.key}>
+          <div
+            key={box.key}
+            className={`flex flex-row items-center w-full h-full px-5 py-3 cursor-pointer min-w-0 bg-white rounded-xl ${idx < statusBoxes.length - 1 ? 'md:border-r-2 border-b-2 md:border-b-0' : ''} border-gray-300 ${selectedStatus === box.key ? 'ring-2 ring-primary-500' : ''}`}
+            style={{
+              background: theme.palette.background.paper,
+              color: theme.palette.text.primary,
+              minWidth: 180,
+              maxWidth: 260,
+              boxShadow: selectedStatus === box.key ? theme.shadows[2] : 'none'
+            }}
+            onClick={() => onStatusChange(box.key)}
+          >
+            <div className="flex flex-col items-start min-w-0 flex-1 mr-2">
+              <span className="font-bold text-xl leading-tight truncate">{box.count}</span>
+              <span className="font-semibold text-sm leading-tight whitespace-nowrap truncate">{box.label}</span>
+            </div>
             <div
-              onClick={() => onStatusChange(box.key)}
-              className={`flex flex-row items-center justify-between flex-1 cursor-pointer px-2 py-3`}
+              className="flex items-center justify-center flex-shrink-0 ml-auto"
               style={{
-                background: theme.palette.background.paper,
-                color: theme.palette.text.primary,
-                borderRadius: 12,
-                minWidth: 120,
-                maxWidth: 180,
-                border: selectedStatus === box.key ? `2px solid ${theme.palette.primary.main}` : `1px solid ${theme.palette.divider}`,
-                boxShadow: selectedStatus === box.key ? theme.shadows[2] : 'none'
+                background: theme.palette.mode === 'dark' ? theme.palette.grey[800] : theme.palette.grey[200],
+                borderRadius: '50%',
+                width: 32,
+                height: 32
               }}
             >
-              <div className="flex flex-col items-start justify-center">
-                <span className="font-bold text-xl leading-tight">{box.count}</span>
-                <span className="font-semibold text-sm leading-tight whitespace-nowrap">{box.label}</span>
-              </div>
-              <div
-                className="flex items-center justify-center ml-4"
-                style={{
-                  background: theme.palette.mode === 'dark' ? theme.palette.grey[800] : theme.palette.grey[200],
-                  borderRadius: '50%',
-                  width: 32,
-                  height: 32
-                }}
-              >
-                <span className="text-lg">{box.icon}</span>
-              </div>
+              <span className="text-lg">{box.icon}</span>
             </div>
-            {idx < statusBoxes.length - 1 && (
-              <div
-                className="h-10 border-l mx-2"
-                style={{ borderColor: theme.palette.divider }}
-              />
-            )}
-          </React.Fragment>
+          </div>
         ))}
       </div>
     </div>
