@@ -132,7 +132,7 @@ const EInvoiceListTable = ({
   startDate,
   endDate,
   invoiceScript,
-  status,
+  status
 }: Props) => {
   const [selected, setSelected] = React.useState<string[]>([])
   const theme = useTheme()
@@ -142,6 +142,7 @@ const EInvoiceListTable = ({
   const statusFieldRef = React.useRef<HTMLInputElement>(null)
   const handleStatusButtonClick = (event: React.MouseEvent<HTMLElement>) => setStatusAnchorEl(event.currentTarget)
   const handleStatusClose = () => setStatusAnchorEl(null)
+
   const statusOptions = [
     { value: 'Alındı', label: 'Alındı' },
     { value: 'Kabul', label: 'Kabul' },
@@ -152,6 +153,7 @@ const EInvoiceListTable = ({
     { value: 'Hatalı', label: 'Hatalı' },
     { value: 'İptal', label: 'İptal' }
   ]
+
   const statusLabel =
     draftFilters.status && draftFilters.status.length === 0
       ? 'Tümü'
@@ -159,6 +161,7 @@ const EInvoiceListTable = ({
           .filter(opt => draftFilters.status && draftFilters.status.includes(opt.value))
           .map(opt => opt.label)
           .join(', ')
+
   const noneSelected = !draftFilters.status || draftFilters.status.length === 0
   const allSelected = draftFilters.status && draftFilters.status.length === statusOptions.length
   const popoverWidth = statusFieldRef.current?.offsetWidth
@@ -170,7 +173,7 @@ const EInvoiceListTable = ({
     !!startDate ||
     !!endDate ||
     (invoiceScript && invoiceScript.length > 0) ||
-    (status && status.length > 0);
+    (status && status.length > 0)
 
   // Popover state
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
@@ -244,34 +247,36 @@ const EInvoiceListTable = ({
 
   return (
     <Card className='p-4 rounded-md shadow-md'>
-      <Typography variant="h6" sx={{ mb: 4, fontWeight: 600 }}>
+      <Typography variant='h6' sx={{ mb: 4, fontWeight: 600 }}>
         Filtreler
       </Typography>
       {/* Filtre barı ve tabloda ara alanı */}
       <Grid
         container
         direction={{ xs: 'column', sm: 'row' }}
-        justifyContent="space-between"
-        alignItems="flex-start"
+        justifyContent='space-between'
+        alignItems='flex-start'
         spacing={2}
-        className="mb-4"
+        className='mb-4'
       >
         {/* Sola yaslı filtreler */}
-        <Grid item xs={12} sm="auto">
+        <Grid item xs={12} sm='auto'>
           <Grid container spacing={2}>
             {/* Dönem Alanı */}
             {!isAnyFilterActive && (
               <Grid item>
                 <TextField
                   select
-                  label="Dönem"
+                  label='Dönem'
                   value={period}
                   onChange={e => setPeriod(e.target.value)}
-                  size="small"
+                  size='small'
                   sx={{ minWidth: 120 }}
                 >
                   {periods.map(p => (
-                    <MenuItem key={p.value} value={p.value}>{p.label}</MenuItem>
+                    <MenuItem key={p.value} value={p.value}>
+                      {p.label}
+                    </MenuItem>
                   ))}
                 </TextField>
               </Grid>
@@ -321,15 +326,21 @@ const EInvoiceListTable = ({
                         selected={draftFilters.status && draftFilters.status.includes(option.value)}
                         onClick={() => {
                           let newStatus: string[]
+
                           if (draftFilters.status && draftFilters.status.includes(option.value)) {
                             newStatus = draftFilters.status.filter(v => v !== option.value)
                           } else {
                             newStatus = [...(draftFilters.status || []), option.value]
                           }
+
                           setDraftFilters(f => ({ ...f, status: newStatus }))
                         }}
                       >
-                        <Checkbox checked={draftFilters.status && draftFilters.status.includes(option.value)} tabIndex={-1} disableRipple />
+                        <Checkbox
+                          checked={draftFilters.status && draftFilters.status.includes(option.value)}
+                          tabIndex={-1}
+                          disableRipple
+                        />
                         <ListItemText primary={option.label} />
                       </ListItemButton>
                     </ListItem>
@@ -462,7 +473,7 @@ const EInvoiceListTable = ({
           </Grid>
         </Grid>
         {/* Sağa yaslı tabloda ara alanı */}
-        <Grid item xs={12} sm="auto" style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'flex-end' }}>
+        <Grid item xs={12} sm='auto' style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'flex-end' }}>
           <TextField
             value={search}
             onChange={e => setSearch(e.target.value)}
@@ -480,7 +491,7 @@ const EInvoiceListTable = ({
         </Grid>
       </Grid>
       <Divider sx={{ my: 2, mx: -4 }} />
-      <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+      <Typography variant='h6' sx={{ mb: 2, fontWeight: 600 }}>
         Kayıtlar
       </Typography>
       <TableContainer>
