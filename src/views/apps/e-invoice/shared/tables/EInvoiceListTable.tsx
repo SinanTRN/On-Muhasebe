@@ -11,7 +11,8 @@ import {
   ListItem,
   ListItemButton,
   ListItemText,
-  Grid
+  Grid,
+  MenuItem
 } from '@mui/material'
 
 import Card from '@mui/material/Card'
@@ -82,6 +83,8 @@ type Props = {
   endDate: Date | null
   customer: string
   referenceNo: string
+  period: string
+  setPeriod: (val: string) => void
 }
 
 const invoiceScriptOptions = [
@@ -89,6 +92,16 @@ const invoiceScriptOptions = [
   { value: 'TİCARİ', label: 'Ticari' },
   { value: 'KAMU', label: 'Kamu' },
   { value: 'İHRACAT', label: 'İhracat' }
+]
+
+const periods = [
+  { label: '1 Gün', value: '1' },
+  { label: '7 Gün', value: '7' },
+  { label: '30 Gün', value: '30' },
+  { label: '60 Gün', value: '60' },
+  { label: '90 Gün', value: '90' },
+  { label: 'Bu Ay', value: 'month' },
+  { label: 'Geçen Ay', value: 'lastMonth' }
 ]
 
 const EInvoiceListTable = ({
@@ -105,7 +118,9 @@ const EInvoiceListTable = ({
   onApplyFilters,
   onResetFilters,
   search,
-  setSearch
+  setSearch,
+  period,
+  setPeriod
 }: Props) => {
   const [selected, setSelected] = React.useState<string[]>([])
   const theme = useTheme()
@@ -188,6 +203,21 @@ const EInvoiceListTable = ({
         {/* Sola yaslı filtreler */}
         <Grid item xs={12} sm="auto">
           <Grid container spacing={2}>
+            {/* Dönem Alanı */}
+            <Grid item>
+              <TextField
+                select
+                label="Dönem"
+                value={period}
+                onChange={e => setPeriod(e.target.value)}
+                size="small"
+                sx={{ minWidth: 120 }}
+              >
+                {periods.map(p => (
+                  <MenuItem key={p.value} value={p.value}>{p.label}</MenuItem>
+                ))}
+              </TextField>
+            </Grid>
             {/* Fatura Numarası */}
             {/* <Grid item>
               <TextField

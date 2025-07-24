@@ -194,6 +194,8 @@ const EInvoiceOutgoing = () => {
         endDate={endDate}
         customer={customer}
         referenceNo={referenceNo}
+        period={period}
+        setPeriod={setPeriod}
       />
     </Stack>
   )

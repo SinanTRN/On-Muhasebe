@@ -105,26 +105,6 @@ const EInvoiceSummaryBar: React.FC<Props> = ({
       className="flex flex-col md:flex-row items-center rounded-xl shadow-md p-4 gap-4"
       style={{ background: theme.palette.background.paper }}
     >
-      {/* Dönem seçici alan */}
-      <div className="flex flex-row items-center gap-2 mb-2 md:mb-0 md:mr-6">
-        <span className="font-semibold text-xs md:text-sm mr-2">DÖNEM</span>
-        <select
-          className="border rounded-md px-2 py-1 text-xs md:text-sm min-w-[80px] md:min-w-[100px] focus:outline-none"
-          value={selectedPeriod}
-          onChange={e => onPeriodChange(e.target.value)}
-          style={{
-            background: theme.palette.background.paper,
-            color: theme.palette.text.primary,
-            borderColor: theme.palette.divider
-          }}
-        >
-          {periods.map(p => (
-            <option key={p.value} value={p.value}>
-              {p.label}
-            </option>
-          ))}
-        </select>
-      </div>
       {/* Kutular */}
       <div className="grid grid-cols-1 md:grid-cols-5 w-full">
         {statusBoxes.map((box, idx) => (
