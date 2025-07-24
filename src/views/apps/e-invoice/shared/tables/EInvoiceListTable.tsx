@@ -67,6 +67,7 @@ type Props = {
     startDate: Date | null
     endDate: Date | null
     invoiceScript: string[]
+    status: string[]
   }
   setDraftFilters: React.Dispatch<
     React.SetStateAction<{
@@ -75,6 +76,7 @@ type Props = {
       startDate: Date | null
       endDate: Date | null
       invoiceScript: string[]
+      status: string[]
     }>
   >
   onApplyFilters: () => void
@@ -88,6 +90,7 @@ type Props = {
   period: string
   setPeriod: (val: string) => void
   invoiceScript: string[]
+  status: string[]
 }
 
 const invoiceScriptOptions = [
@@ -128,10 +131,37 @@ const EInvoiceListTable = ({
   customer,
   startDate,
   endDate,
-  invoiceScript
+  invoiceScript,
+  status,
 }: Props) => {
   const [selected, setSelected] = React.useState<string[]>([])
   const theme = useTheme()
+
+  // Fatura Durumu Popover state
+  const [statusAnchorEl, setStatusAnchorEl] = React.useState<null | HTMLElement>(null)
+  const statusFieldRef = React.useRef<HTMLInputElement>(null)
+  const handleStatusButtonClick = (event: React.MouseEvent<HTMLElement>) => setStatusAnchorEl(event.currentTarget)
+  const handleStatusClose = () => setStatusAnchorEl(null)
+  const statusOptions = [
+    { value: 'Alındı', label: 'Alındı' },
+    { value: 'Kabul', label: 'Kabul' },
+    { value: 'Ret', label: 'Ret' },
+    { value: 'Yanıt bekliyor', label: 'Yanıt bekliyor' },
+    { value: 'Beklemede', label: 'Beklemede' },
+    { value: 'Başarılı', label: 'Başarılı' },
+    { value: 'Hatalı', label: 'Hatalı' },
+    { value: 'İptal', label: 'İptal' }
+  ]
+  const statusLabel =
+    draftFilters.status && draftFilters.status.length === 0
+      ? 'Tümü'
+      : statusOptions
+          .filter(opt => draftFilters.status && draftFilters.status.includes(opt.value))
+          .map(opt => opt.label)
+          .join(', ')
+  const noneSelected = !draftFilters.status || draftFilters.status.length === 0
+  const allSelected = draftFilters.status && draftFilters.status.length === statusOptions.length
+  const popoverWidth = statusFieldRef.current?.offsetWidth
 
   // Herhangi bir filtre aktif mi?
   const isAnyFilterActive =
@@ -139,7 +169,8 @@ const EInvoiceListTable = ({
     !!customer ||
     !!startDate ||
     !!endDate ||
-    (invoiceScript && invoiceScript.length > 0);
+    (invoiceScript && invoiceScript.length > 0) ||
+    (status && status.length > 0);
 
   // Popover state
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
@@ -239,6 +270,67 @@ const EInvoiceListTable = ({
                 </TextField>
               </Grid>
             )}
+            {/* Fatura Durumu Alanı */}
+            <Grid item>
+              <TextField
+                label='Fatura Durumu'
+                value={statusLabel}
+                size='small'
+                inputProps={{ readOnly: true }}
+                onClick={handleStatusButtonClick}
+                ref={statusFieldRef}
+                sx={{ minWidth: 160, cursor: 'pointer' }}
+              />
+              <Popover
+                open={Boolean(statusAnchorEl)}
+                anchorEl={statusAnchorEl}
+                onClose={handleStatusClose}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+                transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+                PaperProps={{
+                  style: {
+                    width: popoverWidth || undefined,
+                    maxHeight: 300,
+                    overflowY: 'auto',
+                    padding: 0
+                  }
+                }}
+              >
+                <List disablePadding>
+                  {/* Tümü seçeneği */}
+                  <ListItem disablePadding>
+                    <ListItemButton
+                      selected={noneSelected || allSelected}
+                      onClick={() => {
+                        setDraftFilters(f => ({ ...f, status: [] }))
+                      }}
+                    >
+                      <Checkbox checked={noneSelected || allSelected} tabIndex={-1} disableRipple />
+                      <ListItemText primary='Tümü' />
+                    </ListItemButton>
+                  </ListItem>
+                  {statusOptions.map(option => (
+                    <ListItem key={option.value} disablePadding>
+                      <ListItemButton
+                        selected={draftFilters.status && draftFilters.status.includes(option.value)}
+                        onClick={() => {
+                          let newStatus: string[]
+                          if (draftFilters.status && draftFilters.status.includes(option.value)) {
+                            newStatus = draftFilters.status.filter(v => v !== option.value)
+                          } else {
+                            newStatus = [...(draftFilters.status || []), option.value]
+                          }
+                          setDraftFilters(f => ({ ...f, status: newStatus }))
+                        }}
+                      >
+                        <Checkbox checked={draftFilters.status && draftFilters.status.includes(option.value)} tabIndex={-1} disableRipple />
+                        <ListItemText primary={option.label} />
+                      </ListItemButton>
+                    </ListItem>
+                  ))}
+                </List>
+              </Popover>
+            </Grid>
             {/* Fatura Numarası */}
             {/* <Grid item>
               <TextField

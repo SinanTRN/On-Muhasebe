@@ -124,7 +124,8 @@ const EInvoiceOutgoing = () => {
     customer: '',
     startDate: null as Date | null,
     endDate: null as Date | null,
-    invoiceScript: [] as string[]
+    invoiceScript: [] as string[],
+    status: [] as string[]
   })
 
   // Ara butonuna basınca draft'ı hook'a aktar
@@ -138,7 +139,7 @@ const EInvoiceOutgoing = () => {
 
   // Temizle butonu hem draft'ı hem hook'u sıfırlar
   const handleReset = () => {
-    setDraftFilters({ referenceNo: '', customer: '', startDate: null, endDate: null, invoiceScript: [] })
+    setDraftFilters({ referenceNo: '', customer: '', startDate: null, endDate: null, invoiceScript: [], status: [] })
     setReferenceNo('')
     setCustomer('')
     setStartDate(null)
@@ -192,6 +193,7 @@ const EInvoiceOutgoing = () => {
         period={period}
         setPeriod={setPeriod}
         invoiceScript={invoiceScriptFilter}
+        status={draftFilters.status}
       />
     </Stack>
   )
