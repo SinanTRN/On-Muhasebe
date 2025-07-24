@@ -588,16 +588,14 @@ const EInvoiceIncoming = () => {
 
   return (
     <Stack spacing={2}>
-      {!isAnyFilterActive && (
-        <EInvoiceSummaryBar
-          invoices={summaryBarInvoices}
-          selectedPeriod={period}
-          onPeriodChange={setPeriod}
-          selectedStatus={summaryStatus}
-          onStatusChange={setSummaryStatus}
-          hidden={false}
-        />
-      )}
+      <EInvoiceSummaryBar
+        invoices={summaryBarInvoices}
+        selectedPeriod={period}
+        onPeriodChange={setPeriod}
+        selectedStatus={summaryStatus}
+        onStatusChange={setSummaryStatus}
+        hidden={false}
+      />
       <EInvoiceListTable
         data={sortedInvoices}
         order={order}
