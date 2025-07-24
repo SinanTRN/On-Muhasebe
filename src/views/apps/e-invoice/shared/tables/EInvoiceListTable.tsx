@@ -13,7 +13,8 @@ import {
   ListItemText,
   Grid,
   MenuItem,
-  Divider
+  Divider,
+  Typography
 } from '@mui/material'
 
 import Card from '@mui/material/Card'
@@ -192,6 +193,9 @@ const EInvoiceListTable = ({
 
   return (
     <Card className='p-4 rounded-md shadow-md'>
+      <Typography variant="h6" sx={{ mb: 4, fontWeight: 600 }}>
+        Filtreler
+      </Typography>
       {/* Filtre barı ve tabloda ara alanı */}
       <Grid
         container
@@ -362,6 +366,9 @@ const EInvoiceListTable = ({
         </Grid>
       </Grid>
       <Divider sx={{ my: 2, mx: -4 }} />
+      <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+        Kayıtlar
+      </Typography>
       <TableContainer>
         <Table className='flex-1'>
           <TableHead>
