@@ -80,11 +80,35 @@ const EInvoiceSummaryBar: React.FC<Props> = ({
   ).length
 
   const statusBoxes = [
-    { key: 'yeni', label: 'YENİ GELEN', color: theme.palette.warning.main, icon: '📥', count: yeniGelenCount },
-    { key: 'okundu', label: 'OKUNDU', color: theme.palette.info.main, icon: '📄', count: okunduCount },
-    { key: 'kabul', label: 'KABUL EDİLEN', color: theme.palette.success.main, icon: '📗', count: kabulCount },
-    { key: 'yanit', label: 'YANIT BEKLEYEN', color: theme.palette.primary.main, icon: '🔄', count: yanitBekleyenCount },
-    { key: 'red', label: 'REDDEDİLEN', color: theme.palette.error.main, icon: '🚫', count: reddedilenCount }
+    {
+      key: 'yeni',
+      label: 'YENİ GELEN',
+      color: theme.palette.warning.main,
+      icon: 'ri-chat-download-line',
+      count: yeniGelenCount
+    },
+    { key: 'okundu', label: 'OKUNDU', color: theme.palette.info.main, icon: 'ri-file-text-line', count: okunduCount },
+    {
+      key: 'kabul',
+      label: 'KABUL EDİLEN',
+      color: theme.palette.success.main,
+      icon: 'ri-check-line',
+      count: kabulCount
+    },
+    {
+      key: 'yanit',
+      label: 'YANIT BEKLEYEN',
+      color: theme.palette.primary.main,
+      icon: 'ri-reply-line',
+      count: yanitBekleyenCount
+    },
+    {
+      key: 'red',
+      label: 'REDDEDİLEN',
+      color: theme.palette.error.main,
+      icon: 'ri-close-line',
+      count: reddedilenCount
+    }
   ]
 
   return (
@@ -106,17 +130,14 @@ const EInvoiceSummaryBar: React.FC<Props> = ({
           >
             {/* Sağ üstte ikon */}
             <div
-              className='absolute top-5 right-5 flex items-center justify-center'
-              style={{
-                background: box.color,
-                borderRadius: '12px',
-                width: 40,
-                height: 40
-              }}
+              className='absolute top-5 right-5 rounded-[12px] w-[40px] h-[40px] flex items-center justify-center'
+              style={
+                {
+                  //background: theme.palette.background.paper,
+                }
+              }
             >
-              <span className='text-xl' style={{ color: '#fff' }}>
-                {box.icon}
-              </span>
+              <i className={`text-gray-700 ${box.icon} text-3xl`} />
             </div>
             {/* Başlık */}
             <span className='text-sm text-gray-500 mb-2' style={{ color: theme.palette.text.secondary }}>
