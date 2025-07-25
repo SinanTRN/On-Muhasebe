@@ -130,10 +130,10 @@ const EInvoiceSummaryBar: React.FC<Props> = ({
           >
             {/* Sağ üstte ikon */}
             <div
-              className='absolute top-5 right-5 rounded-[12px] w-[40px] h-[40px] flex items-center justify-center'
+              className='absolute top-5 right-5 rounded-[8px] w-[50px] h-[50px] bg-gray-100 flex items-center justify-center'
               style={
                 {
-                  //background: theme.palette.background.paper,
+                  //background: 'rgb(240 239 240)'
                 }
               }
             >

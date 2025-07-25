@@ -1,4 +1,5 @@
 import React from 'react'
+
 import Button from '@mui/material/Button'
 import Stack from '@mui/material/Stack'
 import { Card } from '@mui/material'
@@ -13,20 +14,17 @@ const DraftInvoiceActions: React.FC<DraftInvoiceActionsProps> = ({ selected }) =
 
   return (
     <Card className='p-4 rounded-md shadow-md'>
-      <Stack direction="row" spacing={2}>
-        <Button variant="contained" disabled={!hasSelection} color="primary" disableRipple>
-          Fatura Numarası Ata
-        </Button>
-        <Button variant="outlined" disabled={!isSingleSelection} color="info" disableRipple>
+      <Stack direction='row' spacing={2}>
+        <Button variant='outlined' disabled={!isSingleSelection} color='info' disableRipple>
           Düzenle
         </Button>
-        <Button variant="outlined" disabled={!hasSelection} color="error" disableRipple>
+        <Button variant='outlined' disabled={!hasSelection} color='error' disableRipple>
           İptal Et
         </Button>
-        <Button variant="outlined" disabled={!hasSelection} color="secondary" disableRipple>
+        <Button variant='outlined' disabled={!hasSelection} color='secondary' disableRipple>
           Yazdır
         </Button>
-        <Button variant="outlined" disabled={!hasSelection} color="success" disableRipple>
+        <Button variant='outlined' disabled={!hasSelection} color='success' disableRipple>
           İndir
         </Button>
       </Stack>
@@ -34,4 +32,4 @@ const DraftInvoiceActions: React.FC<DraftInvoiceActionsProps> = ({ selected }) =
   )
 }
 
-export default DraftInvoiceActions 
+export default DraftInvoiceActions

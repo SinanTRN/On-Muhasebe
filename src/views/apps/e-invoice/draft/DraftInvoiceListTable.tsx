@@ -1,5 +1,6 @@
 'use client'
 import { useMemo, useState } from 'react'
+
 import Card from '@mui/material/Card'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
@@ -55,6 +56,7 @@ const DraftInvoiceListTable = ({ data, onSelectionChange }: DraftInvoiceListTabl
 
   const handleSort = (property: ColumnKey) => {
     const isAsc = orderBy === property && order === 'asc'
+
     setOrder(isAsc ? 'desc' : 'asc')
     setOrderBy(property)
   }
@@ -63,9 +65,11 @@ const DraftInvoiceListTable = ({ data, onSelectionChange }: DraftInvoiceListTabl
     return [...data].sort((a, b) => {
       const aValue = a[orderBy]
       const bValue = b[orderBy]
+
       if (typeof aValue === 'number' && typeof bValue === 'number') {
         return order === 'asc' ? aValue - bValue : bValue - aValue
       }
+
       return order === 'asc'
         ? String(aValue).localeCompare(String(bValue))
         : String(bValue).localeCompare(String(aValue))
@@ -79,10 +83,13 @@ const DraftInvoiceListTable = ({ data, onSelectionChange }: DraftInvoiceListTabl
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
       const newSelected = pagedData.map(n => n.id)
+
       setSelected(newSelected)
       onSelectionChange?.(newSelected)
+
       return
     }
+
     setSelected([])
     onSelectionChange?.([])
   }
@@ -90,6 +97,7 @@ const DraftInvoiceListTable = ({ data, onSelectionChange }: DraftInvoiceListTabl
   const handleClick = (id: string) => {
     const selectedIndex = selected.indexOf(id)
     let newSelected: string[] = []
+
     if (selectedIndex === -1) {
       newSelected = newSelected.concat(selected, id)
     } else if (selectedIndex === 0) {
@@ -99,6 +107,7 @@ const DraftInvoiceListTable = ({ data, onSelectionChange }: DraftInvoiceListTabl
     } else if (selectedIndex > 0) {
       newSelected = newSelected.concat(selected.slice(0, selectedIndex), selected.slice(selectedIndex + 1))
     }
+
     setSelected(newSelected)
     onSelectionChange?.(newSelected)
   }
@@ -260,7 +269,9 @@ const DraftInvoiceListTable = ({ data, onSelectionChange }: DraftInvoiceListTabl
             ))}
             {pagedData.length === 0 && (
               <TableRow>
-                <TableCell colSpan={columns.length} align='center'>Kayıt bulunamadı.</TableCell>
+                <TableCell colSpan={columns.length} align='center'>
+                  Kayıt bulunamadı.
+                </TableCell>
               </TableRow>
             )}
           </TableBody>
@@ -288,4 +299,4 @@ const DraftInvoiceListTable = ({ data, onSelectionChange }: DraftInvoiceListTabl
   )
 }
 
-export default DraftInvoiceListTable 
+export default DraftInvoiceListTable
