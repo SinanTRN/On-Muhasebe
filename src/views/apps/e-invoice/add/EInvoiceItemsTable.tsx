@@ -58,7 +58,6 @@ type InvoiceRow = {
   total: string
   dovizAmount: string
   description: string
-  discount: string
   note: string
   tevkifatType?: string
   ozelMatrahType?: string
@@ -81,7 +80,6 @@ const defaultRow: InvoiceRow = {
   total: '',
   dovizAmount: '',
   description: '',
-  discount: '',
   note: '',
   tevkifatType: '',
   discount1: '',
@@ -114,6 +112,11 @@ interface InvoiceItemsTableProps {
   isWithholdingTax: boolean
   bulkWithholdingType?: string
   exchangeRate?: string // Döviz kuru eklendi (string)
+  // Yeni prop'lar
+  items?: any[]
+  setItems?: (v: any[]) => void
+  documentNote?: string
+  setDocumentNote?: (v: string) => void
 }
 
 const InvoiceItemsTable = ({
@@ -122,7 +125,12 @@ const InvoiceItemsTable = ({
   currentInvoiceType,
   isWithholdingTax,
   bulkWithholdingType = '',
-  exchangeRate = ''
+  exchangeRate = '',
+  // Yeni prop'lar
+  items: propItems,
+  setItems: propSetItems,
+  documentNote: propDocumentNote,
+  setDocumentNote: propSetDocumentNote
 }: InvoiceItemsTableProps) => {
   //State'ler
   const [rows, setRows] = useState<InvoiceRow[]>([{ ...defaultRow }])
@@ -132,7 +140,7 @@ const InvoiceItemsTable = ({
   const [focusedIndex, setFocusedIndex] = useState<{ idx: number; field: string } | null>(null)
   const [showDiscountMenu, setShowDiscountMenu] = useState(false)
   const [activeDiscounts, setActiveDiscounts] = useState<string[]>([])
-  const [documentNote, setDocumentNote] = useState('')
+  const [documentNote, setDocumentNote] = useState(propDocumentNote || '')
 
   const cellRefs = useRef<{ [rowIndex: number]: { [field: string]: HTMLElement | null } }>({})
 
