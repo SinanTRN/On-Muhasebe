@@ -14,7 +14,6 @@ import {
   Grid,
   MenuItem,
   Divider,
-  Typography
 } from '@mui/material'
 
 import Card from '@mui/material/Card'
@@ -247,9 +246,6 @@ const EInvoiceListTable = ({
 
   return (
     <Card className='p-4 rounded-md shadow-md'>
-      <Typography variant='h6' sx={{ mb: 4, fontWeight: 600 }}>
-        Filtreler
-      </Typography>
       {/* Filtre barı ve tabloda ara alanı */}
       <Grid
         container
@@ -491,9 +487,6 @@ const EInvoiceListTable = ({
         </Grid>
       </Grid>
       <Divider sx={{ my: 2, mx: -4 }} />
-      <Typography variant='h6' sx={{ mb: 2, fontWeight: 600 }}>
-        Kayıtlar
-      </Typography>
       <TableContainer>
         <Table className='flex-1'>
           <TableHead>
@@ -706,7 +699,7 @@ const EInvoiceListTable = ({
                 </TableCell>
                 {/* Tutar */}
                 <TableCell className='p-4 text-right align-center justify-center min-w-[150px]'>
-                  {row.amount.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' })}
+                  {row.amount.toLocaleString('tr-TR')}
                 </TableCell>
                 {/* Birim */}
                 <TableCell className='p-4 text-center align-center justify-center min-w-[100px] '>{row.unit}</TableCell>
