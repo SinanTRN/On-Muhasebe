@@ -137,7 +137,7 @@ const EInvoiceSummaryBar: React.FC<Props> = ({
                 }
               }
             >
-              <i className={`text-gray-700 ${box.icon} text-3xl`} />
+              <i className={` ${box.icon} text-3xl`} />
             </div>
             {/* Başlık */}
             <span className='text-sm text-gray-500 mb-2' style={{ color: theme.palette.text.secondary }}>

@@ -459,10 +459,10 @@ const EInvoiceListTable = ({
             </Grid>
             {/* Filtre Uygula ve Temizle Butonları */}
             <Grid item>
-              <IconButton color='success' onClick={onApplyFilters} aria-label='Ara'>
+              <IconButton onClick={onApplyFilters} aria-label='Ara'>
                 <i className='ri-search-line text-xl' />
               </IconButton>
-              <IconButton color='primary' onClick={onResetFilters} aria-label='Temizle'>
+              <IconButton onClick={onResetFilters} aria-label='Temizle'>
                 <i className='ri-eraser-line text-xl' />
               </IconButton>
             </Grid>
