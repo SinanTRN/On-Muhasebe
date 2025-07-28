@@ -115,7 +115,9 @@ const EInvoiceOutgoing = () => {
     getFilterFn,
     getFilterFnWithArgs,
     setInvoiceScriptFilter,
-    invoiceScriptFilter
+    invoiceScriptFilter,
+    statusFilter,
+    setStatusFilter
   } = useInvoiceFilters({ defaultPeriod: 'month' })
 
   // Sıralama ve sayfalama için custom hook
@@ -135,6 +137,7 @@ const EInvoiceOutgoing = () => {
     setStartDate(draftFilters.startDate)
     setEndDate(draftFilters.endDate)
     setInvoiceScriptFilter(draftFilters.invoiceScript)
+    setStatusFilter(draftFilters.status)
   }
 
   // Temizle butonu hem draft'ı hem hook'u sıfırlar
@@ -145,6 +148,7 @@ const EInvoiceOutgoing = () => {
     setStartDate(null)
     setEndDate(null)
     setInvoiceScriptFilter([])
+    setStatusFilter([])
     setSearch('')
   }
 
@@ -193,7 +197,7 @@ const EInvoiceOutgoing = () => {
         period={period}
         setPeriod={setPeriod}
         invoiceScript={invoiceScriptFilter}
-        status={draftFilters.status}
+        status={statusFilter}
       />
     </Stack>
   )
