@@ -561,8 +561,8 @@ const EInvoiceIncoming = () => {
   // Tablo için: summaryStatus dahil tüm filtreler
   const filteredInvoices = invoiceData.filter(getFilterFn())
 
-  // SummaryBar için: summaryStatus='' ile filtrele (sadece dönem ve filterbar)
-  const summaryBarInvoices = invoiceData.filter(getFilterFnWithArgs('', period, isAnyFilterActive))
+  // SummaryBar için: Sadece dönem filtresi uygula, status filtreleme yapma
+  const summaryBarInvoices = invoiceData.filter(getFilterFnWithArgs('', period, false))
 
   // Sıralama fonksiyonu
   const handleSort = (property: keyof Invoice) => {

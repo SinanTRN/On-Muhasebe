@@ -154,7 +154,8 @@ const EInvoiceOutgoing = () => {
 
   // Filtrelenmiş veriler
   const filteredInvoices = invoiceData.filter(getFilterFn())
-  const summaryBarInvoices = invoiceData.filter(getFilterFnWithArgs('', period, isAnyFilterActive))
+  // SummaryBar için: Sadece dönem filtresi uygula, status filtreleme yapma
+  const summaryBarInvoices = invoiceData.filter(getFilterFnWithArgs('', period, false))
 
   // Sıralama ve sayfalama
   const { order, orderBy, page, setPage, rowsPerPage, setRowsPerPage, handleSort } = useTableSortAndPagination(
