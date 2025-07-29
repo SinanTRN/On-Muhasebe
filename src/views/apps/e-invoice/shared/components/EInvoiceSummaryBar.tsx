@@ -8,8 +8,6 @@ interface Props {
   invoices: Invoice[]
   selectedPeriod: string
   onPeriodChange: (val: string) => void
-  selectedStatus: string
-  onStatusChange: (val: string) => void
   hidden?: boolean
 }
 

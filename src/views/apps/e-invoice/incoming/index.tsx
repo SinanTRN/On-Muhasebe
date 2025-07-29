@@ -510,8 +510,6 @@ const EInvoiceIncoming = () => {
     setReferenceNo,
     period,
     setPeriod,
-    summaryStatus,
-    setSummaryStatus,
     isAnyFilterActive,
     getFilterFn,
     getFilterFnWithArgs,
@@ -585,7 +583,7 @@ const EInvoiceIncoming = () => {
   // Filtre değişikliklerini izle ve sayfa sıfırla
   useEffect(() => {
     setPage(0)
-  }, [search, startDate, endDate, customer, referenceNo, period, summaryStatus, invoiceScriptFilter, statusFilter])
+  }, [search, startDate, endDate, customer, referenceNo, period, invoiceScriptFilter, statusFilter])
 
   // Tablo için: summaryStatus dahil tüm filtreler
   const filteredInvoices = invoiceData.filter(getFilterFn())
@@ -608,8 +606,6 @@ const EInvoiceIncoming = () => {
         invoices={filteredInvoices}
         selectedPeriod={period}
         onPeriodChange={setPeriod}
-        selectedStatus={summaryStatus}
-        onStatusChange={setSummaryStatus}
         hidden={false}
       />
       <EInvoiceListTable

@@ -12,16 +12,11 @@ export function useInvoiceFilters({ defaultPeriod = 'month' }: UseInvoiceFilters
   const [endDate, setEndDate] = useState<Date | null>(null)
   const [readFilter, setReadFilter] = useState('')
   const [period, setPeriod] = useState(defaultPeriod)
-  const [summaryStatus, setSummaryStatus] = useState('')
   const [customer, setCustomer] = useState('')
   const [referenceNo, setReferenceNo] = useState('')
   const [receivedStart, setReceivedStart] = useState<Date | null>(null)
   const [receivedEnd, setReceivedEnd] = useState<Date | null>(null)
   const [typeFilter, setTypeFilter] = useState('')
-
-  const handleSummaryStatusChange = useCallback((val: string) => {
-    setSummaryStatus(prev => (prev === val ? '' : val))
-  }, [])
 
   const handleStatusFilterChange = useCallback((val: string[]) => {
     setStatusFilter(val)
@@ -29,7 +24,6 @@ export function useInvoiceFilters({ defaultPeriod = 'month' }: UseInvoiceFilters
 
   const handlePeriodChange = useCallback((val: string) => {
     setPeriod(val)
-    setSummaryStatus('')
     setStatusFilter([])
   }, [])
 
@@ -58,8 +52,7 @@ export function useInvoiceFilters({ defaultPeriod = 'month' }: UseInvoiceFilters
     referenceNo ||
     receivedStart ||
     receivedEnd ||
-    typeFilter ||
-    summaryStatus // summaryStatus da bir filtre olarak kabul edilmeli
+    typeFilter // summaryStatus da bir filtre olarak kabul edilmeli
   )
 
   // Tüm statü seçenekleri burada tanımlı olmalı (gerekirse dışarıdan alınabilir)
@@ -73,7 +66,7 @@ export function useInvoiceFilters({ defaultPeriod = 'month' }: UseInvoiceFilters
 
   // filterFn fonksiyonu dışarıdan Invoice tipine göre parametre olarak alınmalı
   const getFilterFn = useCallback(
-    (summaryStatus: string, period: string, isAnyFilterActive: boolean) => (inv: any) => {
+    (period: string, isAnyFilterActive: boolean) => (inv: any) => {
       const now = new Date()
       let periodMatch = true
 
@@ -115,21 +108,18 @@ export function useInvoiceFilters({ defaultPeriod = 'month' }: UseInvoiceFilters
 
       let statusMatch = true
 
-      if (!isAnyFilterActive && summaryStatus) {
-        if (summaryStatus === 'yeni')
-          statusMatch = inv.status === 'Alındı' || inv.status === 'Yeni' || inv.status === 'YENİ GELEN'
-        else if (summaryStatus === 'okundu') statusMatch = inv.read === true
-        else if (summaryStatus === 'kabul') statusMatch = inv.status === 'Kabul' || inv.status === 'Kanunen Kabul'
-        else if (summaryStatus === 'yanit')
-          statusMatch = inv.status === 'Yanıt bekliyor' || inv.status === 'YANIT BEKLEYEN'
-        else if (summaryStatus === 'red')
-          statusMatch =
+      if (statusFilter && statusFilter.length > 0 && statusFilter.length < allStatusOptions.length) {
+        // Eğer kullanıcı 'Ret' seçtiyse, tüm ret varyasyonlarını kapsa
+        if (statusFilter.includes('Ret')) {
+          statusMatch = (
             inv.status.startsWith('Ret') ||
+            inv.status === 'Reddedildi' ||
             inv.status === 'Kabul Başarısız' ||
-            inv.status === 'Ret-Başarısız' ||
-            inv.status === 'REDDEDİLEN'
-      } else if (statusFilter && statusFilter.length > 0 && statusFilter.length < allStatusOptions.length) {
-        statusMatch = statusFilter.includes(inv.status)
+            inv.status === 'Ret-Başarısız'
+          )
+        } else {
+          statusMatch = statusFilter.includes(inv.status)
+        }
       } // Hiçbiri seçili değilse veya hepsi seçiliyse tümü
 
       // Fatura Senaryosu filtreleme
@@ -240,8 +230,6 @@ export function useInvoiceFilters({ defaultPeriod = 'month' }: UseInvoiceFilters
     setReadFilterExternal,
     period,
     setPeriod: handlePeriodChange,
-    summaryStatus,
-    setSummaryStatus: handleSummaryStatusChange,
     customer,
     setCustomer,
     referenceNo,
@@ -250,11 +238,10 @@ export function useInvoiceFilters({ defaultPeriod = 'month' }: UseInvoiceFilters
     setReceivedStart,
     receivedEnd,
     setReceivedEnd,
-    handleSummaryStatusChange,
     handleStatusFilterChange,
     handlePeriodChange,
     isAnyFilterActive,
-    getFilterFn: () => getFilterFn(summaryStatus, period, isAnyFilterActive),
+    getFilterFn: () => getFilterFn(period, isAnyFilterActive),
     getFilterFnWithArgs: getFilterFn,
     setTypeFilterExternal
   }
