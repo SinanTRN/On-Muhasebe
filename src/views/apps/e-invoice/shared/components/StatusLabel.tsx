@@ -5,7 +5,7 @@ import { useTheme } from '@mui/material'
 
 interface StatusLabelProps {
   value: string
-  type: 'status' | 'response' | 'envelopeStatus' | 'read'
+  type: 'status' | 'response' | 'envelopeStatus' | 'read' | 'type'
 }
 
 const getStatusColor = (theme: Theme, value: string): string => {
@@ -52,6 +52,17 @@ const getReadColor = (theme: Theme, value: string): string => {
   return map[value] || theme.palette.grey[500]
 }
 
+const getTypeColor = (theme: Theme, value: string): string => {
+  const map: Record<string, string> = {
+    'E-Fatura': theme.palette.primary.main,
+    'E-Arşiv': theme.palette.info.main,
+    'E-İrsaliye': theme.palette.warning.main,
+    'E-SMM': theme.palette.secondary.main
+  }
+
+  return map[value] || theme.palette.grey[500]
+}
+
 const StatusLabel: React.FC<StatusLabelProps> = ({ value, type }) => {
   const theme = useTheme()
   let color = theme.palette.grey[500] // default
@@ -64,6 +75,8 @@ const StatusLabel: React.FC<StatusLabelProps> = ({ value, type }) => {
     color = getEnvelopeColor(theme, value)
   } else if (type === 'read') {
     color = getReadColor(theme, value)
+  } else if (type === 'type') {
+    color = getTypeColor(theme, value)
   }
 
   return (

@@ -501,7 +501,7 @@ const EInvoiceListTable = ({
                 />
               </TableCell>
               {/* Tip */}
-              <TableCell className='p-4 text-left align-center justify-center min-w-[100px] '>
+              <TableCell className='p-4 text-left align-center justify-center min-w-[120px] '>
                 <TableSortLabel
                   active={orderBy === 'type'}
                   direction={orderBy === 'type' ? order : 'asc'}
@@ -661,7 +661,9 @@ const EInvoiceListTable = ({
                   />
                 </TableCell>
                 {/* Tip */}
-                <TableCell className='p-4 text-left align-center justify-center min-w-[100px]'>{row.type}</TableCell>
+                <TableCell className='p-4 text-left align-center justify-center min-w-[120px]'>
+                  <StatusLabel value={row.type} type='type' />
+                </TableCell>
                 {/* Fatura No */}
                 <TableCell className='p-4 text-left align-center justify-center min-w-[180px]'>{row.id}</TableCell>
                 {/* ETTN */}
