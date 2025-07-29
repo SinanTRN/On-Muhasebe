@@ -7,6 +7,7 @@ import EInvoiceListTable from '../shared/tables/EInvoiceListTable'
 import EInvoiceSummaryBar from '../shared/components/EInvoiceSummaryBar'
 import { useInvoiceFilters } from '@/hooks/useInvoiceFilters'
 import { useTableSortAndPagination } from '@/hooks/useTableSortAndPagination'
+import { sortTableData } from '@/utils/sortUtils'
 
 const EInvoiceOutgoing = () => {
   const invoiceData = useMemo(
@@ -165,6 +166,9 @@ const EInvoiceOutgoing = () => {
     10
   )
 
+  // Sıralanmış veriyi oluştur
+  const sortedInvoices = sortTableData(filteredInvoices, orderBy, order)
+
   return (
     <Stack spacing={2}>
       <EInvoiceSummaryBar
@@ -176,7 +180,7 @@ const EInvoiceOutgoing = () => {
         hidden={false}
       />
       <EInvoiceListTable
-        data={filteredInvoices}
+        data={sortedInvoices} // filteredInvoices yerine sortedInvoices
         order={order}
         orderBy={orderBy}
         onSort={handleSort}
@@ -184,7 +188,7 @@ const EInvoiceOutgoing = () => {
         setPage={setPage}
         rowsPerPage={rowsPerPage}
         setRowsPerPage={setRowsPerPage}
-        totalCount={filteredInvoices.length}
+        totalCount={sortedInvoices.length}
         draftFilters={draftFilters}
         setDraftFilters={setDraftFilters}
         onApplyFilters={handleApplyFilters}

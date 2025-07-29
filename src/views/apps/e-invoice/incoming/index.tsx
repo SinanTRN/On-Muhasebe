@@ -7,6 +7,7 @@ import EInvoiceListTable from '../shared/tables/EInvoiceListTable'
 import EInvoiceSummaryBar from '../shared/components/EInvoiceSummaryBar'
 import { useInvoiceFilters } from '@/hooks/useInvoiceFilters'
 import type { Invoice } from '../shared/tables/EInvoiceListTable'
+import { sortTableData } from '@/utils/sortUtils'
 
 const EInvoiceIncoming = () => {
   const invoiceData: Invoice[] = useMemo(
@@ -574,22 +575,7 @@ const EInvoiceIncoming = () => {
   }
 
   // Sıralama işlemi
-  const sortedInvoices = [...filteredInvoices].sort((a, b) => {
-    const aVal = a[orderBy]
-    const bVal = b[orderBy]
-
-    if (typeof aVal === 'number' && typeof bVal === 'number') {
-      return order === 'asc' ? aVal - bVal : bVal - aVal
-    }
-
-    const aStr = (aVal ?? '').toString().toLowerCase()
-    const bStr = (bVal ?? '').toString().toLowerCase()
-
-    if (aStr < bStr) return order === 'asc' ? -1 : 1
-    if (aStr > bStr) return order === 'asc' ? 1 : -1
-
-    return 0
-  })
+  const sortedInvoices = sortTableData(filteredInvoices, orderBy, order)
 
   return (
     <Stack spacing={2}>
