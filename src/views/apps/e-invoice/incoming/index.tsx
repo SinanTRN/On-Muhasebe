@@ -1,5 +1,5 @@
 'use client'
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 
 import { Stack } from '@mui/material'
 
@@ -545,6 +545,7 @@ const EInvoiceIncoming = () => {
     setEndDate(draftFilters.endDate)
     setInvoiceScriptFilter(draftFilters.invoiceScript)
     setStatusFilter(draftFilters.status)
+    setPage(0) // Filtre uygulandığında ilk sayfaya dön
   }
 
   // Temizle butonu hem draft'ı hem hook'u sıfırlar
@@ -557,13 +558,16 @@ const EInvoiceIncoming = () => {
     setInvoiceScriptFilter([])
     setStatusFilter([])
     setSearch('')
+    setPage(0) // Filtre temizlendiğinde ilk sayfaya dön
   }
+
+  // Filtre değişikliklerini izle ve sayfa sıfırla
+  useEffect(() => {
+    setPage(0)
+  }, [search, startDate, endDate, customer, referenceNo, period, summaryStatus, invoiceScriptFilter, statusFilter])
 
   // Tablo için: summaryStatus dahil tüm filtreler
   const filteredInvoices = invoiceData.filter(getFilterFn())
-
-  // SummaryBar için: Sadece dönem filtresi uygula, status filtreleme yapma
-  const summaryBarInvoices = invoiceData.filter(getFilterFnWithArgs('', period, false))
 
   // Sıralama fonksiyonu
   const handleSort = (property: keyof Invoice) => {
@@ -580,7 +584,7 @@ const EInvoiceIncoming = () => {
   return (
     <Stack spacing={2}>
       <EInvoiceSummaryBar
-        invoices={summaryBarInvoices}
+        invoices={filteredInvoices}
         selectedPeriod={period}
         onPeriodChange={setPeriod}
         selectedStatus={summaryStatus}

@@ -4,79 +4,35 @@ import { useTheme } from '@mui/material'
 
 import type { Invoice } from '../tables/EInvoiceListTable'
 
-// getStatusKey fonksiyonu kaldırıldı
-
 interface Props {
   invoices: Invoice[]
   selectedPeriod: string
   onPeriodChange: (val: string) => void
   selectedStatus: string
   onStatusChange: (val: string) => void
-  hidden?: boolean // yeni prop
+  hidden?: boolean
 }
 
 const EInvoiceSummaryBar: React.FC<Props> = ({
   invoices,
   selectedPeriod,
-  hidden = false // default değeri false
+  hidden = false
 }) => {
   const theme = useTheme()
 
-  if (hidden) return null // Eğer gizli ise hiç render etme
-  // Döneme göre filtrele
-  const now = new Date()
-  let filtered = invoices
+  if (hidden) return null
 
-  if (selectedPeriod === '1') {
-    const d = new Date(now)
+  // Gelen filtrelenmiş veriyi doğrudan kullan, ek filtreleme yapma
+  const filtered = invoices
 
-    d.setDate(now.getDate() - 1)
-    filtered = invoices.filter(inv => new Date(inv.receivedAt) >= d)
-  } else if (selectedPeriod === '7') {
-    const d = new Date(now)
-
-    d.setDate(now.getDate() - 7)
-    filtered = invoices.filter(inv => new Date(inv.receivedAt) >= d)
-  } else if (selectedPeriod === '30') {
-    const d = new Date(now)
-
-    d.setDate(now.getDate() - 30)
-    filtered = invoices.filter(inv => new Date(inv.receivedAt) >= d)
-  } else if (selectedPeriod === '60') {
-    const d = new Date(now)
-
-    d.setDate(now.getDate() - 60)
-    filtered = invoices.filter(inv => new Date(inv.receivedAt) >= d)
-  } else if (selectedPeriod === '90') {
-    const d = new Date(now)
-
-    d.setDate(now.getDate() - 90)
-    filtered = invoices.filter(inv => new Date(inv.receivedAt) >= d)
-  } else if (selectedPeriod === 'month') {
-    filtered = invoices.filter(inv => {
-      const date = new Date(inv.receivedAt)
-
-      return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear()
-    })
-  } else if (selectedPeriod === 'lastMonth') {
-    filtered = invoices.filter(inv => {
-      const date = new Date(inv.receivedAt)
-      const lastMonth = new Date(now)
-
-      lastMonth.setMonth(now.getMonth() - 1)
-
-      return date.getMonth() === lastMonth.getMonth() && date.getFullYear() === lastMonth.getFullYear()
-    })
-  }
-
-  // Her kutunun sayısını doğrudan filtreyle hesapla
+  // Her kutunun sayısını doğrudan filtrelenmiş veriden hesapla
   const yeniGelenCount = filtered.filter(inv => inv.status === 'Alındı').length
   const okunduCount = filtered.filter(inv => inv.read === true).length
   const kabulCount = filtered.filter(inv => inv.status === 'Kabul').length
   const yanitBekleyenCount = filtered.filter(inv => inv.status === 'Yanıt bekliyor').length
 
   const reddedilenCount = filtered.filter(
-    inv => inv.status.startsWith('Ret') || inv.status === 'Reddedildi' || inv.status === 'Kabul Başarısız'
+    inv => inv.status.startsWith('Ret') || inv.status === 'Reddedildi' || inv.status === 'Kabul Başarısız' || inv.status === 'Ret-Başarısız'
   ).length
 
   const statusBoxes = [
@@ -114,8 +70,6 @@ const EInvoiceSummaryBar: React.FC<Props> = ({
   return (
     <div
       className='flex flex-col md:flex-row items-center gap-4'
-
-      //style={{ background: theme.palette.background.paper }}
     >
       {/* Kutular */}
       <div className='grid grid-cols-1 md:grid-cols-5 gap-4 w-full'>
@@ -131,11 +85,6 @@ const EInvoiceSummaryBar: React.FC<Props> = ({
             {/* Sağ üstte ikon */}
             <div
               className='absolute top-5 right-5 rounded-[8px] w-[50px] h-[50px] flex items-center justify-center'
-              style={
-                {
-                  //background: 'rgb(240 239 240)'
-                }
-              }
             >
               <i className={` ${box.icon} text-3xl`} />
             </div>

@@ -58,7 +58,8 @@ export function useInvoiceFilters({ defaultPeriod = 'month' }: UseInvoiceFilters
     referenceNo ||
     receivedStart ||
     receivedEnd ||
-    typeFilter
+    typeFilter ||
+    summaryStatus // summaryStatus da bir filtre olarak kabul edilmeli
   )
 
   // Tüm statü seçenekleri burada tanımlı olmalı (gerekirse dışarıdan alınabilir)
@@ -76,42 +77,39 @@ export function useInvoiceFilters({ defaultPeriod = 'month' }: UseInvoiceFilters
       const now = new Date()
       let periodMatch = true
 
+      // Eğer herhangi bir filtre aktifse dönem filtresi devre dışı kalmalı
       if (!isAnyFilterActive) {
         if (period === '1') {
           const d = new Date(now)
-
           d.setDate(now.getDate() - 1)
           periodMatch = new Date(inv.receivedAt) >= d
         } else if (period === '7') {
           const d = new Date(now)
-
           d.setDate(now.getDate() - 7)
           periodMatch = new Date(inv.receivedAt) >= d
         } else if (period === '30') {
           const d = new Date(now)
-
           d.setDate(now.getDate() - 30)
           periodMatch = new Date(inv.receivedAt) >= d
         } else if (period === 'month') {
-          periodMatch = new Date(inv.receivedAt).getMonth() === now.getMonth()
+          periodMatch = new Date(inv.receivedAt).getMonth() === now.getMonth() && 
+                       new Date(inv.receivedAt).getFullYear() === now.getFullYear()
         } else if (period === 'lastMonth') {
           const date = new Date(inv.receivedAt)
           const lastMonth = new Date(now)
-
           lastMonth.setMonth(now.getMonth() - 1)
           periodMatch = date.getMonth() === lastMonth.getMonth() && date.getFullYear() === lastMonth.getFullYear()
         } else if (period === '60') {
           const d = new Date(now)
-
           d.setDate(now.getDate() - 60)
           periodMatch = new Date(inv.receivedAt) >= d
         } else if (period === '90') {
           const d = new Date(now)
-
           d.setDate(now.getDate() - 90)
           periodMatch = new Date(inv.receivedAt) >= d
         }
       } else {
+        // Herhangi bir filtre aktifse dönem filtresi devre dışı
         periodMatch = true
       }
 
@@ -128,7 +126,7 @@ export function useInvoiceFilters({ defaultPeriod = 'month' }: UseInvoiceFilters
           statusMatch =
             inv.status.startsWith('Ret') ||
             inv.status === 'Kabul Başarısız' ||
-            inv.status === 'Reddedildi' ||
+            inv.status === 'Ret-Başarısız' ||
             inv.status === 'REDDEDİLEN'
       } else if (statusFilter && statusFilter.length > 0 && statusFilter.length < allStatusOptions.length) {
         statusMatch = statusFilter.includes(inv.status)
