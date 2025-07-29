@@ -133,10 +133,31 @@ const EInvoiceOutgoing = () => {
 
   // Ara butonuna basınca draft'ı hook'a aktar
   const handleApplyFilters = () => {
+    // Eğer tarih alanları boşsa ve diğer filtreler seçiliyse, son 30 günü seç
+    let startDateToSet = draftFilters.startDate
+    let endDateToSet = draftFilters.endDate
+    
+    if (!draftFilters.startDate && !draftFilters.endDate && 
+        (draftFilters.status.length > 0 || draftFilters.invoiceScript.length > 0)) {
+      const endDate = new Date()
+      const startDate = new Date()
+      startDate.setDate(endDate.getDate() - 30)
+      
+      startDateToSet = startDate
+      endDateToSet = endDate
+      
+      // DraftFilters state'ini de güncelle ki kullanıcı tarih alanlarında görebilsin
+      setDraftFilters(prev => ({
+        ...prev,
+        startDate: startDate,
+        endDate: endDate
+      }))
+    }
+    
     setReferenceNo(draftFilters.referenceNo)
     setCustomer(draftFilters.customer)
-    setStartDate(draftFilters.startDate)
-    setEndDate(draftFilters.endDate)
+    setStartDate(startDateToSet)
+    setEndDate(endDateToSet)
     setInvoiceScriptFilter(draftFilters.invoiceScript)
     setStatusFilter(draftFilters.status)
     setPage(0) // Filtre uygulandığında ilk sayfaya dön
