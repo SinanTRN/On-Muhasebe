@@ -37,7 +37,7 @@ import { sampleCustomers } from '../../../../data/sampleCustomers'
 import type { Tbl } from '../../../../types/apps/cariTypes'
 import { fetchTCMBRate } from '@/utils/fetchTCMBRate'
 import { isTCMBRateCurrent } from '@/utils/isTCMBRateCurrent'
-  import { kdvTevkifatOrnekleri } from '@/views/apps/e-invoice/shared/examples/kdvWithholdingExamples'
+import { kdvTevkifatOrnekleri } from '@/views/apps/e-invoice/shared/examples/kdvWithholdingExamples'
 
 interface EInvoiceCardProps {
   includesVAT: boolean
