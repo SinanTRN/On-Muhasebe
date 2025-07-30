@@ -237,6 +237,31 @@ const EInvoiceCard = ({
     if (!checked) setDifferentCustomer('')
   }
 
+  // Fatura tipi değiştiğinde ilgili alanları temizleme
+  const handleInvoiceTypeChange = (newInvoiceType: string) => {
+    setCurrentInvoiceType(newInvoiceType)
+    
+    // Fatura tipi değiştiğinde ilgili alanları temizle
+    if (newInvoiceType !== 'TEVKIFAT') {
+      // Tevkifat tipi seçili değilse tevkifat bilgilerini temizle
+      setWithholdingTaxInfo({ type: '' })
+      if (setBulkWithholdingType) {
+        setBulkWithholdingType('')
+      }
+      setIsWithholdingTax(false)
+    }
+    
+    if (newInvoiceType !== 'ISTISNA') {
+      // İstisna tipi seçili değilse istisna bilgilerini temizle
+      setSelectedIstisna('')
+    }
+    
+    if (newInvoiceType !== 'IADE') {
+      // İade tipi seçili değilse iade bilgilerini temizle
+      setReturnInfoList([{ returnNo: '', returnDate: null }])
+    }
+  }
+
   useEffect(() => {
     if (onFormDataChange) {
       onFormDataChange({
@@ -368,7 +393,7 @@ const EInvoiceCard = ({
                     value={invoiceInfo.invoiceType}
                     onInputChange={(_, newValue) => {
                       setInvoiceInfo({ ...invoiceInfo, invoiceType: newValue })
-                      setCurrentInvoiceType(newValue)
+                      handleInvoiceTypeChange(newValue)
                     }}
                     renderInput={params => (
                       <TextField
