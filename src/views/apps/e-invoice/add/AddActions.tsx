@@ -2,8 +2,7 @@
 
 import { Card, CardContent, Button } from '@mui/material'
 import type { EInvoiceForm } from './EInvoiceForm.types'
-import { convertInvoiceFormToJson } from '@/utils/invoiceJsonConverter'
-import { convertInvoiceItemsFormToJson } from '@/utils/invoiceItemsJsonConverter'
+import { convertCompleteInvoiceToJson } from '@/utils/completeInvoiceJsonConverter'
 
 interface AddActionsProps {
   onPreview?: () => EInvoiceForm
@@ -19,8 +18,33 @@ const AddActions = ({ onPreview }: AddActionsProps) => {
     
     const formData = onPreview()
     
-    // Fatura bilgilerini JSON formatında dönüştür
-    const invoiceJsonData = convertInvoiceFormToJson(
+    // Tüm fatura verilerini tek bir JSON'a dönüştür
+    const completeInvoiceJson = convertCompleteInvoiceToJson(
+      // Cari bilgileri
+      formData.customer ? {
+        VN: formData.customer.id,
+        name: formData.customer.name,
+        taxNumber: formData.customer.taxNumber,
+        address: formData.customer.address,
+        email: formData.customer.email,
+        phone: formData.customer.phone,
+        country: formData.customer.country,
+        city: formData.customer.city,
+        district: formData.customer.district
+      } as any : null,
+      formData.differentCustomer ? {
+        VN: formData.differentCustomer.id,
+        name: formData.differentCustomer.name,
+        taxNumber: formData.differentCustomer.taxNumber,
+        address: formData.differentCustomer.address,
+        email: formData.differentCustomer.email,
+        phone: formData.differentCustomer.phone,
+        country: formData.differentCustomer.country,
+        city: formData.differentCustomer.city,
+        district: formData.differentCustomer.district
+      } as any : null,
+      
+      // Fatura bilgileri
       formData.invoiceInfo,
       formData.deliveryAndOrderInfo,
       formData.orderInfo,
@@ -35,26 +59,22 @@ const AddActions = ({ onPreview }: AddActionsProps) => {
       false, // dueDateAndPaymentMethod
       false, // deliveryAndOrder
       formData.differentCustomer ? true : false, // showDifferentCustomer
-      formData.bulkWithholdingType,
-      formData.selectedIstisna
-    )
-    
-    // Fatura kalemlerini JSON formatında dönüştür
-    const itemsJsonData = convertInvoiceItemsFormToJson(
+      formData.bulkWithholdingType || '',
+      formData.selectedIstisna || '',
+      
+      // Fatura kalemleri
       formData.items || [],
       formData.documentNote || '',
-      formData.currency || 'TRY',
-      formData.exchangeRate || '',
-      formData.includesVAT || false,
-      formData.invoiceInfo?.invoiceType || 'NORMAL',
-      formData.isWithholdingTax || false,
-      formData.bulkWithholdingType || '',
-      formData.activeDiscounts || [] // activeDiscounts bilgisini formData'dan al
+      formData.activeDiscounts || [],
+      
+      // Meta bilgileri
+      {
+        status: 'draft'
+      }
     )
     
     // TODO: Burada JSON verilerini backend'e gönderme işlemi yapılacak
-    console.log('Fatura JSON verileri hazırlandı:', invoiceJsonData)
-    console.log('Fatura Kalemleri JSON verileri hazırlandı:', itemsJsonData)
+    console.log('Tam Fatura JSON Verileri:', completeInvoiceJson)
   }
 
   // Önizleme fonksiyonu
