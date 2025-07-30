@@ -119,6 +119,7 @@ export interface EInvoiceForm {
   // EInvoiceItemsTable alanları
   items: InvoiceRow[]
   documentNote: string
+  activeDiscounts: string[]
 }
 
 // Başlangıç state'i için örnek
@@ -159,5 +160,6 @@ export const initialEInvoiceForm: EInvoiceForm = {
   bulkWithholdingType: '',
   selectedIstisna: '',
   items: [],
-  documentNote: ''
+  documentNote: '',
+  activeDiscounts: []
 }

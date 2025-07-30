@@ -3,6 +3,7 @@
 import { Card, CardContent, Button } from '@mui/material'
 import type { EInvoiceForm } from './EInvoiceForm.types'
 import { convertInvoiceFormToJson } from '@/utils/invoiceJsonConverter'
+import { convertInvoiceItemsFormToJson } from '@/utils/invoiceItemsJsonConverter'
 
 interface AddActionsProps {
   onPreview?: () => EInvoiceForm
@@ -18,8 +19,8 @@ const AddActions = ({ onPreview }: AddActionsProps) => {
     
     const formData = onPreview()
     
-    // JSON formatında dönüştür
-    const jsonData = convertInvoiceFormToJson(
+    // Fatura bilgilerini JSON formatında dönüştür
+    const invoiceJsonData = convertInvoiceFormToJson(
       formData.invoiceInfo,
       formData.deliveryAndOrderInfo,
       formData.orderInfo,
@@ -38,8 +39,22 @@ const AddActions = ({ onPreview }: AddActionsProps) => {
       formData.selectedIstisna
     )
     
+    // Fatura kalemlerini JSON formatında dönüştür
+    const itemsJsonData = convertInvoiceItemsFormToJson(
+      formData.items || [],
+      formData.documentNote || '',
+      formData.currency || 'TRY',
+      formData.exchangeRate || '',
+      formData.includesVAT || false,
+      formData.invoiceInfo?.invoiceType || 'NORMAL',
+      formData.isWithholdingTax || false,
+      formData.bulkWithholdingType || '',
+      formData.activeDiscounts || [] // activeDiscounts bilgisini formData'dan al
+    )
+    
     // TODO: Burada JSON verilerini backend'e gönderme işlemi yapılacak
-    console.log('Fatura JSON verileri hazırlandı:', jsonData)
+    console.log('Fatura JSON verileri hazırlandı:', invoiceJsonData)
+    console.log('Fatura Kalemleri JSON verileri hazırlandı:', itemsJsonData)
   }
 
   // Önizleme fonksiyonu

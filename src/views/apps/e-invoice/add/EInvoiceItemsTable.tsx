@@ -28,6 +28,7 @@ import { unitOptions } from '../shared/examples/UnitExamples'
 
 import { vatOptions } from '../shared/examples/VatExamples'
 import CustomSelectCell from '../shared/components/CustomSelectCell'
+import { convertInvoiceItemsFormToJson } from '@/utils/invoiceItemsJsonConverter'
 
 const unitOptionsForSelect = unitOptions.map(opt => ({ value: opt.value.toString(), label: opt.label }))
 const vatOptionsForSelect = vatOptions.map(opt => ({ value: opt.value.toString(), label: opt.label }))
@@ -117,6 +118,7 @@ interface InvoiceItemsTableProps {
   setItems?: (v: any[]) => void
   documentNote?: string
   setDocumentNote?: (v: string) => void
+  onFormDataChange?: (formData: any) => void
 }
 
 const InvoiceItemsTable = ({
@@ -130,7 +132,8 @@ const InvoiceItemsTable = ({
   items: propItems,
   setItems: propSetItems,
   documentNote: propDocumentNote,
-  setDocumentNote: propSetDocumentNote
+  setDocumentNote: propSetDocumentNote,
+  onFormDataChange
 }: InvoiceItemsTableProps) => {
   //State'ler
   const [rows, setRows] = useState<InvoiceRow[]>([{ ...defaultRow }])
@@ -508,6 +511,38 @@ const InvoiceItemsTable = ({
       return updated
     })
   }, [activeDiscounts, includesVAT, formatTurkishNumber])
+
+  // Form verileri değiştiğinde JSON dönüştürme yapıp parent'a gönderme
+  useEffect(() => {
+    if (onFormDataChange) {
+      const formData = {
+        documentNote,
+        items: rows.map(row => ({
+          stockCode: row.stockCode,
+          receiverStockCode: row.receiverStockCode,
+          stockName: row.stockName,
+          quantity: row.quantity,
+          unit: row.unit,
+          unitPrice: row.unitPrice,
+          vatRate: row.vatRate,
+          vatAmount: row.vatAmount,
+          total: row.total,
+          dovizAmount: row.dovizAmount,
+          description: row.description,
+          note: row.note,
+          tevkifatType: row.tevkifatType,
+          ozelMatrahType: row.ozelMatrahType,
+          discount1: row.discount1,
+          discount2: row.discount2,
+          discount3: row.discount3,
+          discount4: row.discount4,
+          netAmount: row.netAmount
+        })),
+        activeDiscounts
+      }
+      onFormDataChange(formData)
+    }
+  }, [rows, documentNote, activeDiscounts, onFormDataChange])
 
   return (
     <div className='p-4  rounded-md shadow-md' style={{ background: theme.palette.background.paper }}>

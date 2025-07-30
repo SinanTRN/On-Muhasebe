@@ -22,6 +22,9 @@ const AddInvoicePage = () => {
   // EInvoiceCard'dan gelen form verileri
   const [cardFormData, setCardFormData] = useState<any>(null)
 
+  // EInvoiceItemsTable'dan gelen form verileri
+  const [itemsTableFormData, setItemsTableFormData] = useState<any>(null)
+
   // EInvoiceItemsTable state'leri
   const [items, setItems] = useState<any[]>([])
   const [documentNote, setDocumentNote] = useState('')
@@ -66,7 +69,8 @@ const AddInvoicePage = () => {
         bulkWithholdingType: '',
         selectedIstisna: '',
         items: [],
-        documentNote: ''
+        documentNote: '',
+        activeDiscounts: []
       }
     }
 
@@ -106,8 +110,9 @@ const AddInvoicePage = () => {
       isWithholdingTax: cardFormData.isWithholdingTax,
       bulkWithholdingType: cardFormData.bulkWithholdingType,
       selectedIstisna: '',
-      items,
-      documentNote
+      items: itemsTableFormData?.items || items,
+      documentNote: itemsTableFormData?.documentNote || documentNote,
+      activeDiscounts: itemsTableFormData?.activeDiscounts || []
     }
   }
 
@@ -139,6 +144,7 @@ const AddInvoicePage = () => {
         setItems={setItems}
         documentNote={documentNote}
         setDocumentNote={setDocumentNote}
+        onFormDataChange={setItemsTableFormData}
       />
       <AddActions onPreview={getFormData} />
     </Stack>
