@@ -7,93 +7,10 @@ import EInvoiceListTable from '../shared/tables/EInvoiceListTable'
 import EInvoiceSummaryBar from '../shared/components/EInvoiceSummaryBar'
 import { useInvoiceFilters } from '@/hooks/useInvoiceFilters'
 import { useTableSortAndPagination } from '@/hooks/useTableSortAndPagination'
+import { getOutgoingInvoices } from '@/data/sampleInvoices'
 
 const EInvoiceOutgoing = () => {
-  const invoiceData = useMemo(
-    () => [
-      {
-        id: '20240001',
-        ettn: 'ETTN-1001',
-        status: 'Kabul',
-        vknTckn: '12345678901',
-        title: 'Çıkış Müşterisi',
-        nameSurname: 'Ahmet Çıkış',
-        type: 'E-Arşiv',
-        amount: 1500,
-        unit: 'TRY',
-        receivedAt: new Date().toISOString(),
-        response: 'Ulaştırıldı',
-        envelopeStatus: 'Başarılı',
-        read: true,
-        invoiceScript: 'TİCARİ'
-      },
-      {
-        id: '20240002',
-        ettn: 'ETTN-1002',
-        status: 'Ret',
-        vknTckn: '23456789012',
-        title: 'Beta Ltd. Şti.',
-        nameSurname: 'Mehmet Yılmaz',
-        type: 'E-Fatura',
-        amount: 2300,
-        unit: 'TRY',
-        receivedAt: new Date().toISOString(),
-        response: 'Reddedildi',
-        envelopeStatus: 'Başarısız',
-        read: false,
-        invoiceScript: 'TEMEL'
-      },
-      {
-        id: '20240003',
-        ettn: 'ETTN-1003',
-        status: 'Bekliyor',
-        vknTckn: '34567890123',
-        title: 'Gamma A.Ş.',
-        nameSurname: 'Ayşe Demir',
-        type: 'E-Arşiv',
-        amount: 750,
-        unit: 'TRY',
-        receivedAt: new Date().toISOString(),
-        response: 'Bekliyor',
-        envelopeStatus: 'İşleniyor',
-        read: false,
-        invoiceScript: 'KAMU'
-      },
-      {
-        id: '20240004',
-        ettn: 'ETTN-1004',
-        status: 'Kabul',
-        vknTckn: '45678901234',
-        title: 'Delta İnşaat',
-        nameSurname: 'Fatma Korkmaz',
-        type: 'E-Fatura',
-        amount: 5400,
-        unit: 'TRY',
-        receivedAt: new Date().toISOString(),
-        response: 'Ulaştırıldı',
-        envelopeStatus: 'Başarılı',
-        read: true,
-        invoiceScript: 'İHRACAT'
-      },
-      {
-        id: '20240005',
-        ettn: 'ETTN-1005',
-        status: 'İptal',
-        vknTckn: '56789012345',
-        title: 'Epsilon Tekstil',
-        nameSurname: 'Mustafa Kaya',
-        type: 'E-Arşiv',
-        amount: 1200,
-        unit: 'TRY',
-        receivedAt: new Date().toISOString(),
-        response: 'İptal Edildi',
-        envelopeStatus: 'Başarısız',
-        read: false,
-        invoiceScript: 'TEMEL'
-      }
-    ],
-    []
-  )
+  const invoiceData = useMemo(() => getOutgoingInvoices(), [])
 
   // useInvoiceFilters hook'unu kullan
   const {
@@ -182,7 +99,7 @@ const EInvoiceOutgoing = () => {
   const filteredInvoices = invoiceData.filter(getFilterFn())
 
   // Sıralama ve sayfalama
-  const { order, orderBy, page, setPage, rowsPerPage, setRowsPerPage, handleSort, sortedData } = useTableSortAndPagination(
+  const { order, orderBy, page, setPage, rowsPerPage, setRowsPerPage, handleSort, pagedData } = useTableSortAndPagination(
     filteredInvoices,
     'receivedAt',
     'desc',
@@ -198,7 +115,7 @@ const EInvoiceOutgoing = () => {
         hidden={false}
       />
       <EInvoiceListTable
-        data={sortedData}
+        data={pagedData}
         order={order}
         orderBy={orderBy}
         onSort={handleSort}
@@ -206,7 +123,7 @@ const EInvoiceOutgoing = () => {
         setPage={setPage}
         rowsPerPage={rowsPerPage}
         setRowsPerPage={setRowsPerPage}
-        totalCount={sortedData.length}
+        totalCount={filteredInvoices.length}
         draftFilters={draftFilters}
         setDraftFilters={setDraftFilters}
         onApplyFilters={handleApplyFilters}

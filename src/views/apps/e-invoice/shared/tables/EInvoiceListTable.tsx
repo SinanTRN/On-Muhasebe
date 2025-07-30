@@ -47,7 +47,8 @@ export type Invoice = {
   envelopeStatus: string // Fatura Zarf Durumu
   read: boolean // Okundu bilgisi
   ettn: string // ETTN numarası
-  invoiceScript: string // Fatura invoiceScriptsu (TEMEL, TİCARİ, KAMU, İHRACAT)
+  invoiceScript: string // Fatura senaryosu (TEMEL, TİCARİ, KAMU, İHRACAT)
+  direction: 'incoming' | 'outgoing' // Fatura yönü
 }
 
 type Props = {
@@ -118,6 +119,7 @@ const EInvoiceListTable = ({
   setPage,
   rowsPerPage,
   setRowsPerPage,
+  totalCount,
   draftFilters,
   setDraftFilters,
   onApplyFilters,
@@ -190,15 +192,16 @@ const EInvoiceListTable = ({
           .join(', ')
 
   // Filtre fonksiyonu parenttan gelmeli, burada sadece search uygulanacak
-  const filteredData = data
+  // const filteredData = data
 
-  const pagedData = filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+  // Sayfalama artık parent'tan geliyor, burada yapmıyoruz
+  // const pagedData = filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
 
   const isSelected = (id: string) => selected.indexOf(id) !== -1
 
   const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      const newSelected = pagedData.map(n => n.id)
+      const newSelected = data.map(n => n.id)
 
       setSelected(newSelected)
 
@@ -494,8 +497,8 @@ const EInvoiceListTable = ({
               {/*Tüm satırları seçmek için Checkbox */}
               <TableCell className='p-4 text-center align-center justify-center min-w-[10px]'>
                 <Checkbox
-                  indeterminate={selected.length > 0 && selected.length < pagedData.length}
-                  checked={pagedData.length > 0 && selected.length === pagedData.length}
+                  indeterminate={selected.length > 0 && selected.length < data.length}
+                  checked={data.length > 0 && selected.length === data.length}
                   onChange={handleSelectAllClick}
                   inputProps={{ 'aria-label': 'Tümünü seç' }}
                 />
@@ -650,7 +653,7 @@ const EInvoiceListTable = ({
             </TableRow>
           </TableHead>
           <TableBody>
-            {pagedData.map(row => (
+            {data.map(row => (
               <TableRow key={row.id} selected={isSelected(row.id)}>
                 {/* Satır seçimi için Checkbox */}
                 <TableCell className='p-4 text-center align-center justify-center min-w-[10px]'>
@@ -740,7 +743,7 @@ const EInvoiceListTable = ({
                 </TableCell>
               </TableRow>
             ))}
-            {pagedData.length === 0 && (
+            {data.length === 0 && (
               <TableRow>
                 <TableCell colSpan={15} align='center'>
                   Kayıt bulunamadı.
@@ -753,7 +756,7 @@ const EInvoiceListTable = ({
       <div className='flex flex-wrap items-center justify-end mt-2 gap-2'>
         <TablePagination
           component='div'
-          count={filteredData.length}
+          count={totalCount}
           page={page}
           onPageChange={(_, value) => setPage(value)}
           rowsPerPage={rowsPerPage}
@@ -770,7 +773,7 @@ const EInvoiceListTable = ({
           }}
         />
         <Pagination
-          count={Math.ceil(filteredData.length / rowsPerPage)}
+          count={Math.ceil(totalCount / rowsPerPage)}
           page={page + 1}
           onChange={(_, value) => setPage(value - 1)}
           color='primary'
