@@ -49,6 +49,7 @@ export function useTableSortAndPagination<T>(
     setRowsPerPage,
     handleSort,
     pagedData,
+    sortedData,
     totalCount: data.length
   }
 } 

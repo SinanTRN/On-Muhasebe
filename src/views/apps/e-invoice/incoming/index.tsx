@@ -6,8 +6,8 @@ import { Stack } from '@mui/material'
 import EInvoiceListTable from '../shared/tables/EInvoiceListTable'
 import EInvoiceSummaryBar from '../shared/components/EInvoiceSummaryBar'
 import { useInvoiceFilters } from '@/hooks/useInvoiceFilters'
+import { useTableSortAndPagination } from '@/hooks/useTableSortAndPagination'
 import type { Invoice } from '../shared/tables/EInvoiceListTable'
-import { sortTableData } from '@/utils/sortUtils'
 
 const EInvoiceIncoming = () => {
   const invoiceData: Invoice[] = useMemo(
@@ -519,11 +519,16 @@ const EInvoiceIncoming = () => {
     setStatusFilter
   } = useInvoiceFilters({ defaultPeriod: 'month' })
 
-  // Sıralama ve sayfalama state'leri
-  const [order, setOrder] = useState<'asc' | 'desc'>('desc')
-  const [orderBy, setOrderBy] = useState<keyof Invoice>('receivedAt')
-  const [page, setPage] = useState(0)
-  const [rowsPerPage, setRowsPerPage] = useState(10)
+  // Tablo için: summaryStatus dahil tüm filtreler
+  const filteredInvoices = invoiceData.filter(getFilterFn())
+
+  // Sıralama ve sayfalama hook'u
+  const { order, orderBy, page, setPage, rowsPerPage, setRowsPerPage, handleSort, sortedData } = useTableSortAndPagination(
+    filteredInvoices,
+    'receivedAt',
+    'desc',
+    10
+  )
 
   // Draft filtre state'i
   const [draftFilters, setDraftFilters] = useState({
@@ -585,20 +590,7 @@ const EInvoiceIncoming = () => {
     setPage(0)
   }, [search, startDate, endDate, customer, referenceNo, period, invoiceScriptFilter, statusFilter])
 
-  // Tablo için: summaryStatus dahil tüm filtreler
-  const filteredInvoices = invoiceData.filter(getFilterFn())
 
-  // Sıralama fonksiyonu
-  const handleSort = (property: keyof Invoice) => {
-    if (orderBy === property) setOrder(order === 'asc' ? 'desc' : 'asc')
-    else {
-      setOrder('asc')
-      setOrderBy(property)
-    }
-  }
-
-  // Sıralama işlemi
-  const sortedInvoices = sortTableData(filteredInvoices, orderBy, order)
 
   return (
     <Stack spacing={2}>
@@ -609,7 +601,7 @@ const EInvoiceIncoming = () => {
         hidden={false}
       />
       <EInvoiceListTable
-        data={sortedInvoices}
+        data={sortedData}
         order={order}
         orderBy={orderBy}
         onSort={handleSort}
@@ -617,7 +609,7 @@ const EInvoiceIncoming = () => {
         setPage={setPage}
         rowsPerPage={rowsPerPage}
         setRowsPerPage={setRowsPerPage}
-        totalCount={sortedInvoices.length}
+        totalCount={sortedData.length}
         draftFilters={draftFilters}
         setDraftFilters={setDraftFilters}
         onApplyFilters={handleApplyFilters}
