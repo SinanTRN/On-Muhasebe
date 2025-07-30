@@ -52,6 +52,7 @@ interface EInvoiceCardProps {
   setIsWithholdingTax: (v: boolean) => void
   bulkWithholdingType?: string
   setBulkWithholdingType?: (v: string) => void
+  onFormDataChange?: (formData: any) => void
 }
 
 const EInvoiceCard = ({
@@ -67,7 +68,8 @@ const EInvoiceCard = ({
   setIsWithholdingTax,
 
   //bulkWithholdingType,
-  setBulkWithholdingType
+  setBulkWithholdingType,
+  onFormDataChange
 }: EInvoiceCardProps) => {
   // State'ler
   const [selectedCustomer, setSelectedCustomer] = useState('')
@@ -234,6 +236,47 @@ const EInvoiceCard = ({
     setShowDifferentCustomer(checked)
     if (!checked) setDifferentCustomer('')
   }
+
+  useEffect(() => {
+    if (onFormDataChange) {
+      onFormDataChange({
+        selectedCustomer,
+        showDifferentCustomer,
+        differentCustomer,
+        dueDateAndPaymentMethod,
+        invoiceInfo,
+        deliveryAndOrderInfo,
+        orderInfo,
+        returnInfoList,
+        withholdingTaxInfo,
+        shipmentInfo,
+        paymentInfo,
+        includesVAT,
+        currentInvoiceType,
+        isWithholdingTax,
+        deliveryAndOrder,
+        bulkWithholdingType: withholdingTaxInfo.type
+      })
+    }
+  }, [
+    selectedCustomer,
+    showDifferentCustomer,
+    differentCustomer,
+    dueDateAndPaymentMethod,
+    invoiceInfo,
+    deliveryAndOrderInfo,
+    orderInfo,
+    returnInfoList,
+    withholdingTaxInfo,
+    shipmentInfo,
+    paymentInfo,
+    includesVAT,
+    currentInvoiceType,
+    isWithholdingTax,
+    deliveryAndOrder,
+    withholdingTaxInfo.type,
+    onFormDataChange
+  ])
 
   return (
     <Box className=' w-full '>

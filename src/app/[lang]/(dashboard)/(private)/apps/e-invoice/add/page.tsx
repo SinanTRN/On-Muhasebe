@@ -19,45 +19,8 @@ const AddInvoicePage = () => {
   const [isWithholdingTax, setIsWithholdingTax] = useState(false)
   const [bulkWithholdingType, setBulkWithholdingType] = useState('')
 
-  // EInvoiceCard state'leri
-  const [selectedCustomer, setSelectedCustomer] = useState('')
-  const [showDifferentCustomer, setShowDifferentCustomer] = useState(false)
-  const [differentCustomer, setDifferentCustomer] = useState('')
-  const [invoiceInfo, setInvoiceInfo] = useState({
-    documentNo: '',
-    description: '',
-    issueDate: new Date(),
-    shipmentDate: new Date(),
-    dueDate: new Date(),
-    branch: '',
-    scenario: 'TEMELFATURA',
-    invoiceType: 'NORMAL',
-    status: 'CLOSED',
-    isEInvoice: false
-  })
-  const [deliveryAndOrderInfo, setDeliveryAndOrderInfo] = useState({
-    orderNumber: '',
-    orderDate: null as Date | null,
-    deliveryNumber: '',
-    deliveryDate: null as Date | null
-  })
-  const [orderInfo, setOrderInfo] = useState({
-    site: '',
-    orderNo: '',
-    orderDate: null as Date | null
-  })
-  const [returnInfoList, setReturnInfoList] = useState([{ returnNo: '', returnDate: null as Date | null }])
-  const [withholdingTaxInfo, setWithholdingTaxInfo] = useState({ type: '' })
-  const [shipmentInfo, setShipmentInfo] = useState({
-    vknTckno: '',
-    title: '',
-    shipmentDate: null as Date | null
-  })
-  const [paymentInfo, setPaymentInfo] = useState({
-    method: 'KREDI/BANKA KARTI',
-    paymentDate: null as Date | null,
-    agent: ''
-  })
+  // EInvoiceCard'dan gelen form verileri
+  const [cardFormData, setCardFormData] = useState<any>(null)
 
   // EInvoiceItemsTable state'leri
   const [items, setItems] = useState<any[]>([])
@@ -65,9 +28,51 @@ const AddInvoicePage = () => {
 
   // Form verilerini toplamak için fonksiyon
   const getFormData = (): EInvoiceForm => {
+    if (!cardFormData) {
+      return {
+        customer: null,
+        differentCustomer: null,
+        invoiceInfo: {
+          documentNo: '',
+          description: '',
+          issueDate: new Date(),
+          shipmentDate: new Date(),
+          dueDate: new Date(),
+          branch: '',
+          scenario: 'TEMELFATURA',
+          invoiceType: 'NORMAL',
+          status: 'CLOSED',
+          isEInvoice: false
+        },
+        deliveryAndOrderInfo: {
+          orderNumber: '',
+          orderDate: null,
+          deliveryNumber: '',
+          deliveryDate: null
+        },
+        orderInfo: {
+          site: '',
+          orderNo: '',
+          orderDate: null
+        },
+        returnInfoList: [{ returnNo: '', returnDate: null }],
+        withholdingTaxInfo: { type: '' },
+        shipmentInfo: { vknTckno: '', title: '', shipmentDate: null },
+        paymentInfo: { method: 'KREDI/BANKA KARTI', paymentDate: null, agent: '' },
+        includesVAT: false,
+        currency: 'TRY',
+        exchangeRate: '',
+        isWithholdingTax: false,
+        bulkWithholdingType: '',
+        selectedIstisna: '',
+        items: [],
+        documentNote: ''
+      }
+    }
+
     return {
-      customer: selectedCustomer ? {
-        id: selectedCustomer,
+      customer: cardFormData.selectedCustomer ? {
+        id: cardFormData.selectedCustomer,
         name: 'Müşteri Adı', // Gerçek müşteri verilerini almak için
         taxNumber: '1234567890',
         address: 'Müşteri Adresi',
@@ -77,8 +82,8 @@ const AddInvoicePage = () => {
         city: 'İstanbul',
         district: 'Kadıköy'
       } : null,
-      differentCustomer: differentCustomer ? {
-        id: differentCustomer,
+      differentCustomer: cardFormData.differentCustomer ? {
+        id: cardFormData.differentCustomer,
         name: 'Farklı Müşteri Adı',
         taxNumber: '0987654321',
         address: 'Farklı Müşteri Adresi',
@@ -88,16 +93,19 @@ const AddInvoicePage = () => {
         city: 'Ankara',
         district: 'Çankaya'
       } : null,
-      invoiceInfo,
-      deliveryAndOrderInfo,
-      orderInfo,
-      returnInfoList,
-      withholdingTaxInfo,
-      shipmentInfo,
-      paymentInfo,
-      includesVAT,
-      currency,
-      exchangeRate,
+      invoiceInfo: cardFormData.invoiceInfo,
+      deliveryAndOrderInfo: cardFormData.deliveryAndOrderInfo,
+      orderInfo: cardFormData.orderInfo,
+      returnInfoList: cardFormData.returnInfoList,
+      withholdingTaxInfo: cardFormData.withholdingTaxInfo,
+      shipmentInfo: cardFormData.shipmentInfo,
+      paymentInfo: cardFormData.paymentInfo,
+      includesVAT: cardFormData.includesVAT,
+      currency: cardFormData.currency || currency,
+      exchangeRate: cardFormData.exchangeRate || exchangeRate,
+      isWithholdingTax: cardFormData.isWithholdingTax,
+      bulkWithholdingType: cardFormData.bulkWithholdingType,
+      selectedIstisna: '',
       items,
       documentNote
     }
@@ -116,29 +124,8 @@ const AddInvoicePage = () => {
         setCurrentInvoiceType={setCurrentInvoiceType}
         isWithholdingTax={isWithholdingTax}
         setIsWithholdingTax={setIsWithholdingTax}
-        bulkWithholdingType={bulkWithholdingType}
         setBulkWithholdingType={setBulkWithholdingType}
-        // Yeni prop'lar
-        selectedCustomer={selectedCustomer}
-        setSelectedCustomer={setSelectedCustomer}
-        showDifferentCustomer={showDifferentCustomer}
-        setShowDifferentCustomer={setShowDifferentCustomer}
-        differentCustomer={differentCustomer}
-        setDifferentCustomer={setDifferentCustomer}
-        invoiceInfo={invoiceInfo}
-        setInvoiceInfo={setInvoiceInfo}
-        deliveryAndOrderInfo={deliveryAndOrderInfo}
-        setDeliveryAndOrderInfo={setDeliveryAndOrderInfo}
-        orderInfo={orderInfo}
-        setOrderInfo={setOrderInfo}
-        returnInfoList={returnInfoList}
-        setReturnInfoList={setReturnInfoList}
-        withholdingTaxInfo={withholdingTaxInfo}
-        setWithholdingTaxInfo={setWithholdingTaxInfo}
-        shipmentInfo={shipmentInfo}
-        setShipmentInfo={setShipmentInfo}
-        paymentInfo={paymentInfo}
-        setPaymentInfo={setPaymentInfo}
+        onFormDataChange={setCardFormData}
       />
       <EInvoiceItemsTable
         includesVAT={includesVAT}

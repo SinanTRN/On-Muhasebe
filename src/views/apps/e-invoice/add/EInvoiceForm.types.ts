@@ -112,6 +112,9 @@ export interface EInvoiceForm {
   includesVAT: boolean
   currency: string
   exchangeRate: string
+  isWithholdingTax: boolean
+  bulkWithholdingType?: string
+  selectedIstisna?: string
 
   // EInvoiceItemsTable alanları
   items: InvoiceRow[]
@@ -152,6 +155,9 @@ export const initialEInvoiceForm: EInvoiceForm = {
   includesVAT: false,
   currency: 'TRY',
   exchangeRate: '',
+  isWithholdingTax: false,
+  bulkWithholdingType: '',
+  selectedIstisna: '',
   items: [],
   documentNote: ''
 }

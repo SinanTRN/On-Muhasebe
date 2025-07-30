@@ -94,7 +94,7 @@ export const convertTblArrayToJson = (tblArray: Tbl[]): CariJsonData[] => {
 // JSON formatından Tbl tipine dönüştürme
 export const convertJsonToTbl = (jsonData: CariJsonData): Tbl => {
   return {
-    IND: 0, // Bu değer genellikle veritabanı tarafından belirlenir
+    IND: 0, 
     CAR_TIP: jsonData.customerType,
     LOGO: jsonData.logo||null,
     CARI_KOD: jsonData.customerCode,
@@ -119,7 +119,7 @@ export const convertJsonToTbl = (jsonData: CariJsonData): Tbl => {
     VADE: jsonData.dueDate || 0,
     OK: jsonData.isActive,
     OT: jsonData.isPassive,
-    GK: false, // Bu değerler genellikle sistem tarafından belirlenir
+    GK: false, 
     GT: false,
     PASIF: jsonData.isPassive,
     SILINDI: jsonData.isDeleted

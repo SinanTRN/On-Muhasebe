@@ -2,12 +2,46 @@
 
 import { Card, CardContent, Button } from '@mui/material'
 import type { EInvoiceForm } from './EInvoiceForm.types'
+import { convertInvoiceFormToJson } from '@/utils/invoiceJsonConverter'
 
 interface AddActionsProps {
   onPreview?: () => EInvoiceForm
 }
 
 const AddActions = ({ onPreview }: AddActionsProps) => {
+  // Kaydet fonksiyonu
+  const handleSave = () => {
+    // Form verilerini al
+    if (!onPreview) {
+      return
+    }
+    
+    const formData = onPreview()
+    
+    // JSON formatında dönüştür
+    const jsonData = convertInvoiceFormToJson(
+      formData.invoiceInfo,
+      formData.deliveryAndOrderInfo,
+      formData.orderInfo,
+      formData.returnInfoList,
+      formData.withholdingTaxInfo,
+      formData.shipmentInfo,
+      formData.paymentInfo,
+      formData.currency,
+      formData.exchangeRate,
+      formData.includesVAT,
+      formData.isWithholdingTax,
+      false, // dueDateAndPaymentMethod
+      false, // deliveryAndOrder
+      formData.differentCustomer ? true : false, // showDifferentCustomer
+      formData.bulkWithholdingType,
+      formData.selectedIstisna
+    )
+    
+    // TODO: Burada JSON verilerini backend'e gönderme işlemi yapılacak
+    console.log('Fatura JSON verileri hazırlandı:', jsonData)
+  }
+
   // Önizleme fonksiyonu
   const handlePreview = () => {
     // Form verilerini al
@@ -204,6 +238,7 @@ const AddActions = ({ onPreview }: AddActionsProps) => {
           disableTouchRipple
           sx={{ transition: 'none', '&:hover': { backgroundColor: 'success.main' } }}
           className='max-width-[200px]'
+          onClick={handleSave}
         >
           Kaydet
         </Button>
