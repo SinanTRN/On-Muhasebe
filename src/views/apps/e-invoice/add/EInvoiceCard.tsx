@@ -129,7 +129,7 @@ const EInvoiceCard = ({
   const siteOptions = ['n11', 'hepsiburada', 'trendyol']
   const paymentOptions = ['KREDI/BANKA KARTI', 'EFT/HAVALE', 'KAPIDA ODEME', 'DİĞER']
 
-  const istisnaTurleri = [
+  const exceptionTypes = [
     { kod: '001', ad: 'Konaklama Diplomatik İstisna' },
     { kod: '101', ad: 'İhracat İstisnası' },
     { kod: '102', ad: 'Diplomatik İstisna' },
@@ -158,7 +158,7 @@ const EInvoiceCard = ({
     opt => opt.hizmet.toLowerCase().includes(kdvSearch.toLowerCase()) || opt.kod.toString().includes(kdvSearch)
   )
 
-  const filteredIstisnaList = istisnaTurleri.filter(
+  const filteredExceptionList = exceptionTypes.filter(
     opt => opt.kod.includes(istisnaSearch) || opt.ad.toLowerCase().includes(istisnaSearch.toLowerCase())
   )
 
@@ -1027,7 +1027,7 @@ const EInvoiceCard = ({
                         >
                           {selectedIstisna}
                         </span>
-                        -<span className='flex-1'>{istisnaTurleri.find(o => o.kod === selectedIstisna)?.ad || ''}</span>
+                        -<span className='flex-1'>{exceptionTypes.find(o => o.kod === selectedIstisna)?.ad || ''}</span>
                       </span>
                     ) : (
                       'İstisna Türü'
@@ -1058,8 +1058,8 @@ const EInvoiceCard = ({
                         />
                       </div>
                       <div className='overflow-y-auto flex-1'>
-                        {filteredIstisnaList.length > 0 ? (
-                          filteredIstisnaList.map(opt => (
+                        {filteredExceptionList.length > 0 ? (
+                          filteredExceptionList.map(opt => (
                             <MenuItem
                               key={opt.kod}
                               onClick={() => {
