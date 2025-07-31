@@ -28,7 +28,6 @@ import { unitOptions } from '../shared/examples/UnitExamples'
 
 import { vatOptions } from '../shared/examples/VatExamples'
 import CustomSelectCell from '../shared/components/CustomSelectCell'
-import { convertInvoiceItemsFormToJson } from '@/utils/invoiceItemsJsonConverter'
 
 const unitOptionsForSelect = unitOptions.map(opt => ({ value: opt.value.toString(), label: opt.label }))
 const vatOptionsForSelect = vatOptions.map(opt => ({ value: opt.value.toString(), label: opt.label }))
