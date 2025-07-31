@@ -5,6 +5,9 @@ import { convertInvoiceFormToJson, type InvoiceFormJson } from './invoiceJsonCon
 import { convertInvoiceItemsFormToJson, type InvoiceItemsFormJson } from './invoiceItemsJsonConverter'
 import type { Tbl } from '@/types/apps/cariTypes'
 
+// Fatura türü enum'u
+export type InvoiceType = 'incoming' | 'outgoing' | 'general'
+
 // Tam fatura JSON interface'i
 export interface CompleteInvoiceJson {
   // Cari bilgileri
@@ -17,6 +20,54 @@ export interface CompleteInvoiceJson {
   // Fatura kalemleri
   items: InvoiceItemsFormJson
   
+  // Fatura türü bilgileri (gelen/giden ayrımı için)
+  invoiceTypeInfo: {
+    type: InvoiceType
+    // Gelen fatura özel alanları
+    senderVknTckno?: string
+    senderName?: string
+    senderAddress?: string
+    senderEmail?: string
+    senderPhone?: string
+    receivedAt?: string
+    processingStatus?: 'pending' | 'processed' | 'error'
+    errorMessage?: string
+    originalXmlContent?: string
+    responseXmlContent?: string
+    isRead?: boolean
+    isArchived?: boolean
+    // Giden fatura özel alanları
+    recipientVknTckno?: string
+    recipientName?: string
+    recipientAddress?: string
+    recipientEmail?: string
+    recipientPhone?: string
+    sentAt?: string
+    deliveryStatus?: 'pending' | 'delivered' | 'failed' | 'cancelled'
+    deliveryAttempts?: number
+    lastDeliveryAttempt?: string
+    deliveryErrorMessage?: string
+    isConfirmed?: boolean
+    confirmationDate?: string
+    // Ortak alanlar
+    tags: string[]
+    notes: string
+  }
+  
+  // İşleme/Teslimat seçenekleri
+  processingOptions?: {
+    autoProcess?: boolean
+    autoArchive?: boolean
+    autoTag?: string[]
+  }
+  
+  deliveryOptions?: {
+    autoSend?: boolean
+    requireConfirmation?: boolean
+    retryAttempts?: number
+    retryInterval?: number // dakika
+  }
+  
   // Meta bilgileri
   metadata: {
     createdAt: string
@@ -25,7 +76,24 @@ export interface CompleteInvoiceJson {
     status: 'draft' | 'sent' | 'cancelled'
     userId?: string
     companyId?: string
+    invoiceType: InvoiceType
   }
+}
+
+// Fatura türünü belirleme fonksiyonu
+export const determineInvoiceType = (invoiceInfo: any): InvoiceType => {
+  // Gelen fatura kontrolü - senderVknTckno varsa gelen fatura
+  if (invoiceInfo.senderVknTckno || invoiceInfo.senderName) {
+    return 'incoming'
+  }
+  
+  // Giden fatura kontrolü - recipientVknTckno varsa giden fatura
+  if (invoiceInfo.recipientVknTckno || invoiceInfo.recipientName) {
+    return 'outgoing'
+  }
+  
+  // Varsayılan olarak genel fatura
+  return 'general'
 }
 
 // Tbl tipindeki müşteri verilerini CariJsonData'ya dönüştürme yardımcı fonksiyonu
@@ -64,6 +132,10 @@ export const convertCompleteInvoiceToJson = (
   documentNote: string,
   activeDiscounts: string[],
   
+  // İşleme/Teslimat seçenekleri
+  processingOptions?: any,
+  deliveryOptions?: any,
+  
   // Meta bilgileri
   metadata?: {
     userId?: string
@@ -72,6 +144,47 @@ export const convertCompleteInvoiceToJson = (
   }
 ): CompleteInvoiceJson => {
   const now = new Date().toISOString()
+  const invoiceType = determineInvoiceType(invoiceInfo)
+  
+  // Fatura türü bilgilerini hazırla
+  const invoiceTypeInfo: CompleteInvoiceJson['invoiceTypeInfo'] = {
+    type: invoiceType,
+    tags: invoiceInfo.tags || [],
+    notes: invoiceInfo.notes || ''
+  }
+  
+  // Gelen fatura özel alanları
+  if (invoiceType === 'incoming') {
+    invoiceTypeInfo.senderVknTckno = invoiceInfo.senderVknTckno || ''
+    invoiceTypeInfo.senderName = invoiceInfo.senderName || ''
+    invoiceTypeInfo.senderAddress = invoiceInfo.senderAddress || ''
+    invoiceTypeInfo.senderEmail = invoiceInfo.senderEmail || ''
+    invoiceTypeInfo.senderPhone = invoiceInfo.senderPhone || ''
+    invoiceTypeInfo.receivedAt = invoiceInfo.receivedAt ? new Date(invoiceInfo.receivedAt).toISOString() : now
+    invoiceTypeInfo.processingStatus = invoiceInfo.processingStatus || 'pending'
+    invoiceTypeInfo.errorMessage = invoiceInfo.errorMessage || ''
+    invoiceTypeInfo.originalXmlContent = invoiceInfo.originalXmlContent || ''
+    invoiceTypeInfo.responseXmlContent = invoiceInfo.responseXmlContent || ''
+    invoiceTypeInfo.isRead = invoiceInfo.isRead || false
+    invoiceTypeInfo.isArchived = invoiceInfo.isArchived || false
+  }
+  
+  // Giden fatura özel alanları
+  if (invoiceType === 'outgoing') {
+    invoiceTypeInfo.recipientVknTckno = invoiceInfo.recipientVknTckno || ''
+    invoiceTypeInfo.recipientName = invoiceInfo.recipientName || ''
+    invoiceTypeInfo.recipientAddress = invoiceInfo.recipientAddress || ''
+    invoiceTypeInfo.recipientEmail = invoiceInfo.recipientEmail || ''
+    invoiceTypeInfo.recipientPhone = invoiceInfo.recipientPhone || ''
+    invoiceTypeInfo.sentAt = invoiceInfo.sentAt ? new Date(invoiceInfo.sentAt).toISOString() : now
+    invoiceTypeInfo.deliveryStatus = invoiceInfo.deliveryStatus || 'pending'
+    invoiceTypeInfo.deliveryAttempts = invoiceInfo.deliveryAttempts || 0
+    invoiceTypeInfo.lastDeliveryAttempt = invoiceInfo.lastDeliveryAttempt ? new Date(invoiceInfo.lastDeliveryAttempt).toISOString() : undefined
+    invoiceTypeInfo.deliveryErrorMessage = invoiceInfo.deliveryErrorMessage || ''
+    invoiceTypeInfo.isConfirmed = invoiceInfo.isConfirmed || false
+    invoiceTypeInfo.confirmationDate = invoiceInfo.confirmationDate ? new Date(invoiceInfo.confirmationDate).toISOString() : undefined
+    invoiceTypeInfo.isArchived = invoiceInfo.isArchived || false
+  }
   
   return {
     // Cari bilgileri
@@ -111,6 +224,24 @@ export const convertCompleteInvoiceToJson = (
       activeDiscounts
     ),
     
+    // Fatura türü bilgileri
+    invoiceTypeInfo,
+    
+    // İşleme seçenekleri (gelen fatura için)
+    processingOptions: invoiceType === 'incoming' ? {
+      autoProcess: processingOptions?.autoProcess || false,
+      autoArchive: processingOptions?.autoArchive || false,
+      autoTag: processingOptions?.autoTag || []
+    } : undefined,
+    
+    // Teslimat seçenekleri (giden fatura için)
+    deliveryOptions: invoiceType === 'outgoing' ? {
+      autoSend: deliveryOptions?.autoSend || false,
+      requireConfirmation: deliveryOptions?.requireConfirmation || true,
+      retryAttempts: deliveryOptions?.retryAttempts || 3,
+      retryInterval: deliveryOptions?.retryInterval || 5
+    } : undefined,
+    
     // Meta bilgileri
     metadata: {
       createdAt: now,
@@ -118,7 +249,8 @@ export const convertCompleteInvoiceToJson = (
       version: '1.0.0',
       status: metadata?.status || 'draft',
       userId: metadata?.userId,
-      companyId: metadata?.companyId
+      companyId: metadata?.companyId,
+      invoiceType
     }
   }
 }
@@ -247,11 +379,17 @@ export const getInitialCompleteInvoiceJson = (): CompleteInvoiceJson => {
       },
       documentNote: ''
     },
+    invoiceTypeInfo: {
+      type: 'general',
+      tags: [],
+      notes: ''
+    },
     metadata: {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       version: '1.0.0',
-      status: 'draft'
+      status: 'draft',
+      invoiceType: 'general'
     }
   }
 }
@@ -288,4 +426,19 @@ export const updateInvoiceMetadata = (
       updatedAt: new Date().toISOString()
     }
   }
+}
+
+// Gelen fatura kontrolü
+export const isIncomingInvoice = (invoiceJson: CompleteInvoiceJson): boolean => {
+  return invoiceJson.metadata.invoiceType === 'incoming'
+}
+
+// Giden fatura kontrolü
+export const isOutgoingInvoice = (invoiceJson: CompleteInvoiceJson): boolean => {
+  return invoiceJson.metadata.invoiceType === 'outgoing'
+}
+
+// Genel fatura kontrolü
+export const isGeneralInvoice = (invoiceJson: CompleteInvoiceJson): boolean => {
+  return invoiceJson.metadata.invoiceType === 'general'
 } 
