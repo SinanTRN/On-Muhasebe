@@ -230,9 +230,9 @@ const AddActions = ({ onPreview }: AddActionsProps) => {
 
   return (
     <Card className='flex flex-row  rounded-md shadow-md'>
-      <CardContent className='flex flex-col gap-2 sm:flex-row'>
+      <CardContent className='flex flex-1 flex-col gap-2 sm:flex-row'>
         <Button
-          fullWidth
+          
           variant='contained'
           color='primary'
           startIcon={<i className='ri-send-plane-line' />}
@@ -241,13 +241,13 @@ const AddActions = ({ onPreview }: AddActionsProps) => {
           disableFocusRipple
           disableTouchRipple
           sx={{ '&:hover': { backgroundColor: 'primary.main' }, transition: 'none' }}
-          className='max-width-[200px]'
+          className='min-w-[200px] max-w-[300px]'
         >
           Fatura Gönder
         </Button>
 
         <Button
-          fullWidth
+          
           variant='outlined'
           color='secondary'
           startIcon={<i className='ri-eye-line' />}
@@ -256,14 +256,14 @@ const AddActions = ({ onPreview }: AddActionsProps) => {
           disableFocusRipple
           disableTouchRipple
           sx={{ transition: 'none', '&:hover': { backgroundColor: 'transparent' } }}
-          className='max-width-[200px]'
+          className='min-w-[200px] max-w-[300px]'
           onClick={handlePreview}
         >
           Önizleme
         </Button>
 
         <Button
-          fullWidth
+          
           variant='contained'
           color='success'
           startIcon={<i className='ri-save-line' />}
@@ -272,7 +272,7 @@ const AddActions = ({ onPreview }: AddActionsProps) => {
           disableFocusRipple
           disableTouchRipple
           sx={{ transition: 'none', '&:hover': { backgroundColor: 'success.main' } }}
-          className='max-width-[200px]'
+          className='min-w-[200px] max-w-[300px]'
           onClick={handleSave}
         >
           Kaydet
